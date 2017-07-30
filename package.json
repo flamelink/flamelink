@@ -1,0 +1,27 @@
+{
+  "name": "flamelink",
+  "version": "0.0.1",
+  "description": "Javascript SDK for integrating with Flamelink CMS",
+  "main": "index.js",
+  "scripts": {
+    "build": "webpack",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+ssh://git@bitbucket.org/responsivestudio/flamelink-sdk.git"
+  },
+  "keywords": ["firebase", "flamelink", "sdk", "javascript", "real-time", "database", "cms", "caas", "web"],
+  "author": "JP Erasmus <jperasmus11@gmail.com>",
+  "license": "ISC",
+  "homepage": "https://bitbucket.org/responsivestudio/flamelink-sdk#readme",
+  "devDependencies": {
+    "babel-core": "^6.25.0",
+    "babel-loader": "^7.1.1",
+    "babel-preset-env": "^1.6.0",
+    "webpack": "^3.4.1"
+  },
+  "dependencies": {
+    "firebase": "^4.2.0"
+  }
+}

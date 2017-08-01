@@ -1,11 +1,18 @@
 import * as firebase from 'firebase';
 import pkg from '../package.json';
 
+const DEFAULT_CONFIG = {
+  env: 'production',
+  lang: 'en-US'
+};
+
 let fb_ = null;
 let lang_ = '';
 let env_ = '';
 
-function flamelink(config = {}) {
+function flamelink(conf = {}) {
+  const config = Object.assign({}, DEFAULT_CONFIG, conf);
+
   if (config.firebaseApp) {
     fb_ = config.firebaseApp;
   } else if (!fb_) {

@@ -5,23 +5,13 @@
   "main": "index.js",
   "scripts": {
     "build": "webpack --config ./config/webpack.config.js",
-    "test": "jest"
+    "test": "jest --coverage"
   },
   "repository": {
     "type": "git",
     "url": "git+ssh://git@bitbucket.org/responsivestudio/flamelink-sdk.git"
   },
-  "keywords": [
-    "firebase",
-    "flamelink",
-    "sdk",
-    "javascript",
-    "real-time",
-    "database",
-    "cms",
-    "caas",
-    "web"
-  ],
+  "keywords": ["firebase", "flamelink", "sdk", "javascript", "real-time", "database", "cms", "caas", "web"],
   "author": "JP Erasmus <jperasmus11@gmail.com>",
   "license": "ISC",
   "homepage": "https://bitbucket.org/responsivestudio/flamelink-sdk#readme",

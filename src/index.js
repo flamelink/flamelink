@@ -1,3 +1,4 @@
+import './polyfills';
 import * as firebase from 'firebase';
 
 const DEFAULT_CONFIG = {

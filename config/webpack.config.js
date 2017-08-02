@@ -1,4 +1,6 @@
 const path = require('path');
+const webpack = require('webpack');
+const pkg = require('../package.json');
 
 module.exports = {
   entry: './src/index.js',
@@ -32,5 +34,11 @@ module.exports = {
         }
       }
     ]
-  }
+  },
+
+  plugins: [
+    new webpack.DefinePlugin({
+      __PACKAGE_VERSION__: JSON.stringify(pkg.version)
+    })
+  ]
 };

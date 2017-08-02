@@ -1,5 +1,4 @@
 import * as firebase from 'firebase';
-import pkg from '../package.json';
 
 const DEFAULT_CONFIG = {
   env: 'production',
@@ -130,6 +129,6 @@ function flamelink(conf = {}) {
   };
 }
 
-flamelink.VERSION = pkg.version;
+flamelink.VERSION = __PACKAGE_VERSION__;
 
 export default flamelink;

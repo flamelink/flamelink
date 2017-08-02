@@ -165,9 +165,21 @@ function flamelink(conf = {}) {
         return this.ref(ref).off();
       },
 
-      set() {},
+      set(ref, payload) {
+        return this.ref(ref).set(payload);
+      },
 
-      remove() {}
+      update(ref, payload) {
+        return this.ref(ref).update(payload);
+      },
+
+      remove(ref) {
+        return this.ref(ref).remove();
+      },
+
+      transaction(ref, cb) {
+        return this.ref(ref).transaction(cb);
+      }
     },
 
     nav: {

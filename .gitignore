@@ -53,3 +53,5 @@ typings/
 
 # Distribution directory
 dist
+
+current-db.json

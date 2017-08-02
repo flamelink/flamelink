@@ -115,8 +115,38 @@ function flamelink(conf = {}) {
             .catch(reject);
         });
       },
-      on() {},
-      off() {},
+
+      /**
+       * Establish stream to read value consistently from db, returning the raw snapshot
+       *
+       * @param {String} ref
+       * @param {Object} [options={}]
+       * @returns {Promise} Resolves to snapshot of query
+       */
+      onRaw(ref, options = {}) {
+        const ref_ = this.ref(ref);
+        const ordered = applyOrderBy(ref_, options);
+        const filtered = applyFilters(ordered, options);
+
+        return filtered.on('value');
+      },
+
+      on(ref, options = {}) {},
+
+      /**
+       * Detach listeners from given reference. By default, it will detach listeners for `value` event.
+       *
+       * @param {String} ref
+       * @param {String} [event='value']
+       * @returns {Promise}
+       */
+      off(ref, event = 'value') {
+        if (!!event) {
+          return this.ref(ref).off(event);
+        }
+        return this.ref(ref).off();
+      },
+
       set() {},
 
       remove() {}

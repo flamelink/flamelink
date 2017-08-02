@@ -109,9 +109,8 @@ function flamelink(conf = {}) {
         return new Promise((resolve, reject) => {
           this.getRaw(ref, options)
             .then(snapshot => {
-              const value = snapshot.val();
-              console.log(value);
-              resolve(value);
+              // TODO: put any additional massaging or cleaning up of the data we want to expose here
+              resolve(snapshot.val());
             })
             .catch(reject);
         });
@@ -119,8 +118,10 @@ function flamelink(conf = {}) {
       on() {},
       off() {},
       set() {},
+
       remove() {}
     },
+
     nav: {
       get() {},
       on() {},

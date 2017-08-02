@@ -4,8 +4,19 @@ module.exports = {
   entry: './src/index.js',
 
   output: {
+    path: path.resolve(__dirname, '..', 'dist'),
     filename: 'flamelink.js',
-    path: path.resolve(__dirname, '..', 'dist')
+    library: 'flamelink',
+    libraryTarget: 'umd'
+  },
+
+  externals: {
+    firebase: {
+      commonjs: 'firebase',
+      commonjs2: 'firebase',
+      amd: 'firebase',
+      root: 'firebase'
+    }
   },
 
   module: {

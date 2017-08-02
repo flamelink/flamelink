@@ -63,15 +63,18 @@ function flamelink(conf = {}) {
   // Public API
   return {
     firebaseApp: firebaseApp_,
+
     setLanguage(lang = lang_) {
       lang_ = lang;
     },
+
     setEnv(env = env_) {
       env_ = env;
     },
+
     content: {
       /**
-       * Establish and return a reference in firebase db
+       * Establish and return a reference to section in firebase db
        *
        * @param {String} ref
        * @returns {Object} Ref object
@@ -89,12 +92,10 @@ function flamelink(conf = {}) {
        */
       getRaw(ref, options = {}) {
         const ref_ = this.ref(ref);
+        const ordered = applyOrderBy(ref_, options);
+        const filtered = applyFilters(ordered, options);
 
-        return new Promise((resolve, reject) => {
-          const ordered = applyOrderBy(ref_, options);
-          const filtered = applyFilters(ordered, options);
-          filtered.once('value').then(resolve).catch(reject);
-        });
+        return filtered.once('value');
       },
 
       /**

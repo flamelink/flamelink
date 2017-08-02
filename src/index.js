@@ -60,7 +60,7 @@ function flamelink(conf = {}) {
     }, ref);
   };
 
-  // Expose public API
+  // Public API
   return {
     firebaseApp: firebaseApp_,
     setLanguage(lang = lang_) {
@@ -77,7 +77,7 @@ function flamelink(conf = {}) {
        * @returns {Object} Ref object
        */
       ref(ref) {
-        return firebaseApp_.database().ref(`content${ref ? `/${ref}` : ''}`);
+        return firebaseApp_.database().ref(`${env_ ? `/${env_}` : ''}content${ref ? `/${ref}` : ''}${lang_ ? `/${lang_}` : ''}`);
       },
 
       /**

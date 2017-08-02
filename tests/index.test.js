@@ -1,6 +1,13 @@
 import flamelink from '../src/index';
 import pkg from '../package.json';
 
+const basicConfig = {
+  apiKey: 'AIzaSyAxlh-gBxcRkQWbxC0L10S5Qo3Su6xRs8E',
+  authDomain: 'fir-editor.firebaseapp.com',
+  databaseURL: 'https://fir-editor.firebaseio.com',
+  storageBucket: 'fir-editor.appspot.com'
+};
+
 const fakeFirebaseApp = {
   firebase_: {
     __esModule: true,
@@ -18,12 +25,7 @@ const fakeFirebaseApp = {
   isDeleted_: false,
   services_: { auth: {} },
   name_: '[DEFAULT]',
-  options_: {
-    apiKey: 'AIzaSyAxlh-gBxcRkQWbxC0L10S5Qo3Su6xRs8E',
-    authDomain: 'fir-editor.firebaseapp.com',
-    databaseURL: 'https://fir-editor.firebaseio.com',
-    storageBucket: 'fir-editor.appspot.com'
-  },
+  options_: basicConfig,
   INTERNAL: {
     getUid: () => {},
     getToken: () => {},
@@ -46,14 +48,7 @@ describe('Flamelink SDK', () => {
   });
 
   test('should expose the `firebaseApp` instance if passed in via config', () => {
-    expect(
-      flamelink({
-        apiKey: 'AIzaSyAxlh-gBxcRkQWbxC0L10S5Qo3Su6xRs8E',
-        authDomain: 'fir-editor.firebaseapp.com',
-        databaseURL: 'https://fir-editor.firebaseio.com',
-        storageBucket: 'fir-editor.appspot.com'
-      })
-    ).toBeTruthy();
+    expect(flamelink(basicConfig)).toBeTruthy();
     expect(flamelink({ firebaseApp: fakeFirebaseApp }).firebaseApp).toBe(fakeFirebaseApp);
   });
 
@@ -66,50 +61,54 @@ describe('Flamelink SDK', () => {
   });
 
   describe('Content', () => {
-    test('should expose a "getRaw" method', () => {
-      expect(flamelink().content.hasOwnProperty('getRaw')).toBe(true);
+    test('should expose a "ref" method', () => {
+      expect(flamelink(basicConfig).content.hasOwnProperty('ref')).toBe(true);
+    });
+
+    test('should expose a "getRaw" method', done => {
+      expect(flamelink(basicConfig).content.hasOwnProperty('getRaw')).toBe(true);
     });
 
     test('should expose a "get" method', () => {
-      expect(flamelink().content.hasOwnProperty('get')).toBe(true);
+      expect(flamelink(basicConfig).content.hasOwnProperty('get')).toBe(true);
     });
 
     test('should expose a "set" method', () => {
-      expect(flamelink().content.hasOwnProperty('set')).toBe(true);
+      expect(flamelink(basicConfig).content.hasOwnProperty('set')).toBe(true);
     });
 
-    test('should expose a "on" method', () => {
-      expect(flamelink().content.hasOwnProperty('on')).toBe(true);
+    test('should expose an "on" method', () => {
+      expect(flamelink(basicConfig).content.hasOwnProperty('on')).toBe(true);
     });
 
-    test('should expose a "off" method', () => {
-      expect(flamelink().content.hasOwnProperty('off')).toBe(true);
+    test('should expose an "off" method', () => {
+      expect(flamelink(basicConfig).content.hasOwnProperty('off')).toBe(true);
     });
 
     test('should expose a "remove" method', () => {
-      expect(flamelink().content.hasOwnProperty('remove')).toBe(true);
+      expect(flamelink(basicConfig).content.hasOwnProperty('remove')).toBe(true);
     });
   });
 
   describe('Navigation', () => {
     test('should expose a "get" method', () => {
-      expect(flamelink().nav.hasOwnProperty('get')).toBe(true);
+      expect(flamelink(basicConfig).nav.hasOwnProperty('get')).toBe(true);
     });
 
     test('should expose a "set" method', () => {
-      expect(flamelink().nav.hasOwnProperty('set')).toBe(true);
+      expect(flamelink(basicConfig).nav.hasOwnProperty('set')).toBe(true);
     });
 
-    test('should expose a "on" method', () => {
-      expect(flamelink().nav.hasOwnProperty('on')).toBe(true);
+    test('should expose an "on" method', () => {
+      expect(flamelink(basicConfig).nav.hasOwnProperty('on')).toBe(true);
     });
 
-    test('should expose a "off" method', () => {
-      expect(flamelink().nav.hasOwnProperty('off')).toBe(true);
+    test('should expose an "off" method', () => {
+      expect(flamelink(basicConfig).nav.hasOwnProperty('off')).toBe(true);
     });
 
     test('should expose a "remove" method', () => {
-      expect(flamelink().nav.hasOwnProperty('remove')).toBe(true);
+      expect(flamelink(basicConfig).nav.hasOwnProperty('remove')).toBe(true);
     });
   });
 });

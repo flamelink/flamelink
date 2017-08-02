@@ -6,32 +6,63 @@ const DEFAULT_CONFIG = {
   lang: 'en-US'
 };
 
-let fb_ = null;
-let lang_ = '';
-let env_ = '';
+let firebaseApp_ = null;
 
 function flamelink(conf = {}) {
   const config = Object.assign({}, DEFAULT_CONFIG, conf);
 
+  // Set flamelink specific properties
+  let env_ = config.env;
+  let lang_ = config.lang;
+
+  // Init firebaseApp if not set of provided
   if (config.firebaseApp) {
-    fb_ = config.firebaseApp;
-  } else if (!fb_) {
+    firebaseApp_ = config.firebaseApp;
+  } else if (!firebaseApp_) {
     const { apiKey, authDomain, databaseURL, storageBucket } = config;
 
     if (!apiKey || !authDomain || !databaseURL) {
       throw new Error('[FLAMELINK] The following config properties are mandatory: "apiKey", "authDomain", "databaseURL"');
     }
 
-    fb_ = firebase.initializeApp({
-      apiKey: 'AIzaSyAxlh-gBxcRkQWbxC0L10S5Qo3Su6xRs8E',
-      authDomain: 'fir-editor.firebaseapp.com',
-      databaseURL: 'https://fir-editor.firebaseio.com',
-      storageBucket: 'fir-editor.appspot.com'
+    firebaseApp_ = firebase.initializeApp({
+      apiKey,
+      authDomain,
+      databaseURL,
+      storageBucket
     });
   }
 
+  const applyOrderBy = (ref, opt) => {
+    switch ((opt.orderBy || '').toUpperCase()) {
+      case 'CHILD':
+        return ref.orderByChild(opt.orderByValue);
+
+      case 'VALUE':
+        return ref.orderByValue();
+
+      case 'KEY':
+        return ref.orderByKey();
+
+      default:
+        return ref;
+    }
+  };
+
+  const applyFilters = (ref, opt) => {
+    if (!opt.filters) {
+      return ref;
+    }
+
+    return Object.keys(opt.filters).reduce((newRef, filter) => {
+      newRef = newRef[filter](opt.filters[filter]);
+      return newRef;
+    }, ref);
+  };
+
+  // Expose public API
   return {
-    firebaseApp: fb_,
+    firebaseApp: firebaseApp_,
     setLanguage(lang = lang_) {
       lang_ = lang;
     },
@@ -40,6 +71,16 @@ function flamelink(conf = {}) {
     },
     content: {
       /**
+       * Establish and return a reference in firebase db
+       *
+       * @param {String} ref
+       * @returns {Object} Ref object
+       */
+      ref(ref) {
+        return firebaseApp_.database().ref(`content${ref ? `/${ref}` : ''}`);
+      },
+
+      /**
        * Read value once from db and return raw snapshot
        *
        * @param {String} ref
@@ -47,30 +88,12 @@ function flamelink(conf = {}) {
        * @returns {Promise} Resolves to snapshot of query
        */
       getRaw(ref, options = {}) {
-        let orderBy;
-        switch ((options.orderBy || '').toUpperCase()) {
-          case 'CHILD':
-            orderBy = 'orderByChild';
-            break;
-
-          case 'VALUE':
-            orderBy = 'orderByValue';
-            break;
-
-          case 'KEY':
-          default:
-            orderBy = 'orderByKey';
-        }
+        const ref_ = this.ref(ref);
 
         return new Promise((resolve, reject) => {
-          fb_
-            .database()
-            .ref(`content${ref ? `/${ref}` : ''}`)
-            // [orderBy]()
-            // .equalTo('1')
-            .once('value')
-            .then(resolve)
-            .catch(reject);
+          const ordered = applyOrderBy(ref_, options);
+          const filtered = applyFilters(ordered, options);
+          filtered.once('value').then(resolve).catch(reject);
         });
       },
 
@@ -82,28 +105,8 @@ function flamelink(conf = {}) {
        * @returns {Promise} Resolves to value of query
        */
       get(ref, options = {}) {
-        let orderBy;
-        switch ((options.orderBy || '').toUpperCase()) {
-          case 'CHILD':
-            orderBy = 'orderByChild';
-            break;
-
-          case 'VALUE':
-            orderBy = 'orderByValue';
-            break;
-
-          case 'KEY':
-          default:
-            orderBy = 'orderByKey';
-        }
-
         return new Promise((resolve, reject) => {
-          fb_
-            .database()
-            .ref(`content${ref ? `/${ref}` : ''}`)
-            // [orderBy]()
-            // .equalTo('1')
-            .once('value')
+          this.getRaw(ref, options)
             .then(snapshot => {
               const value = snapshot.val();
               console.log(value);

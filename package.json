@@ -2,7 +2,7 @@
   "name": "flamelink",
   "version": "0.0.1",
   "description": "Javascript SDK for integrating with Flamelink CMS",
-  "main": "index.js",
+  "main": "dist/flamelink.js",
   "scripts": {
     "build": "webpack --config ./config/webpack.config.js",
     "package": "webpack -p --config ./config/webpack.config.js",
@@ -16,11 +16,21 @@
     "node": ">=6",
     "npm": ">=3"
   },
-  "keywords": ["firebase", "flamelink", "sdk", "javascript", "real-time", "database", "cms", "caas", "web", "node"],
+  "keywords": [
+    "firebase",
+    "flamelink",
+    "sdk",
+    "javascript",
+    "real-time",
+    "database",
+    "cms",
+    "caas",
+    "web",
+    "node"
+  ],
   "author": "Flamelink <info@flamelink.io>",
   "license": "ISC",
   "homepage": "https://bitbucket.org/responsivestudio/flamelink-sdk#readme",
-  "main": "dist/flamelink.js",
   "module": "src/index.js",
   "devDependencies": {
     "babel-core": "^6.25.0",

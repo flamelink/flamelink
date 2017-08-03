@@ -1,6 +1,8 @@
 import flamelink from '../src/index';
 import pkg from '../package.json';
 
+jest.mock('firebase');
+
 const basicConfig = {
   apiKey: 'AIzaSyAxlh-gBxcRkQWbxC0L10S5Qo3Su6xRs8E',
   authDomain: 'fir-editor.firebaseapp.com',
@@ -53,11 +55,11 @@ describe('Flamelink SDK', () => {
   });
 
   test('should expose a "setLanguage" method', () => {
-    expect(flamelink().hasOwnProperty('setLanguage')).toBe(true);
+    expect(flamelink(basicConfig).hasOwnProperty('setLanguage')).toBe(true);
   });
 
   test('should expose a "setEnv" method', () => {
-    expect(flamelink().hasOwnProperty('setEnv')).toBe(true);
+    expect(flamelink(basicConfig).hasOwnProperty('setEnv')).toBe(true);
   });
 
   describe('Content', () => {

@@ -65,7 +65,7 @@ describe('Flamelink SDK', () => {
       expect(flamelink(basicConfig).content.hasOwnProperty('ref')).toBe(true);
     });
 
-    test('should expose a "getRaw" method', done => {
+    test('should expose a "getRaw" method', () => {
       expect(flamelink(basicConfig).content.hasOwnProperty('getRaw')).toBe(true);
     });
 

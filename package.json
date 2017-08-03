@@ -46,6 +46,34 @@
     "verbose": true,
     "transform": {
       "^.+\\.js$": "babel-jest"
+    },
+    "globals": {
+      "__PACKAGE_VERSION__": "0.0.2"
+    }
+  },
+  "babel": {
+    "presets": [
+      [
+        "env",
+        {
+          "targets": {
+            "browsers": [
+              "last 2 versions",
+              "safari >= 8",
+              "ie >= 9"
+            ]
+          },
+          "modules": false,
+          "loose": true
+        }
+      ]
+    ],
+    "env": {
+      "test": {
+        "plugins": [
+          "transform-es2015-modules-commonjs"
+        ]
+      }
     }
   }
 }

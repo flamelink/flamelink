@@ -10,7 +10,8 @@ jobs:
       - checkout
 
       - restore_cache:
-        key: flamelink-{{ checksum "package.json" }}
+        keys:
+          - flamelink-{{ checksum "package.json" }}
 
       - run:
           name: Install Dependencies

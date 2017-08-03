@@ -23,6 +23,8 @@ jobs:
             - ~/flamelink/node_modules
 
       - run:
+          environment:
+            BABEL_ENV: "test"
           name: Unit Test
           command: npm test
 

@@ -12,6 +12,10 @@
     "type": "git",
     "url": "git+ssh://git@bitbucket.org/responsivestudio/flamelink-sdk.git"
   },
+  "engines": {
+    "node": ">=6",
+    "npm": ">=3"
+  },
   "keywords": ["firebase", "flamelink", "sdk", "javascript", "real-time", "database", "cms", "caas", "web", "node"],
   "author": "Flamelink <info@flamelink.io>",
   "license": "ISC",

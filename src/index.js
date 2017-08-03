@@ -165,20 +165,50 @@ function flamelink(conf = {}) {
         return this.ref(ref).off();
       },
 
+      /**
+       * Save data for a specific reference.
+       * This overwrites data at the specified location, including any child nodes.
+       *
+       * @param {String} ref
+       * @param {Object} payload
+       * @returns {Promise}
+       */
       set(ref, payload) {
         return this.ref(ref).set(payload);
       },
 
+      /**
+       * Simultaneously write to specific children of a node without overwriting other child nodes.
+       *
+       * @param {String} ref
+       * @param {Object} payload
+       * @returns {Promise}
+       */
       update(ref, payload) {
         return this.ref(ref).update(payload);
       },
 
+      /**
+       * The simplest way to delete data for a given reference.
+       *
+       * @param {String} ref
+       * @returns {Promise}
+       */
       remove(ref) {
         return this.ref(ref).remove();
       },
 
-      transaction(ref, cb) {
-        return this.ref(ref).transaction(cb);
+      /**
+       * Transactional operation
+       * https://firebase.google.com/docs/reference/js/firebase.database.Reference#transaction
+       *
+       * @param {any} ref
+       * @param {any} updateFn
+       * @param {any} [cb=() => {}]
+       * @returns
+       */
+      transaction(ref, updateFn, cb = () => {}) {
+        return this.ref(ref).transaction(updateFn, cb);
       }
     },
 

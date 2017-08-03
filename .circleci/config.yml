@@ -10,17 +10,17 @@ jobs:
       - checkout
 
       - restore_cache:
-        keys:
-          - flamelink-{{ checksum "package.json" }}
+          keys:
+            - flamelink-{{ checksum "package.json" }}
 
       - run:
           name: Install Dependencies
           command: npm install
 
       - save_cache:
-        key: flamelink-{{ checksum "package.json" }}
-        paths:
-          - ~/flamelink/node_modules
+          key: flamelink-{{ checksum "package.json" }}
+          paths:
+            - ~/flamelink/node_modules
 
       - run:
           name: Unit Test

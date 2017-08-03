@@ -1,0 +1,20 @@
+version: 2
+jobs:
+  build:
+    docker:
+      - image: node:7.4.0
+    working_directory: ~/flamelink
+    steps:
+      - checkout
+      - run:
+          name: Pre-Dependencies
+          command: mkdir ~/flamelink/artifacts
+      - run:
+          name: Install Dependencies
+          command: yarn
+      - run:
+          name: Unit Test
+          command: yarn test
+      - store_artifacts:
+          path: ~/flamelink/artifacts
+      - add_ssh_keys

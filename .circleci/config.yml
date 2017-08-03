@@ -27,6 +27,3 @@ jobs:
             BABEL_ENV: "test"
           name: Unit Test
           command: npm test
-
-      - store_test_results:
-          path: /tmp/test-reports

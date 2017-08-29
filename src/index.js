@@ -60,6 +60,8 @@ function flamelink(conf = {}) {
     }, ref);
   };
 
+  const getContentRefPath = (ref) => `${env_ ? `/environments/${env_}` : ''}content${ref ? `/${ref}` : ''}${lang_ ? `/${lang_}` : ''}`
+
   // Public API
   return {
     firebaseApp: firebaseApp_,
@@ -80,7 +82,7 @@ function flamelink(conf = {}) {
        * @returns {Object} Ref object
        */
       ref(ref) {
-        return firebaseApp_.database().ref(`${env_ ? `/${env_}` : ''}content${ref ? `/${ref}` : ''}${lang_ ? `/${lang_}` : ''}`);
+        return firebaseApp_.database().ref(getContentRefPath(ref));
       },
 
       /**

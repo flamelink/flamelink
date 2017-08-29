@@ -64,53 +64,77 @@ describe('Flamelink SDK', () => {
 
   describe('Content', () => {
     test('should expose a "ref" method', () => {
-      expect(flamelink(basicConfig).content.hasOwnProperty('ref')).toBe(true);
+      expect(flamelink(basicConfig).content.ref).toEqual(expect.any(Function));
     });
 
     test('should expose a "getRaw" method', () => {
-      expect(flamelink(basicConfig).content.hasOwnProperty('getRaw')).toBe(true);
+      expect(flamelink(basicConfig).content.getRaw).toEqual(expect.any(Function));
     });
 
     test('should expose a "get" method', () => {
-      expect(flamelink(basicConfig).content.hasOwnProperty('get')).toBe(true);
+      expect(flamelink(basicConfig).content.get).toEqual(expect.any(Function));
     });
 
     test('should expose a "set" method', () => {
-      expect(flamelink(basicConfig).content.hasOwnProperty('set')).toBe(true);
+      expect(flamelink(basicConfig).content.set).toEqual(expect.any(Function));
     });
 
     test('should expose an "on" method', () => {
-      expect(flamelink(basicConfig).content.hasOwnProperty('on')).toBe(true);
+      expect(flamelink(basicConfig).content.on).toEqual(expect.any(Function));
     });
 
     test('should expose an "off" method', () => {
-      expect(flamelink(basicConfig).content.hasOwnProperty('off')).toBe(true);
+      expect(flamelink(basicConfig).content.off).toEqual(expect.any(Function));
     });
 
     test('should expose a "remove" method', () => {
-      expect(flamelink(basicConfig).content.hasOwnProperty('remove')).toBe(true);
+      expect(flamelink(basicConfig).content.remove).toEqual(expect.any(Function));
+    });
+
+    test('should expose an "update" method', () => {
+      expect(flamelink(basicConfig).content.update).toEqual(expect.any(Function));
+    });
+
+    test('should expose a "transaction" method', () => {
+      expect(flamelink(basicConfig).content.transaction).toEqual(expect.any(Function));
     });
   });
 
   describe('Navigation', () => {
+    test('should expose a "ref" method', () => {
+      expect(flamelink(basicConfig).nav.ref).toEqual(expect.any(Function));
+    });
+
+    test('should expose a "getRaw" method', () => {
+      expect(flamelink(basicConfig).nav.getRaw).toEqual(expect.any(Function));
+    });
+
     test('should expose a "get" method', () => {
-      expect(flamelink(basicConfig).nav.hasOwnProperty('get')).toBe(true);
+      expect(flamelink(basicConfig).nav.get).toEqual(expect.any(Function));
     });
 
     test('should expose a "set" method', () => {
-      expect(flamelink(basicConfig).nav.hasOwnProperty('set')).toBe(true);
+      expect(flamelink(basicConfig).nav.set).toEqual(expect.any(Function));
     });
 
     test('should expose an "on" method', () => {
-      expect(flamelink(basicConfig).nav.hasOwnProperty('on')).toBe(true);
+      expect(flamelink(basicConfig).nav.on).toEqual(expect.any(Function));
     });
 
     test('should expose an "off" method', () => {
-      expect(flamelink(basicConfig).nav.hasOwnProperty('off')).toBe(true);
+      expect(flamelink(basicConfig).nav.off).toEqual(expect.any(Function));
     });
 
     test('should expose a "remove" method', () => {
-      expect(flamelink(basicConfig).nav.hasOwnProperty('remove')).toBe(true);
+      expect(flamelink(basicConfig).nav.remove).toEqual(expect.any(Function));
+    });
+
+    test('should expose an "update" method', () => {
+      expect(flamelink(basicConfig).nav.update).toEqual(expect.any(Function));
+    });
+
+    test('should expose a "transaction" method', () => {
+      expect(flamelink(basicConfig).nav.transaction).toEqual(expect.any(Function));
     });
   });
 });

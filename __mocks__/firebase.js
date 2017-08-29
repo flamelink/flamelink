@@ -13,6 +13,4 @@ firebase.initializeApp = jest.fn(payload => ({
   }))
 }));
 
-// console.log({ firebase });
-
 module.exports = firebase;

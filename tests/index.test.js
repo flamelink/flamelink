@@ -22,7 +22,7 @@ const fakeFirebaseApp = {
     default: {},
     auth: {},
     User: {},
-    database: {}
+    database: () => {}
   },
   isDeleted_: false,
   services_: { auth: {} },
@@ -54,12 +54,37 @@ describe('Flamelink SDK', () => {
     expect(flamelink({ firebaseApp: fakeFirebaseApp }).firebaseApp).toBe(fakeFirebaseApp);
   });
 
-  test('should expose a "setLanguage" method', () => {
-    expect(flamelink(basicConfig).hasOwnProperty('setLanguage')).toBe(true);
+  describe('"setLocale"', () => {
+    test('should be exposed on app instance', () => {
+      expect(flamelink(basicConfig).hasOwnProperty('setLocale')).toBe(true);
+    });
+
+    test('should throw an error if called with an unsupported Locale', () => {
+      expect.assertions(1);
+
+      const app = flamelink(basicConfig);
+      const testLang = 'randomstring';
+
+      return expect(app.setLocale(testLang)).rejects.toMatch(`[FLAMELINK] "${testLang}" is not a supported locale. Supported Locales: en-US`);
+    });
   });
 
-  test('should expose a "setEnv" method', () => {
-    expect(flamelink(basicConfig).hasOwnProperty('setEnv')).toBe(true);
+  test('should expose a "getLocale" method', () => {
+    const app = flamelink(basicConfig);
+    expect(app.hasOwnProperty('getLocale')).toBe(true);
+    expect(app.getLocale()).toEqual('en-US');
+  });
+
+  describe('"setEnv"', () => {
+    test('should expose a "setEnv" method', () => {
+      expect(flamelink(basicConfig).hasOwnProperty('setEnv')).toBe(true);
+    });
+  });
+
+  test('should expose a "getEnv" method', () => {
+    const app = flamelink(basicConfig);
+    expect(app.hasOwnProperty('getEnv')).toBe(true);
+    expect(app.getEnv()).toEqual('production');
   });
 
   describe('Content', () => {

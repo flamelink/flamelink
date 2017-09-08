@@ -3,17 +3,18 @@ import * as firebase from 'firebase';
 
 const DEFAULT_CONFIG = {
   env: 'production',
-  lang: 'en-US'
+  locale: 'en-US'
 };
 
 let firebaseApp_ = null;
+let db_ = null;
 
 function flamelink(conf = {}) {
   const config = Object.assign({}, DEFAULT_CONFIG, conf);
 
   // Set flamelink specific properties
   let env_ = config.env;
-  let lang_ = config.lang;
+  let locale_ = config.locale;
 
   // Init firebaseApp if not set of provided
   if (config.firebaseApp) {
@@ -32,6 +33,8 @@ function flamelink(conf = {}) {
       storageBucket
     });
   }
+
+  db_ = db_ || firebaseApp_.database();
 
   const applyOrderBy = (ref, opt) => {
     switch ((opt.orderBy || '').toUpperCase()) {
@@ -60,19 +63,48 @@ function flamelink(conf = {}) {
     }, ref);
   };
 
-  const getContentRefPath = ref => `${env_ ? `/environments/${env_}` : ''}content${ref ? `/${ref}` : ''}${lang_ ? `/${lang_}` : ''}`;
-  const getNavigationRefPath = ref => `${env_ ? `/environments/${env_}` : ''}navigation${ref ? `/${ref}` : ''}${lang_ ? `/${lang_}` : ''}`;
+  const getContentRefPath = ref => `${env_ ? `/environments/${env_}` : ''}content${ref ? `/${ref}` : ''}${locale_ ? `/${locale_}` : ''}`;
+  const getNavigationRefPath = ref => `${env_ ? `/environments/${env_}` : ''}navigation${ref ? `/${ref}` : ''}${locale_ ? `/${locale_}` : ''}`;
 
   // Public API
   return {
     firebaseApp: firebaseApp_,
 
-    setLanguage(lang = lang_) {
-      lang_ = lang;
+    setLocale(locale = locale_) {
+      return new Promise((resolve, reject) => {
+        db_
+          .ref('/settings/locales')
+          .once('value')
+          .then(snapshot => {
+            let supportedLocales_ = snapshot.val();
+
+            if (!supportedLocales_) {
+              return reject(`[FLAMELINK] No supported locales found.`);
+            }
+
+            if (!supportedLocales_.includes(locale)) {
+              return reject(`[FLAMELINK] "${locale}" is not a supported locale. Supported Locales: ${supportedLocales_.join(', ')}`);
+            }
+
+            locale_ = locale;
+
+            resolve(locale_);
+          })
+          .catch(reject);
+      });
     },
 
     setEnv(env = env_) {
       env_ = env;
+      return env_;
+    },
+
+    getLocale() {
+      return locale_;
+    },
+
+    getEnv() {
+      return env_;
     },
 
     content: {
@@ -83,7 +115,7 @@ function flamelink(conf = {}) {
        * @returns {Object} Ref object
        */
       ref(ref) {
-        return firebaseApp_.database().ref(getContentRefPath(ref));
+        return db_.ref(getContentRefPath(ref));
       },
 
       /**
@@ -223,7 +255,7 @@ function flamelink(conf = {}) {
        * @returns {Object} Ref object
        */
       ref(ref) {
-        return firebaseApp_.database().ref(getNavigationRefPath(ref));
+        return db_.ref(getNavigationRefPath(ref));
       },
 
       /**

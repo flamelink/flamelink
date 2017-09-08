@@ -21,6 +21,5 @@ firebase.initializeApp = jest.fn(payload => ({
     }))
   }))
 }));
-firebase.trillie = 'hos';
 
 module.exports = firebase;

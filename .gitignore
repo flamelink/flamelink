@@ -55,3 +55,6 @@ typings/
 dist
 
 current-db.json
+
+# Local testing files
+.shamefile.js

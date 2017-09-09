@@ -178,8 +178,7 @@ function flamelink(conf = {}) {
           options = {};
         }
 
-        const ref_ = this.ref(ref);
-        const ordered = applyOrderBy(ref_, options);
+        const ordered = applyOrderBy(this.ref(ref), options);
         const filtered = applyFilters(ordered, options);
 
         return filtered.on('value', cb);
@@ -194,20 +193,25 @@ function flamelink(conf = {}) {
        * @returns {Promise} Resolves to value of query
        */
       on(ref, options = {}, cb) {
+        if (!cb) {
+          cb = options;
+          options = {};
+        }
+
         return this.onRaw(ref, options, snapshot => {
           cb(snapshot.val());
         });
       },
 
       /**
-       * Detach listeners from given reference. By default, it will detach listeners for `value` event.
+       * Detach listeners from given reference.
        *
        * @param {String} ref
-       * @param {String} [event='value']
+       * @param {String} event
        * @returns {Promise}
        */
-      off(ref, event = 'value') {
-        if (!!event) {
+      off(ref, event) {
+        if (event) {
           return this.ref(ref).off(event);
         }
         return this.ref(ref).off();
@@ -318,8 +322,7 @@ function flamelink(conf = {}) {
           options = {};
         }
 
-        const ref_ = this.ref(ref);
-        const ordered = applyOrderBy(ref_, options);
+        const ordered = applyOrderBy(this.ref(ref), options);
         const filtered = applyFilters(ordered, options);
 
         return filtered.on('value', cb);
@@ -334,20 +337,25 @@ function flamelink(conf = {}) {
        * @returns {Promise} Resolves to value of query
        */
       on(ref, options = {}, cb) {
+        if (!cb) {
+          cb = options;
+          options = {};
+        }
+
         return this.onRaw(ref, options, snapshot => {
           cb(snapshot.val());
         });
       },
 
       /**
-       * Detach listeners from given reference. By default, it will detach listeners for `value` event.
+       * Detach listeners from given reference.
        *
        * @param {String} ref
-       * @param {String} [event='value']
+       * @param {String} event
        * @returns {Promise}
        */
-      off(ref, event = 'value') {
-        if (!!event) {
+      off(ref, event) {
+        if (event) {
           return this.ref(ref).off(event);
         }
         return this.ref(ref).off();

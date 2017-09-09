@@ -43,10 +43,6 @@ describe('Flamelink SDK', () => {
   });
 
   describe('"setLocale"', () => {
-    test('should be exposed on app instance', () => {
-      expect(flamelink(basicConfig).hasOwnProperty('setLocale')).toBe(true);
-    });
-
     test('should resolve with the given locale if called with a supported locale', () => {
       expect.assertions(1);
 
@@ -80,10 +76,6 @@ describe('Flamelink SDK', () => {
   });
 
   describe('"setEnv"', () => {
-    test('should be exposed on app instance', () => {
-      expect(flamelink(basicConfig).hasOwnProperty('setEnv')).toBe(true);
-    });
-
     test('should resolve with the given environment if called with a supported environment', () => {
       expect.assertions(1);
 
@@ -126,31 +118,60 @@ describe('Flamelink SDK', () => {
     });
 
     test('should expose a "get" method', () => {
-      expect(flamelink(basicConfig).content.get).toEqual(expect.any(Function));
+      const ref = 'get-ref';
+      return expect(flamelink(basicConfig).content.get(ref, {})).resolves.toEqual({ key: 'value' });
     });
 
     test('should expose a "set" method', () => {
-      expect(flamelink(basicConfig).content.set).toEqual(expect.any(Function));
+      const payload = { key: 'value' };
+      expect(flamelink(basicConfig).content.set('ref', payload)).toEqual(`"set" called with payload: "${JSON.stringify(payload)}"`);
+    });
+
+    test('should expose a "onRaw" method', () => {
+      const cb = jest.fn();
+      flamelink(basicConfig).content.onRaw('ref', {}, cb);
+      expect(cb.mock.calls.length).toEqual(1);
+      expect(cb.mock.calls[0][0].val()).toEqual(`"on" called with event: "value"`);
+      flamelink(basicConfig).content.onRaw('ref', cb);
+      expect(cb.mock.calls.length).toEqual(2);
+      expect(cb.mock.calls[0][0].val()).toEqual(`"on" called with event: "value"`);
     });
 
     test('should expose an "on" method', () => {
-      expect(flamelink(basicConfig).content.on).toEqual(expect.any(Function));
+      const cb = jest.fn();
+      flamelink(basicConfig).content.on('ref', {}, cb);
+      expect(cb.mock.calls.length).toEqual(1);
+      expect(cb.mock.calls[0][0]).toEqual(`"on" called with event: "value"`);
+      flamelink(basicConfig).content.on('ref', cb);
+      expect(cb.mock.calls.length).toEqual(2);
+      expect(cb.mock.calls[0][0]).toEqual(`"on" called with event: "value"`);
     });
 
     test('should expose an "off" method', () => {
-      expect(flamelink(basicConfig).content.off).toEqual(expect.any(Function));
+      const event = 'something';
+      expect(flamelink(basicConfig).content.off('ref', event)).toEqual(`"off" called with event: "${event}"`);
+      expect(flamelink(basicConfig).content.off('ref')).toEqual(`"off" called with event: "undefined"`);
     });
 
     test('should expose a "remove" method', () => {
-      expect(flamelink(basicConfig).content.remove).toEqual(expect.any(Function));
+      const ref = 'choccie';
+      expect(flamelink(basicConfig).content.remove(ref)).toEqual(`"remove" called for "/environments/production/content/${ref}/en-US"`);
     });
 
     test('should expose an "update" method', () => {
-      expect(flamelink(basicConfig).content.update).toEqual(expect.any(Function));
+      const payload = { key: 'value' };
+      expect(flamelink(basicConfig).content.update('ref', payload)).toEqual(`"update" called with payload: "${JSON.stringify(payload)}"`);
     });
 
     test('should expose a "transaction" method', () => {
-      expect(flamelink(basicConfig).content.transaction).toEqual(expect.any(Function));
+      const updateFn = jest.fn();
+      const completeFn = jest.fn();
+      flamelink(basicConfig).content.transaction('ref', updateFn, completeFn);
+      expect(updateFn.mock.calls.length).toEqual(1);
+      expect(completeFn.mock.calls.length).toEqual(1);
+      flamelink(basicConfig).content.transaction('ref', updateFn);
+      expect(updateFn.mock.calls.length).toEqual(2);
+      expect(completeFn.mock.calls.length).toEqual(1);
     });
   });
 
@@ -164,31 +185,60 @@ describe('Flamelink SDK', () => {
     });
 
     test('should expose a "get" method', () => {
-      expect(flamelink(basicConfig).nav.get).toEqual(expect.any(Function));
+      const ref = 'get-ref';
+      return expect(flamelink(basicConfig).nav.get(ref, {})).resolves.toEqual({ key: 'value' });
     });
 
     test('should expose a "set" method', () => {
-      expect(flamelink(basicConfig).nav.set).toEqual(expect.any(Function));
+      const payload = { key: 'value' };
+      expect(flamelink(basicConfig).nav.set('ref', payload)).toEqual(`"set" called with payload: "${JSON.stringify(payload)}"`);
+    });
+
+    test('should expose a "onRaw" method', () => {
+      const cb = jest.fn();
+      flamelink(basicConfig).nav.onRaw('ref', {}, cb);
+      expect(cb.mock.calls.length).toEqual(1);
+      expect(cb.mock.calls[0][0].val()).toEqual(`"on" called with event: "value"`);
+      flamelink(basicConfig).nav.onRaw('ref', cb);
+      expect(cb.mock.calls.length).toEqual(2);
+      expect(cb.mock.calls[0][0].val()).toEqual(`"on" called with event: "value"`);
     });
 
     test('should expose an "on" method', () => {
-      expect(flamelink(basicConfig).nav.on).toEqual(expect.any(Function));
+      const cb = jest.fn();
+      flamelink(basicConfig).nav.on('ref', {}, cb);
+      expect(cb.mock.calls.length).toEqual(1);
+      expect(cb.mock.calls[0][0]).toEqual(`"on" called with event: "value"`);
+      flamelink(basicConfig).nav.on('ref', cb);
+      expect(cb.mock.calls.length).toEqual(2);
+      expect(cb.mock.calls[0][0]).toEqual(`"on" called with event: "value"`);
     });
 
     test('should expose an "off" method', () => {
-      expect(flamelink(basicConfig).nav.off).toEqual(expect.any(Function));
+      const event = 'something';
+      expect(flamelink(basicConfig).nav.off('ref', event)).toEqual(`"off" called with event: "${event}"`);
+      expect(flamelink(basicConfig).nav.off('ref')).toEqual(`"off" called with event: "undefined"`);
     });
 
     test('should expose a "remove" method', () => {
-      expect(flamelink(basicConfig).nav.remove).toEqual(expect.any(Function));
+      const ref = 'choccie';
+      expect(flamelink(basicConfig).nav.remove(ref)).toEqual(`"remove" called for "/environments/production/navigation/${ref}/en-US"`);
     });
 
     test('should expose an "update" method', () => {
-      expect(flamelink(basicConfig).nav.update).toEqual(expect.any(Function));
+      const payload = { key: 'value' };
+      expect(flamelink(basicConfig).nav.update('ref', payload)).toEqual(`"update" called with payload: "${JSON.stringify(payload)}"`);
     });
 
     test('should expose a "transaction" method', () => {
-      expect(flamelink(basicConfig).nav.transaction).toEqual(expect.any(Function));
+      const updateFn = jest.fn();
+      const completeFn = jest.fn();
+      flamelink(basicConfig).nav.transaction('ref', updateFn, completeFn);
+      expect(updateFn.mock.calls.length).toEqual(1);
+      expect(completeFn.mock.calls.length).toEqual(1);
+      flamelink(basicConfig).nav.transaction('ref', updateFn);
+      expect(updateFn.mock.calls.length).toEqual(2);
+      expect(completeFn.mock.calls.length).toEqual(1);
     });
   });
 });

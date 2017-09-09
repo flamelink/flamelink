@@ -6,10 +6,10 @@ const DEFAULT_CONFIG = {
   locale: 'en-US'
 };
 
-let firebaseApp_ = null;
-let db_ = null;
-
 function flamelink(conf = {}) {
+  let firebaseApp_ = null;
+  let db_ = null;
+
   const config = Object.assign({}, DEFAULT_CONFIG, conf);
 
   // Set flamelink specific properties
@@ -70,6 +70,12 @@ function flamelink(conf = {}) {
   return {
     firebaseApp: firebaseApp_,
 
+    /**
+     * Sets the locale to be used for the flamelink app
+     *
+     * @param {String} locale The locale to set
+     * @returns {Promise} Resolves to given locale if it is a supported locale, otherwise it rejects
+     */
     setLocale(locale = locale_) {
       return new Promise((resolve, reject) => {
         db_
@@ -94,6 +100,12 @@ function flamelink(conf = {}) {
       });
     },
 
+    /**
+     * Sets the environment to be used for the flamelink app
+     *
+     * @param {String} env The environment to set
+     * @returns {Promise} Resolves to given environment if it is a supported environment, otherwise it rejects
+     */
     setEnv(env = env_) {
       return new Promise((resolve, reject) => {
         db_
@@ -118,12 +130,22 @@ function flamelink(conf = {}) {
       });
     },
 
+    /**
+     * Returns the set locale for the flamelink app
+     *
+     * @returns {Promise} Resolves with locale (just using promise for consistency and allowing us to make this async in the future)
+     */
     getLocale() {
-      return locale_;
+      return Promise.resolve(locale_);
     },
 
+    /**
+     * Returns the set environment for the flamelink app
+     *
+     * @returns {Promise} Resolves with environment (just using promise for consistency and allowing us to make this async in the future)
+     */
     getEnv() {
-      return env_;
+      return Promise.resolve(env_);
     },
 
     content: {

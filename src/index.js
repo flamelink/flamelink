@@ -40,6 +40,9 @@ function flamelink(conf = {}) {
   const applyOrderBy = (ref, opt) => {
     switch ((opt.orderBy || '').toUpperCase()) {
       case 'CHILD':
+        if (typeof opt.orderByValue === 'undefined') {
+          throw error('"orderByValue" is also required when using `orderBy: "CHILD"`');
+        }
         return ref.orderByChild(opt.orderByValue);
 
       case 'VALUE':

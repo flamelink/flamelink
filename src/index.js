@@ -1,5 +1,6 @@
 import './polyfills';
 import error from './utils/error';
+import { applyOrderBy, applyFilters, getContentRefPath, getNavigationRefPath } from './utils';
 import * as firebase from 'firebase';
 
 const DEFAULT_CONFIG = {
@@ -36,39 +37,6 @@ function flamelink(conf = {}) {
   }
 
   db_ = db_ || firebaseApp_.database();
-
-  const applyOrderBy = (ref, opt) => {
-    switch ((opt.orderBy || '').toUpperCase()) {
-      case 'CHILD':
-        if (typeof opt.orderByValue === 'undefined') {
-          throw error('"orderByValue" is also required when using `orderBy: "CHILD"`');
-        }
-        return ref.orderByChild(opt.orderByValue);
-
-      case 'VALUE':
-        return ref.orderByValue();
-
-      case 'KEY':
-        return ref.orderByKey();
-
-      default:
-        return ref;
-    }
-  };
-
-  const applyFilters = (ref, opt) => {
-    if (!opt.filters) {
-      return ref;
-    }
-
-    return Object.keys(opt.filters).reduce((newRef, filter) => {
-      newRef = newRef[filter](opt.filters[filter]);
-      return newRef;
-    }, ref);
-  };
-
-  const getContentRefPath = ref => `${env_ ? `/environments/${env_}/` : ''}content${ref ? `/${ref}` : ''}${locale_ ? `/${locale_}` : ''}`;
-  const getNavigationRefPath = ref => `${env_ ? `/environments/${env_}/` : ''}navigation${ref ? `/${ref}` : ''}${locale_ ? `/${locale_}` : ''}`;
 
   // Public API
   return {
@@ -160,7 +128,7 @@ function flamelink(conf = {}) {
        * @returns {Object} Ref object
        */
       ref(ref) {
-        return db_.ref(getContentRefPath(ref));
+        return db_.ref(getContentRefPath(ref, env_, locale_));
       },
 
       /**
@@ -300,7 +268,7 @@ function flamelink(conf = {}) {
        * @returns {Object} Ref object
        */
       ref(ref) {
-        return db_.ref(getNavigationRefPath(ref));
+        return db_.ref(getNavigationRefPath(ref, env_, locale_));
       },
 
       /**

@@ -1,6 +1,6 @@
 {
   "name": "flamelink",
-  "version": "0.0.4",
+  "version": "0.0.5",
   "description": "Javascript SDK for integrating with Flamelink CMS",
   "main": "dist/flamelink.js",
   "scripts": {
@@ -16,7 +16,18 @@
     "node": ">=6",
     "npm": ">=3"
   },
-  "keywords": ["firebase", "flamelink", "sdk", "javascript", "real-time", "database", "cms", "caas", "web", "node"],
+  "keywords": [
+    "firebase",
+    "flamelink",
+    "sdk",
+    "javascript",
+    "real-time",
+    "database",
+    "cms",
+    "caas",
+    "web",
+    "node"
+  ],
   "author": "Flamelink <info@flamelink.io>",
   "license": "ISC",
   "homepage": "https://bitbucket.org/responsivestudio/flamelink-sdk#readme",
@@ -46,7 +57,11 @@
         "env",
         {
           "targets": {
-            "browsers": ["last 2 versions", "safari >= 8", "ie >= 9"]
+            "browsers": [
+              "last 2 versions",
+              "safari >= 8",
+              "ie >= 9"
+            ]
           },
           "modules": false,
           "loose": true
@@ -55,7 +70,9 @@
     ],
     "env": {
       "test": {
-        "plugins": ["transform-es2015-modules-commonjs"]
+        "plugins": [
+          "transform-es2015-modules-commonjs"
+        ]
       }
     }
   }

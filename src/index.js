@@ -64,8 +64,8 @@ function flamelink(conf = {}) {
     }, ref);
   };
 
-  const getContentRefPath = ref => `${env_ ? `/environments/${env_}` : ''}content${ref ? `/${ref}` : ''}${locale_ ? `/${locale_}` : ''}`;
-  const getNavigationRefPath = ref => `${env_ ? `/environments/${env_}` : ''}navigation${ref ? `/${ref}` : ''}${locale_ ? `/${locale_}` : ''}`;
+  const getContentRefPath = ref => `${env_ ? `/environments/${env_}/` : ''}content${ref ? `/${ref}` : ''}${locale_ ? `/${locale_}` : ''}`;
+  const getNavigationRefPath = ref => `${env_ ? `/environments/${env_}/` : ''}navigation${ref ? `/${ref}` : ''}${locale_ ? `/${locale_}` : ''}`;
 
   // Public API
   return {

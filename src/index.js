@@ -1,4 +1,5 @@
 import './polyfills';
+import error from './utils/error';
 import * as firebase from 'firebase';
 
 const DEFAULT_CONFIG = {
@@ -23,7 +24,7 @@ function flamelink(conf = {}) {
     const { apiKey, authDomain, databaseURL, storageBucket } = config;
 
     if (!apiKey || !authDomain || !databaseURL) {
-      throw new Error('[FLAMELINK] The following config properties are mandatory: "apiKey", "authDomain", "databaseURL"');
+      throw error('The following config properties are mandatory: "apiKey", "authDomain", "databaseURL"');
     }
 
     firebaseApp_ = firebase.initializeApp({
@@ -85,11 +86,11 @@ function flamelink(conf = {}) {
             let supportedLocales_ = snapshot.val();
 
             if (!supportedLocales_) {
-              return reject(`[FLAMELINK] No supported locales found.`);
+              return reject(error('No supported locales found.'));
             }
 
             if (!supportedLocales_.includes(locale)) {
-              return reject(`[FLAMELINK] "${locale}" is not a supported locale. Supported Locales: ${supportedLocales_.join(', ')}`);
+              return reject(error(`"${locale}" is not a supported locale. Supported Locales: ${supportedLocales_.join(', ')}`));
             }
 
             locale_ = locale;
@@ -115,11 +116,11 @@ function flamelink(conf = {}) {
             let supportedEnvironments_ = snapshot.val();
 
             if (!supportedEnvironments_) {
-              return reject(`[FLAMELINK] No supported environments found.`);
+              return reject(error(`No supported environments found.`));
             }
 
             if (!supportedEnvironments_.includes(env)) {
-              return reject(`[FLAMELINK] "${env}" is not a supported environment. Supported Environments: ${supportedEnvironments_.join(', ')}`);
+              return reject(error(`"${env}" is not a supported environment. Supported Environments: ${supportedEnvironments_.join(', ')}`));
             }
 
             env_ = env;

@@ -19,17 +19,28 @@ export const applyOrderBy = (ref, opt = {}) => {
   return ref;
 };
 
-export const applyFilters = (ref, opt) => {
-  if (!opt.filters) {
+export const AVAILABLE_FILTER_OPTIONS = ['limitToFirst', 'limitToLast', 'startAt', 'endAt', 'equalTo'];
+
+export const applyFilters = (ref, opt = {}) => {
+  if (!Object.keys(opt).length) {
     return ref;
   }
 
-  return Object.keys(opt.filters).reduce((newRef, filter) => {
-    newRef = newRef[filter](opt.filters[filter]);
+  return [...AVAILABLE_FILTER_OPTIONS].reduce((newRef, filter) => {
+    if (!opt[filter]) {
+      return newRef;
+    }
+    newRef = newRef[filter](opt[filter]);
     return newRef;
   }, ref);
 };
 
-export const getContentRefPath = (ref, env, locale) => `${env ? `/environments/${env}/` : ''}content${ref ? `/${ref}` : ''}${locale ? `/${locale}` : ''}`;
+const missingRefParam = () => {
+  throw error('The reference, environment and locale arguments are all required');
+};
 
-export const getNavigationRefPath = (ref, env, locale) => `${env ? `/environments/${env}/` : ''}navigation${ref ? `/${ref}` : ''}${locale ? `/${locale}` : ''}`;
+export const getContentRefPath = (ref = missingRefParam(), env = missingRefParam(), locale = missingRefParam()) =>
+  `/environments/${env}/content/${ref}/${locale}`;
+
+export const getNavigationRefPath = (ref = missingRefParam(), env = missingRefParam(), locale = missingRefParam()) =>
+  `/environments/${env}/navigation/${ref}/${locale}`;

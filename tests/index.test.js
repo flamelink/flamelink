@@ -59,13 +59,13 @@ describe('Flamelink SDK', () => {
       expect(flamelink(basicConfig).hasOwnProperty('setLocale')).toBe(true);
     });
 
-    test('should throw an error if called with an unsupported Locale', () => {
+    test('should throw an error if called with an unsupported locale', () => {
       expect.assertions(1);
 
       const app = flamelink(basicConfig);
-      const testLang = 'randomstring';
+      const testLocale = 'randomstring';
 
-      return expect(app.setLocale(testLang)).rejects.toMatch(`[FLAMELINK] "${testLang}" is not a supported locale. Supported Locales: en-US`);
+      return expect(app.setLocale(testLocale)).rejects.toMatch(`[FLAMELINK] "${testLocale}" is not a supported locale. Supported Locales: en-US`);
     });
   });
 
@@ -76,8 +76,19 @@ describe('Flamelink SDK', () => {
   });
 
   describe('"setEnv"', () => {
-    test('should expose a "setEnv" method', () => {
+    test('should be exposed on app instance', () => {
       expect(flamelink(basicConfig).hasOwnProperty('setEnv')).toBe(true);
+    });
+
+    test('should throw an error if called with an unsupported environment', () => {
+      expect.assertions(1);
+
+      const app = flamelink(basicConfig);
+      const testEnvironment = 'randomstring';
+
+      return expect(app.setEnv(testEnvironment)).rejects.toMatch(
+        `[FLAMELINK] "${testEnvironment}" is not a supported environment. Supported Environments: production`
+      );
     });
   });
 

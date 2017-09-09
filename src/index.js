@@ -95,8 +95,27 @@ function flamelink(conf = {}) {
     },
 
     setEnv(env = env_) {
-      env_ = env;
-      return env_;
+      return new Promise((resolve, reject) => {
+        db_
+          .ref('/settings/environments')
+          .once('value')
+          .then(snapshot => {
+            let supportedEnvironments_ = snapshot.val();
+
+            if (!supportedEnvironments_) {
+              return reject(`[FLAMELINK] No supported environments found.`);
+            }
+
+            if (!supportedEnvironments_.includes(env)) {
+              return reject(`[FLAMELINK] "${env}" is not a supported environment. Supported Environments: ${supportedEnvironments_.join(', ')}`);
+            }
+
+            env_ = env;
+
+            resolve(env_);
+          })
+          .catch(reject);
+      });
     },
 
     getLocale() {

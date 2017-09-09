@@ -12,6 +12,11 @@ firebase.initializeApp = jest.fn(payload => ({
               val: jest.fn().mockImplementation(() => ['en-US'])
             });
 
+          case '/settings/environments':
+            return Promise.resolve({
+              val: jest.fn().mockImplementation(() => ['production'])
+            });
+
           default:
             return Promise.resolve({
               val: jest.fn()

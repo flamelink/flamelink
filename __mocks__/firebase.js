@@ -5,6 +5,41 @@ const firebase = jest.genMockFromModule('firebase');
 firebase.initializeApp = jest.fn(payload => ({
   database: jest.fn(() => ({
     ref: jest.fn(ref => ({
+      child: jest.fn(child => ({
+        once: () => {
+          switch (ref) {
+            case '/environments/production/navigation/get-items-ref/en-US':
+              return Promise.resolve({
+                val: jest.fn().mockImplementation(() => [
+                  {
+                    attachment: 0,
+                    component: 'Template',
+                    cssClass: '',
+                    id: 1491798664087,
+                    newWindow: '',
+                    order: 0,
+                    parentIndex: 0,
+                    title: 'Homes',
+                    url: '/',
+                    uuid: 1491798664087
+                  },
+                  {
+                    attachment: 0,
+                    component: 'About',
+                    cssClass: '',
+                    id: 1491799269435,
+                    newWindow: '',
+                    order: 1,
+                    parentIndex: 0,
+                    title: 'About',
+                    url: '/about-us',
+                    uuid: 1491799269435
+                  }
+                ])
+              });
+          }
+        }
+      })),
       once: () => {
         switch (ref) {
           case '/settings/locales':
@@ -18,10 +53,52 @@ firebase.initializeApp = jest.fn(payload => ({
             });
 
           case '/environments/production/navigation/get-ref/en-US':
+            return Promise.resolve({
+              val: jest.fn().mockImplementation(() => ({
+                id: 'main',
+                items: [
+                  {
+                    attachment: 0,
+                    component: 'Template',
+                    cssClass: '',
+                    id: 1491798664087,
+                    newWindow: '',
+                    order: 0,
+                    parentIndex: 0,
+                    title: 'Homes',
+                    url: '/',
+                    uuid: 1491798664087
+                  },
+                  {
+                    attachment: 0,
+                    component: 'About',
+                    cssClass: '',
+                    id: 1491799269435,
+                    newWindow: '',
+                    order: 1,
+                    parentIndex: 0,
+                    title: 'About',
+                    url: '/about-us',
+                    uuid: 1491799269435
+                  }
+                ],
+                title: 'main'
+              }))
+            });
+
           case '/environments/production/content/get-ref/en-US':
           case '/environments/production/content/raw-get-ref/en-US':
             return Promise.resolve({
-              val: jest.fn().mockImplementation(() => ({ key: 'value' }))
+              val: jest.fn().mockImplementation(() => ({
+                'content-type-1': {
+                  id: 1491679616674,
+                  name: 'ASP'
+                },
+                'content-type-2': {
+                  id: 1491679616683,
+                  name: 'Axor'
+                }
+              }))
             });
 
           case '/schemas/':

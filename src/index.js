@@ -156,8 +156,7 @@ function flamelink(conf = {}) {
         return new Promise((resolve, reject) => {
           this.getRaw(ref, options)
             .then(snapshot => {
-              // TODO: put any additional massaging or cleaning up of the data we want to expose here
-              resolve(snapshot.val());
+              resolve(pluckResultFields(snapshot.val(), options.fields));
             })
             .catch(reject);
         });
@@ -282,8 +281,7 @@ function flamelink(conf = {}) {
        * @returns {Promise} Resolves to snapshot of query
        */
       getRaw(ref, options = {}) {
-        const ref_ = this.ref(ref);
-        const ordered = applyOrderBy(ref_, options);
+        const ordered = applyOrderBy(this.ref(ref), options);
         const filtered = applyFilters(ordered, options);
 
         return filtered.once('value');
@@ -300,8 +298,38 @@ function flamelink(conf = {}) {
         return new Promise((resolve, reject) => {
           this.getRaw(ref, options)
             .then(snapshot => {
-              // TODO: put any additional massaging or cleaning up of the data we want to expose here
-              resolve(snapshot.val());
+              resolve(pluckResultFields(snapshot.val(), options.fields));
+            })
+            .catch(reject);
+        });
+      },
+
+      /**
+       * Read value once from db and return raw snapshot
+       *
+       * @param {String} ref
+       * @param {Object} [options={}]
+       * @returns {Promise} Resolves to snapshot of query
+       */
+      getItemsRaw(ref, options = {}) {
+        const ordered = applyOrderBy(this.ref(ref).child('items'), options);
+        const filtered = applyFilters(ordered, options);
+
+        return filtered.once('value');
+      },
+
+      /**
+       * Read value once from db
+       *
+       * @param {String} ref
+       * @param {Object} [options={}]
+       * @returns {Promise} Resolves to value of query
+       */
+      getItems(ref, options = {}) {
+        return new Promise((resolve, reject) => {
+          this.getItemsRaw(ref, options)
+            .then(snapshot => {
+              resolve(pluckResultFields(snapshot.val(), options.fields));
             })
             .catch(reject);
         });

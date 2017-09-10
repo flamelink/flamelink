@@ -117,9 +117,32 @@ describe('Flamelink SDK', () => {
       expect(flamelink(basicConfig).content.getRaw).toEqual(expect.any(Function));
     });
 
-    test('should expose a "get" method', () => {
-      const ref = 'get-ref';
-      return expect(flamelink(basicConfig).content.get(ref, {})).resolves.toEqual({ key: 'value' });
+    describe('"get" Method', () => {
+      test('should be exposed on the "content" object', () => {
+        const ref = 'get-ref';
+        return expect(flamelink(basicConfig).content.get(ref, {})).resolves.toEqual({
+          'content-type-1': {
+            id: 1491679616674,
+            name: 'ASP'
+          },
+          'content-type-2': {
+            id: 1491679616683,
+            name: 'Axor'
+          }
+        });
+      });
+
+      test('should respect the "fields" option', () => {
+        const ref = 'get-ref';
+        return expect(flamelink(basicConfig).content.get(ref, { fields: ['name'] })).resolves.toEqual({
+          'content-type-1': {
+            name: 'ASP'
+          },
+          'content-type-2': {
+            name: 'Axor'
+          }
+        });
+      });
     });
 
     test('should expose a "set" method', () => {
@@ -184,9 +207,88 @@ describe('Flamelink SDK', () => {
       expect(flamelink(basicConfig).nav.getRaw).toEqual(expect.any(Function));
     });
 
-    test('should expose a "get" method', () => {
-      const ref = 'get-ref';
-      return expect(flamelink(basicConfig).nav.get(ref, {})).resolves.toEqual({ key: 'value' });
+    describe('"get" Method', () => {
+      test('should be exposed on the "nav" object', () => {
+        const ref = 'get-ref';
+        return expect(flamelink(basicConfig).nav.get(ref, {})).resolves.toEqual({
+          id: 'main',
+          items: [
+            {
+              attachment: 0,
+              component: 'Template',
+              cssClass: '',
+              id: 1491798664087,
+              newWindow: '',
+              order: 0,
+              parentIndex: 0,
+              title: 'Homes',
+              url: '/',
+              uuid: 1491798664087
+            },
+            {
+              attachment: 0,
+              component: 'About',
+              cssClass: '',
+              id: 1491799269435,
+              newWindow: '',
+              order: 1,
+              parentIndex: 0,
+              title: 'About',
+              url: '/about-us',
+              uuid: 1491799269435
+            }
+          ],
+          title: 'main'
+        });
+      });
+    });
+
+    describe('"getItems" Method', () => {
+      test('should be exposed on the "nav" object', () => {
+        const ref = 'get-items-ref';
+        return expect(flamelink(basicConfig).nav.getItems(ref, {})).resolves.toEqual([
+          {
+            attachment: 0,
+            component: 'Template',
+            cssClass: '',
+            id: 1491798664087,
+            newWindow: '',
+            order: 0,
+            parentIndex: 0,
+            title: 'Homes',
+            url: '/',
+            uuid: 1491798664087
+          },
+          {
+            attachment: 0,
+            component: 'About',
+            cssClass: '',
+            id: 1491799269435,
+            newWindow: '',
+            order: 1,
+            parentIndex: 0,
+            title: 'About',
+            url: '/about-us',
+            uuid: 1491799269435
+          }
+        ]);
+      });
+
+      test('should respect the "fields" option', () => {
+        const ref = 'get-items-ref';
+        return expect(flamelink(basicConfig).nav.getItems(ref, { fields: ['cssClass', 'title', 'url'] })).resolves.toEqual([
+          {
+            cssClass: '',
+            title: 'Homes',
+            url: '/'
+          },
+          {
+            cssClass: '',
+            title: 'About',
+            url: '/about-us'
+          }
+        ]);
+      });
     });
 
     test('should expose a "set" method', () => {

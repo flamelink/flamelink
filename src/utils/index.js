@@ -1,3 +1,7 @@
+import reduce from 'lodash/reduce';
+import isArray from 'lodash/isArray';
+import isPlainObject from 'lodash/isPlainObject';
+import pick from 'lodash/fp/pick';
 import error from './error';
 
 export const applyOrderBy = (ref, opt = {}) => {
@@ -46,3 +50,30 @@ export const getNavigationRefPath = (ref = missingRefParam(), env = missingRefPa
   `/environments/${env}/navigation/${ref}/${locale}`;
 
 export const getSchemasRefPath = (ref = missingRefParam(), env = missingRefParam(), locale = missingRefParam()) => `/schemas/${ref}`;
+
+export const pluckResultFields = (resultSet, fields) => {
+  if (!resultSet || !isArray(fields)) {
+    return resultSet;
+  }
+
+  const pickFields = pick(fields);
+
+  // If resultSet is an array of objects, we just pluck the given fields from each object
+  if (isArray(resultSet)) {
+    return reduce(resultSet, (result, val) => result.concat(pickFields(val)), []);
+  }
+
+  // If resultSet is a POJO, we assume each first-level property is the child from which fields need to be plucked
+  if (isPlainObject(resultSet)) {
+    return reduce(
+      resultSet,
+      (result, val, key) => {
+        result[key] = pickFields(val);
+        return result;
+      },
+      {}
+    );
+  }
+
+  return resultSet;
+};

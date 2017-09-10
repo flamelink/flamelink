@@ -16,18 +16,7 @@
     "node": ">=6",
     "npm": ">=3"
   },
-  "keywords": [
-    "firebase",
-    "flamelink",
-    "sdk",
-    "javascript",
-    "real-time",
-    "database",
-    "cms",
-    "caas",
-    "web",
-    "node"
-  ],
+  "keywords": ["firebase", "flamelink", "sdk", "javascript", "real-time", "database", "cms", "caas", "web", "node"],
   "author": "Flamelink <info@flamelink.io>",
   "license": "ISC",
   "homepage": "https://bitbucket.org/responsivestudio/flamelink-sdk#readme",
@@ -48,7 +37,7 @@
       "^.+\\.js$": "babel-jest"
     },
     "globals": {
-      "__PACKAGE_VERSION__": "0.0.5"
+      "__PACKAGE_VERSION__": "0.1.0"
     }
   },
   "babel": {
@@ -57,11 +46,7 @@
         "env",
         {
           "targets": {
-            "browsers": [
-              "last 2 versions",
-              "safari >= 8",
-              "ie >= 9"
-            ]
+            "browsers": ["last 2 versions", "safari >= 8", "ie >= 9"]
           },
           "modules": false,
           "loose": true
@@ -70,10 +55,11 @@
     ],
     "env": {
       "test": {
-        "plugins": [
-          "transform-es2015-modules-commonjs"
-        ]
+        "plugins": ["transform-es2015-modules-commonjs"]
       }
     }
+  },
+  "dependencies": {
+    "lodash": "^4.17.4"
   }
 }

@@ -1,6 +1,6 @@
 import './polyfills';
 import error from './utils/error';
-import { applyOrderBy, applyFilters, getContentRefPath, getNavigationRefPath } from './utils';
+import { applyOrderBy, applyFilters, getContentRefPath, getNavigationRefPath, getSchemasRefPath, pluckResultFields } from './utils';
 import * as firebase from 'firebase';
 
 const DEFAULT_CONFIG = {
@@ -139,8 +139,7 @@ function flamelink(conf = {}) {
        * @returns {Promise} Resolves to snapshot of query
        */
       getRaw(ref, options = {}) {
-        const ref_ = this.ref(ref);
-        const ordered = applyOrderBy(ref_, options);
+        const ordered = applyOrderBy(this.ref(ref), options);
         const filtered = applyFilters(ordered, options);
 
         return filtered.once('value');
@@ -405,6 +404,47 @@ function flamelink(conf = {}) {
        */
       transaction(ref, updateFn, cb = () => {}) {
         return this.ref(ref).transaction(updateFn, cb);
+      }
+    },
+
+    schemas: {
+      /**
+       * Establish and return a reference to schemas in firebase db
+       *
+       * @param {String} ref
+       * @returns {Object} Ref object
+       */
+      ref(ref) {
+        return db_.ref(getSchemasRefPath(ref, env_, locale_));
+      },
+
+      /**
+       * Read all schemas from the db and return snapshot response
+       *
+       * @param {Object} [options={}]
+       * @returns {Promise} Resolves to snapshot of query
+       */
+      getAllRaw(options = {}) {
+        const ordered = applyOrderBy(this.ref(''), options);
+        const filtered = applyFilters(ordered, options);
+
+        return filtered.once('value');
+      },
+
+      /**
+       * Read value once from db
+       *
+       * @param {Object} [options={}]
+       * @returns {Promise} Resolves to value of query
+       */
+      getAll(options = {}) {
+        return new Promise((resolve, reject) => {
+          this.getAllRaw(options)
+            .then(snapshot => {
+              resolve(pluckResultFields(snapshot.val(), options.fields));
+            })
+            .catch(reject);
+        });
       }
     }
   };

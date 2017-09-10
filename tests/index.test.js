@@ -241,4 +241,60 @@ describe('Flamelink SDK', () => {
       expect(completeFn.mock.calls.length).toEqual(1);
     });
   });
+
+  describe('Schemas', () => {
+    test('should expose a "ref" method', () => {
+      expect(flamelink(basicConfig).schemas.ref).toEqual(expect.any(Function));
+    });
+
+    test('should expose a "getAllRaw" method', () => {
+      expect(flamelink(basicConfig).schemas.getAllRaw).toEqual(expect.any(Function));
+    });
+
+    describe('"getAll" method', () => {
+      test('should return all schemas', () => {
+        return expect(flamelink(basicConfig).schemas.getAll()).resolves.toEqual(
+          expect.objectContaining({
+            'about-us': expect.objectContaining({
+              description: expect.any(String),
+              display: expect.any(Boolean),
+              fields: expect.any(Array),
+              group: expect.any(String),
+              icon: expect.any(String),
+              id: expect.any(String),
+              menuIndex: expect.any(Number),
+              title: expect.any(String),
+              type: expect.any(String)
+            }),
+            brands: expect.objectContaining({
+              description: expect.any(String),
+              display: expect.any(Boolean),
+              fields: expect.any(Array),
+              group: expect.any(String),
+              icon: expect.any(String),
+              id: expect.any(String),
+              menuIndex: expect.any(Number),
+              title: expect.any(String),
+              type: expect.any(String)
+            })
+          })
+        );
+      });
+
+      test('should respect the "fields" option', () => {
+        return expect(flamelink(basicConfig).schemas.getAll({ fields: ['description', 'id', 'title'] })).resolves.toEqual({
+          'about-us': {
+            description: expect.any(String),
+            id: expect.any(String),
+            title: expect.any(String)
+          },
+          brands: {
+            description: expect.any(String),
+            id: expect.any(String),
+            title: expect.any(String)
+          }
+        });
+      });
+    });
+  });
 });

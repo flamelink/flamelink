@@ -238,4 +238,105 @@ describe('Flamelink SDK > Utils', () => {
       expect(message).toMatch('[FLAMELINK] "orderByChild" should specify the child key to order by');
     });
   });
+
+  describe('"pluckResultFields"', () => {
+    test('should return the given results as-is if no fields are passed in', () => {
+      const testArray = [
+        {
+          a: 1,
+          b: 1
+        },
+        {
+          a: 2,
+          b: 2
+        },
+        {
+          a: 3,
+          b: 3
+        }
+      ];
+      expect(utils.pluckResultFields(testArray)).toEqual(testArray);
+      const testObject = {
+        a: {
+          a: 1,
+          b: 1
+        },
+        b: {
+          a: 2,
+          b: 2
+        },
+        c: {
+          a: 3,
+          b: 3
+        }
+      };
+      expect(utils.pluckResultFields(testObject)).toEqual(testObject);
+    });
+
+    test('should filter an array of objects based on passed in fields', () => {
+      const testArray = [
+        {
+          a: 1,
+          b: 1
+        },
+        {
+          a: 2,
+          b: 2
+        },
+        {
+          a: 3,
+          b: 3
+        }
+      ];
+      const testFields = ['a', 'c'];
+      const expectedResults = [
+        {
+          a: 1
+        },
+        {
+          a: 2
+        },
+        {
+          a: 3
+        }
+      ];
+      expect(utils.pluckResultFields(testArray, testFields)).toEqual(expectedResults);
+    });
+
+    test('should filter an objects based on passed in fields', () => {
+      const testObject = {
+        a: {
+          a: 1,
+          b: 1
+        },
+        b: {
+          a: 2,
+          b: 2
+        },
+        c: {
+          a: 3,
+          b: 3
+        }
+      };
+      const testFields = ['a', 'c'];
+      const expectedResults = {
+        a: {
+          a: 1
+        },
+        b: {
+          a: 2
+        },
+        c: {
+          a: 3
+        }
+      };
+      expect(utils.pluckResultFields(testObject, testFields)).toEqual(expectedResults);
+    });
+
+    test('should return the result set as-is if it is not an array or object', () => {
+      const testString = 'flamelink';
+      const testFields = ['a', 'c'];
+      expect(utils.pluckResultFields(testString, testFields)).toEqual(testString);
+    });
+  });
 });

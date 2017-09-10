@@ -1,57 +1,96 @@
 import * as utils from '../';
 
 describe('Flamelink SDK > Utils', () => {
-  describe('"getContentRefPath"', () => {
-    test('should return the correct reference string for the given properties', () => {
-      const ref = 'my-reference';
-      const env = 'my-environment';
-      const locale = 'my-locale';
-      expect(utils.getContentRefPath(ref, env, locale)).toBe(`/environments/${env}/content/${ref}/${locale}`);
+  describe('Reference methods', () => {
+    let missingRefError = null;
 
-      try {
-        utils.getContentRefPath(ref, env);
-      } catch (error) {
-        expect(error.message).toBe('[FLAMELINK] The reference, environment and locale arguments are all required');
-      }
-
-      try {
-        utils.getContentRefPath(ref, undefined, locale);
-      } catch (error) {
-        expect(error.message).toBe('[FLAMELINK] The reference, environment and locale arguments are all required');
-      }
-
-      try {
-        utils.getContentRefPath(undefined, env, locale);
-      } catch (error) {
-        expect(error.message).toBe('[FLAMELINK] The reference, environment and locale arguments are all required');
-      }
+    beforeAll(() => {
+      missingRefError = '[FLAMELINK] The reference, environment and locale arguments are all required';
     });
-  });
 
-  describe('"getNavigationRefPath"', () => {
-    test('should return the correct reference string for the given properties', () => {
-      const ref = 'my-reference';
-      const env = 'my-environment';
-      const locale = 'my-locale';
-      expect(utils.getNavigationRefPath(ref, env, locale)).toBe(`/environments/${env}/navigation/${ref}/${locale}`);
+    afterAll(() => {
+      missingRefError = null;
+    });
 
-      try {
-        utils.getNavigationRefPath(ref, env);
-      } catch (error) {
-        expect(error.message).toBe('[FLAMELINK] The reference, environment and locale arguments are all required');
-      }
+    describe('"getContentRefPath"', () => {
+      test('should return the correct reference string for the given properties', () => {
+        const ref = 'my-reference';
+        const env = 'my-environment';
+        const locale = 'my-locale';
+        expect(utils.getContentRefPath(ref, env, locale)).toBe(`/environments/${env}/content/${ref}/${locale}`);
 
-      try {
-        utils.getNavigationRefPath(ref, undefined, locale);
-      } catch (error) {
-        expect(error.message).toBe('[FLAMELINK] The reference, environment and locale arguments are all required');
-      }
+        try {
+          utils.getContentRefPath(ref, env);
+        } catch (error) {
+          expect(error.message).toBe(missingRefError);
+        }
 
-      try {
-        utils.getNavigationRefPath(undefined, env, locale);
-      } catch (error) {
-        expect(error.message).toBe('[FLAMELINK] The reference, environment and locale arguments are all required');
-      }
+        try {
+          utils.getContentRefPath(ref, undefined, locale);
+        } catch (error) {
+          expect(error.message).toBe(missingRefError);
+        }
+
+        try {
+          utils.getContentRefPath(undefined, env, locale);
+        } catch (error) {
+          expect(error.message).toBe(missingRefError);
+        }
+      });
+    });
+
+    describe('"getNavigationRefPath"', () => {
+      test('should return the correct reference string for the given properties', () => {
+        const ref = 'my-reference';
+        const env = 'my-environment';
+        const locale = 'my-locale';
+        expect(utils.getNavigationRefPath(ref, env, locale)).toBe(`/environments/${env}/navigation/${ref}/${locale}`);
+
+        try {
+          utils.getNavigationRefPath(ref, env);
+        } catch (error) {
+          expect(error.message).toBe(missingRefError);
+        }
+
+        try {
+          utils.getNavigationRefPath(ref, undefined, locale);
+        } catch (error) {
+          expect(error.message).toBe(missingRefError);
+        }
+
+        try {
+          utils.getNavigationRefPath(undefined, env, locale);
+        } catch (error) {
+          expect(error.message).toBe(missingRefError);
+        }
+      });
+    });
+
+    describe('"getSchemasRefPath"', () => {
+      test('should return the correct reference string for the given properties', () => {
+        const ref = 'my-reference';
+        const env = 'my-environment';
+        const locale = 'my-locale';
+        expect(utils.getSchemasRefPath(ref, env, locale)).toBe(`/schemas/${ref}`);
+
+        try {
+          utils.getSchemasRefPath(ref, env);
+        } catch (error) {
+          expect(error.message).toBe(missingRefError);
+        }
+
+        try {
+          utils.getSchemasRefPath(ref, undefined, locale);
+        } catch (error) {
+          expect(error.message).toBe(missingRefError);
+        }
+
+        try {
+          utils.getSchemasRefPath(undefined, env, locale);
+        } catch (error) {
+          expect(error.message).toBe(missingRefError);
+        }
+      });
     });
   });
 

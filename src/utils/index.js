@@ -44,3 +44,5 @@ export const getContentRefPath = (ref = missingRefParam(), env = missingRefParam
 
 export const getNavigationRefPath = (ref = missingRefParam(), env = missingRefParam(), locale = missingRefParam()) =>
   `/environments/${env}/navigation/${ref}/${locale}`;
+
+export const getSchemasRefPath = (ref = missingRefParam(), env = missingRefParam(), locale = missingRefParam()) => `/schemas/${ref}`;

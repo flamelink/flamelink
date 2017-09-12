@@ -157,7 +157,7 @@ function flamelink(conf = {}) {
         return new Promise((resolve, reject) => {
           this.getRaw(ref, options)
             .then(snapshot => {
-              resolve(pluckResultFields(snapshot.val(), options.fields));
+              resolve(pluckResultFields(options.fields, snapshot.val()));
             })
             .catch(reject);
         });
@@ -299,7 +299,7 @@ function flamelink(conf = {}) {
         return new Promise((resolve, reject) => {
           this.getRaw(ref, options)
             .then(snapshot => {
-              resolve(pluckResultFields(snapshot.val(), options.fields));
+              resolve(pluckResultFields(options.fields, snapshot.val()));
             })
             .catch(reject);
         });
@@ -330,7 +330,7 @@ function flamelink(conf = {}) {
         return new Promise((resolve, reject) => {
           this.getItemsRaw(ref, options)
             .then(snapshot => {
-              resolve(pluckResultFields(snapshot.val(), options.fields));
+              resolve(pluckResultFields(options.fields, snapshot.val()));
             })
             .catch(reject);
         });

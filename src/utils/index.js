@@ -1,4 +1,5 @@
 import reduce from 'lodash/reduce';
+import curry from 'lodash/curry';
 import isArray from 'lodash/isArray';
 import isPlainObject from 'lodash/isPlainObject';
 import reduceRight from 'lodash/reduceRight';
@@ -52,7 +53,7 @@ export const getNavigationRefPath = (ref = missingRefParam(), env = missingRefPa
 
 export const getSchemasRefPath = (ref = missingRefParam(), env = missingRefParam(), locale = missingRefParam()) => `/schemas/${ref}`;
 
-export const pluckResultFields = (resultSet, fields) => {
+export const pluckResultFields = curry((fields, resultSet) => {
   if (!resultSet || !isArray(fields)) {
     return resultSet;
   }
@@ -77,7 +78,7 @@ export const pluckResultFields = (resultSet, fields) => {
   }
 
   return resultSet;
-};
+});
 
 /**
  * Our own `compose` function that works on both synchronous and asynchronous functions combined.

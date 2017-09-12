@@ -270,7 +270,7 @@ describe('Flamelink SDK > Utils', () => {
           b: 3
         }
       ];
-      expect(utils.pluckResultFields(testArray)).toEqual(testArray);
+      expect(utils.pluckResultFields(undefined, testArray)).toEqual(testArray);
       const testObject = {
         a: {
           a: 1,
@@ -285,7 +285,7 @@ describe('Flamelink SDK > Utils', () => {
           b: 3
         }
       };
-      expect(utils.pluckResultFields(testObject)).toEqual(testObject);
+      expect(utils.pluckResultFields(undefined, testObject)).toEqual(testObject);
     });
 
     test('should filter an array of objects based on passed in fields', () => {
@@ -315,7 +315,7 @@ describe('Flamelink SDK > Utils', () => {
           a: 3
         }
       ];
-      expect(utils.pluckResultFields(testArray, testFields)).toEqual(expectedResults);
+      expect(utils.pluckResultFields(testFields, testArray)).toEqual(expectedResults);
     });
 
     test('should filter an objects based on passed in fields', () => {
@@ -345,13 +345,13 @@ describe('Flamelink SDK > Utils', () => {
           a: 3
         }
       };
-      expect(utils.pluckResultFields(testObject, testFields)).toEqual(expectedResults);
+      expect(utils.pluckResultFields(testFields, testObject)).toEqual(expectedResults);
     });
 
     test('should return the result set as-is if it is not an array or object', () => {
       const testString = 'flamelink';
       const testFields = ['a', 'c'];
-      expect(utils.pluckResultFields(testString, testFields)).toEqual(testString);
+      expect(utils.pluckResultFields(testFields, testString)).toEqual(testString);
     });
   });
 });

@@ -1,6 +1,7 @@
 import reduce from 'lodash/reduce';
 import isArray from 'lodash/isArray';
 import isPlainObject from 'lodash/isPlainObject';
+import reduceRight from 'lodash/reduceRight';
 import pick from 'lodash/fp/pick';
 import error from './error';
 
@@ -77,3 +78,13 @@ export const pluckResultFields = (resultSet, fields) => {
 
   return resultSet;
 };
+
+/**
+ * Our own `compose` function that works on both synchronous and asynchronous functions combined.
+ *
+ * @param {*} functions Array of functions to compose
+ * @returns {Function} Returns a function that takes a single argument for the input data that will be
+ * passed through the composed functions and then returns a promise that will resolve to the result of
+ * the input being applied to all the methods in sequence.
+ */
+export const compose = (...functions) => data => reduceRight(functions, (value, func) => value.then(func), Promise.resolve(data));

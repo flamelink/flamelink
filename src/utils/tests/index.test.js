@@ -100,6 +100,21 @@ describe('Flamelink SDK > Utils', () => {
     });
   });
 
+  describe('"compose"', () => {
+    test('should functionally compose async or sync functions', () => {
+      const double = jest.fn(x => x * 2);
+      const square = jest.fn(x => x * x);
+      const plus3 = jest.fn(
+        x =>
+          new Promise(resolve => {
+            setTimeout(() => resolve(x + 3), 1);
+          })
+      );
+
+      return expect(utils.compose(double, square, plus3)(2)).resolves.toEqual(50);
+    });
+  });
+
   describe('"applyFilters"', () => {
     let ref;
 

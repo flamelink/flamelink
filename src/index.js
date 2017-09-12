@@ -1,3 +1,4 @@
+import 'regenerator-runtime/runtime';
 import './polyfills';
 import error from './utils/error';
 import { applyOrderBy, applyFilters, getContentRefPath, getNavigationRefPath, getSchemasRefPath, pluckResultFields } from './utils';

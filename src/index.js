@@ -39,6 +39,96 @@ function flamelink(conf = {}) {
 
   db_ = db_ || firebaseApp_.database();
 
+  const schemas = {
+    /**
+     * Establish and return a reference to schemas in firebase db
+     *
+     * @param {String} ref
+     * @returns {Object} Ref object
+     */
+    ref(ref) {
+      return db_.ref(getSchemasRefPath(ref, env_, locale_));
+    },
+
+    /**
+     * Read all schemas from the db and return snapshot response
+     *
+     * @param {Object} [options={}]
+     * @returns {Promise} Resolves to snapshot of query
+     */
+    getAllRaw(options = {}) {
+      const ordered = applyOrderBy(this.ref(''), options);
+      const filtered = applyFilters(ordered, options);
+
+      return filtered.once('value');
+    },
+
+    /**
+     * Get all schemas and return the processed value
+     *
+     * @param {Object} [options={}]
+     * @returns {Promise} Resolves to value of query
+     */
+    async getAll(options = {}) {
+      const snapshot = await this.getAllRaw(options);
+      return pluckResultFields(options.fields, snapshot.val());
+    },
+
+    /**
+     * Read an individual schema from the db and return snapshot response
+     *
+     * @param {String} ref
+     * @param {Object} [options={}]
+     * @returns {Promise} Resolves to snapshot of query
+     */
+    getRaw(ref, options = {}) {
+      const ordered = applyOrderBy(this.ref(ref), options);
+      const filtered = applyFilters(ordered, options);
+
+      return filtered.once('value');
+    },
+
+    /**
+     * Get individual schema object for the given reference
+     *
+     * @param {String} ref
+     * @param {Object} [options={}]
+     * @returns {Promise} Resolves to value of query
+     */
+    async get(ref, options = {}) {
+      const pluckFields = pluckResultFields(options.fields);
+      const snapshot = await this.getRaw(ref, options);
+      const wrapValue = { [ref]: snapshot.val() }; // Wrapping value to create the correct structure for our filtering to work
+      return pluckFields(wrapValue)[ref];
+    },
+
+    /**
+     * Get an individual schema's fields and return snapshot response
+     *
+     * @param {String} ref
+     * @param {Object} [options={}]
+     * @returns {Promise} Resolves to snapshot of query
+     */
+    getFieldsRaw(ref, options = {}) {
+      const ordered = applyOrderBy(this.ref(`${ref}/fields`), options);
+      const filtered = applyFilters(ordered, options);
+
+      return filtered.once('value');
+    },
+
+    /**
+     * Get individual schema's fields array for the given reference
+     *
+     * @param {String} ref
+     * @param {Object} [options={}]
+     * @returns {Promise} Resolves to value of query
+     */
+    async getFields(ref, options = {}) {
+      const snapshot = await this.getFieldsRaw(ref, options);
+      return pluckResultFields(options.fields, snapshot.val());
+    }
+  };
+
   // Public API
   return {
     firebaseApp: firebaseApp_,
@@ -436,46 +526,7 @@ function flamelink(conf = {}) {
       }
     },
 
-    schemas: {
-      /**
-       * Establish and return a reference to schemas in firebase db
-       *
-       * @param {String} ref
-       * @returns {Object} Ref object
-       */
-      ref(ref) {
-        return db_.ref(getSchemasRefPath(ref, env_, locale_));
-      },
-
-      /**
-       * Read all schemas from the db and return snapshot response
-       *
-       * @param {Object} [options={}]
-       * @returns {Promise} Resolves to snapshot of query
-       */
-      getAllRaw(options = {}) {
-        const ordered = applyOrderBy(this.ref(''), options);
-        const filtered = applyFilters(ordered, options);
-
-        return filtered.once('value');
-      },
-
-      /**
-       * Read value once from db
-       *
-       * @param {Object} [options={}]
-       * @returns {Promise} Resolves to value of query
-       */
-      getAll(options = {}) {
-        return new Promise((resolve, reject) => {
-          this.getAllRaw(options)
-            .then(snapshot => {
-              resolve(pluckResultFields(snapshot.val(), options.fields));
-            })
-            .catch(reject);
-        });
-      }
-    }
+    schemas
   };
 }
 

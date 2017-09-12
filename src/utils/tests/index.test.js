@@ -1,57 +1,96 @@
 import * as utils from '../';
 
 describe('Flamelink SDK > Utils', () => {
-  describe('"getContentRefPath"', () => {
-    test('should return the correct reference string for the given properties', () => {
-      const ref = 'my-reference';
-      const env = 'my-environment';
-      const locale = 'my-locale';
-      expect(utils.getContentRefPath(ref, env, locale)).toBe(`/environments/${env}/content/${ref}/${locale}`);
+  describe('Reference methods', () => {
+    let missingRefError = null;
 
-      try {
-        utils.getContentRefPath(ref, env);
-      } catch (error) {
-        expect(error.message).toBe('[FLAMELINK] The reference, environment and locale arguments are all required');
-      }
-
-      try {
-        utils.getContentRefPath(ref, undefined, locale);
-      } catch (error) {
-        expect(error.message).toBe('[FLAMELINK] The reference, environment and locale arguments are all required');
-      }
-
-      try {
-        utils.getContentRefPath(undefined, env, locale);
-      } catch (error) {
-        expect(error.message).toBe('[FLAMELINK] The reference, environment and locale arguments are all required');
-      }
+    beforeAll(() => {
+      missingRefError = '[FLAMELINK] The reference, environment and locale arguments are all required';
     });
-  });
 
-  describe('"getNavigationRefPath"', () => {
-    test('should return the correct reference string for the given properties', () => {
-      const ref = 'my-reference';
-      const env = 'my-environment';
-      const locale = 'my-locale';
-      expect(utils.getNavigationRefPath(ref, env, locale)).toBe(`/environments/${env}/navigation/${ref}/${locale}`);
+    afterAll(() => {
+      missingRefError = null;
+    });
 
-      try {
-        utils.getNavigationRefPath(ref, env);
-      } catch (error) {
-        expect(error.message).toBe('[FLAMELINK] The reference, environment and locale arguments are all required');
-      }
+    describe('"getContentRefPath"', () => {
+      test('should return the correct reference string for the given properties', () => {
+        const ref = 'my-reference';
+        const env = 'my-environment';
+        const locale = 'my-locale';
+        expect(utils.getContentRefPath(ref, env, locale)).toBe(`/environments/${env}/content/${ref}/${locale}`);
 
-      try {
-        utils.getNavigationRefPath(ref, undefined, locale);
-      } catch (error) {
-        expect(error.message).toBe('[FLAMELINK] The reference, environment and locale arguments are all required');
-      }
+        try {
+          utils.getContentRefPath(ref, env);
+        } catch (error) {
+          expect(error.message).toBe(missingRefError);
+        }
 
-      try {
-        utils.getNavigationRefPath(undefined, env, locale);
-      } catch (error) {
-        expect(error.message).toBe('[FLAMELINK] The reference, environment and locale arguments are all required');
-      }
+        try {
+          utils.getContentRefPath(ref, undefined, locale);
+        } catch (error) {
+          expect(error.message).toBe(missingRefError);
+        }
+
+        try {
+          utils.getContentRefPath(undefined, env, locale);
+        } catch (error) {
+          expect(error.message).toBe(missingRefError);
+        }
+      });
+    });
+
+    describe('"getNavigationRefPath"', () => {
+      test('should return the correct reference string for the given properties', () => {
+        const ref = 'my-reference';
+        const env = 'my-environment';
+        const locale = 'my-locale';
+        expect(utils.getNavigationRefPath(ref, env, locale)).toBe(`/environments/${env}/navigation/${ref}/${locale}`);
+
+        try {
+          utils.getNavigationRefPath(ref, env);
+        } catch (error) {
+          expect(error.message).toBe(missingRefError);
+        }
+
+        try {
+          utils.getNavigationRefPath(ref, undefined, locale);
+        } catch (error) {
+          expect(error.message).toBe(missingRefError);
+        }
+
+        try {
+          utils.getNavigationRefPath(undefined, env, locale);
+        } catch (error) {
+          expect(error.message).toBe(missingRefError);
+        }
+      });
+    });
+
+    describe('"getSchemasRefPath"', () => {
+      test('should return the correct reference string for the given properties', () => {
+        const ref = 'my-reference';
+        const env = 'my-environment';
+        const locale = 'my-locale';
+        expect(utils.getSchemasRefPath(ref, env, locale)).toBe(`/schemas/${ref}`);
+
+        try {
+          utils.getSchemasRefPath(ref, env);
+        } catch (error) {
+          expect(error.message).toBe(missingRefError);
+        }
+
+        try {
+          utils.getSchemasRefPath(ref, undefined, locale);
+        } catch (error) {
+          expect(error.message).toBe(missingRefError);
+        }
+
+        try {
+          utils.getSchemasRefPath(undefined, env, locale);
+        } catch (error) {
+          expect(error.message).toBe(missingRefError);
+        }
+      });
     });
   });
 
@@ -197,6 +236,107 @@ describe('Flamelink SDK > Utils', () => {
       }
 
       expect(message).toMatch('[FLAMELINK] "orderByChild" should specify the child key to order by');
+    });
+  });
+
+  describe('"pluckResultFields"', () => {
+    test('should return the given results as-is if no fields are passed in', () => {
+      const testArray = [
+        {
+          a: 1,
+          b: 1
+        },
+        {
+          a: 2,
+          b: 2
+        },
+        {
+          a: 3,
+          b: 3
+        }
+      ];
+      expect(utils.pluckResultFields(testArray)).toEqual(testArray);
+      const testObject = {
+        a: {
+          a: 1,
+          b: 1
+        },
+        b: {
+          a: 2,
+          b: 2
+        },
+        c: {
+          a: 3,
+          b: 3
+        }
+      };
+      expect(utils.pluckResultFields(testObject)).toEqual(testObject);
+    });
+
+    test('should filter an array of objects based on passed in fields', () => {
+      const testArray = [
+        {
+          a: 1,
+          b: 1
+        },
+        {
+          a: 2,
+          b: 2
+        },
+        {
+          a: 3,
+          b: 3
+        }
+      ];
+      const testFields = ['a', 'c'];
+      const expectedResults = [
+        {
+          a: 1
+        },
+        {
+          a: 2
+        },
+        {
+          a: 3
+        }
+      ];
+      expect(utils.pluckResultFields(testArray, testFields)).toEqual(expectedResults);
+    });
+
+    test('should filter an objects based on passed in fields', () => {
+      const testObject = {
+        a: {
+          a: 1,
+          b: 1
+        },
+        b: {
+          a: 2,
+          b: 2
+        },
+        c: {
+          a: 3,
+          b: 3
+        }
+      };
+      const testFields = ['a', 'c'];
+      const expectedResults = {
+        a: {
+          a: 1
+        },
+        b: {
+          a: 2
+        },
+        c: {
+          a: 3
+        }
+      };
+      expect(utils.pluckResultFields(testObject, testFields)).toEqual(expectedResults);
+    });
+
+    test('should return the result set as-is if it is not an array or object', () => {
+      const testString = 'flamelink';
+      const testFields = ['a', 'c'];
+      expect(utils.pluckResultFields(testString, testFields)).toEqual(testString);
     });
   });
 });

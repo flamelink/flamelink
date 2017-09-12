@@ -2,7 +2,6 @@ import reduce from 'lodash/reduce';
 import curry from 'lodash/curry';
 import isArray from 'lodash/isArray';
 import isPlainObject from 'lodash/isPlainObject';
-import reduceRight from 'lodash/reduceRight';
 import pick from 'lodash/fp/pick';
 import error from './error';
 
@@ -88,4 +87,4 @@ export const pluckResultFields = curry((fields, resultSet) => {
  * passed through the composed functions and then returns a promise that will resolve to the result of
  * the input being applied to all the methods in sequence.
  */
-export const compose = (...functions) => data => reduceRight(functions, (value, func) => value.then(func), Promise.resolve(data));
+export const compose = (...functions) => data => functions.reduceRight((value, func) => value.then(func), Promise.resolve(data));

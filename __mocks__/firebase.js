@@ -37,6 +37,35 @@ firebase.initializeApp = jest.fn(payload => ({
                   }
                 ])
               });
+
+            case '/environments/production/content/get-entry-ref/en-US':
+              return Promise.resolve({
+                val: jest.fn(() => ({
+                  brand: [1491679616700],
+                  classification: [1491683439177, 1491683439514, 1491683439236, 1491683439455, 1491683439241, 1491683439435],
+                  finish: 'Chrome',
+                  id: 1491827711368,
+                  image: ['-KhTzFZtaoA1wwxhgIav'],
+                  material: 'Brass',
+                  price: '123.00',
+                  productCode: 'HG31685003',
+                  showPrice: '1',
+                  site1: '1',
+                  status: 'publish',
+                  supplierCode: '31685003',
+                  titleA: 'Metris Shower/Bath Finish Set Round Large'
+                }))
+              });
+
+            case '/environments/production/content/brands/en-US':
+              return Promise.resolve({
+                val: jest.fn(() => ({
+                  id: 1491679616700,
+                  name: 'Hansgrohe',
+                  order: 55,
+                  parentId: 0
+                }))
+              });
           }
         }
       })),
@@ -199,6 +228,99 @@ firebase.initializeApp = jest.fn(payload => ({
                   type: 'collection'
                 }
               }))
+            });
+
+          case '/schemas/get-schema':
+            return Promise.resolve({
+              val: jest.fn(() => ({
+                description: 'Brands',
+                display: true,
+                fields: [
+                  {
+                    description: '',
+                    key: 'brand',
+                    relation: 'brands',
+                    show: true,
+                    title: 'Brand',
+                    type: 'tree-relational'
+                  },
+                  {
+                    description: '',
+                    key: 'logo',
+                    show: true,
+                    title: 'Logo',
+                    type: 'image'
+                  },
+                  {
+                    description: '',
+                    key: 'image',
+                    title: 'Image',
+                    type: 'image'
+                  },
+                  {
+                    description: '',
+                    key: 'brochure',
+                    title: 'Brochure',
+                    type: 'image'
+                  },
+                  {
+                    description: '',
+                    key: 'certificate',
+                    title: 'Certificate',
+                    type: 'image'
+                  }
+                ],
+                group: 'Brands',
+                icon: 'FaRegistered',
+                id: 'brands',
+                menuIndex: 1,
+                sortable: {
+                  enabled: true,
+                  fields: ['name'],
+                  startCollapsed: true
+                },
+                title: 'Brands',
+                type: 'collection'
+              }))
+            });
+
+          case '/schemas/get-entry-ref/fields':
+            return Promise.resolve({
+              val: jest.fn(() => [
+                {
+                  description: '',
+                  key: 'brand',
+                  relation: 'brands',
+                  show: true,
+                  title: 'Brand',
+                  type: 'tree-relational'
+                },
+                {
+                  description: '',
+                  key: 'logo',
+                  show: true,
+                  title: 'Logo',
+                  type: 'image'
+                },
+                {
+                  description: '',
+                  key: 'image',
+                  title: 'Image',
+                  type: 'image'
+                },
+                {
+                  description: '',
+                  key: 'brochure',
+                  title: 'Brochure',
+                  type: 'image'
+                },
+                {
+                  description: '',
+                  key: 'certificate',
+                  title: 'Certificate',
+                  type: 'image'
+                }
+              ])
             });
 
           default:

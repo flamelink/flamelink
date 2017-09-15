@@ -1,4 +1,6 @@
 import reduce from 'lodash/reduce';
+import curry from 'lodash/curry';
+import cloneDeep from 'lodash/cloneDeep';
 import isArray from 'lodash/isArray';
 import isPlainObject from 'lodash/isPlainObject';
 import pick from 'lodash/fp/pick';
@@ -51,7 +53,7 @@ export const getNavigationRefPath = (ref = missingRefParam(), env = missingRefPa
 
 export const getSchemasRefPath = (ref = missingRefParam(), env = missingRefParam(), locale = missingRefParam()) => `/schemas/${ref}`;
 
-export const pluckResultFields = (resultSet, fields) => {
+export const pluckResultFields = curry((fields, resultSet) => {
   if (!resultSet || !isArray(fields)) {
     return resultSet;
   }
@@ -76,4 +78,58 @@ export const pluckResultFields = (resultSet, fields) => {
   }
 
   return resultSet;
-};
+});
+
+/**
+ * Our own `compose` function that works on both synchronous and asynchronous functions combined.
+ *
+ * @param {*} functions Array of functions to compose
+ * @returns {Function} Returns a function that takes a single argument for the input data that will be
+ * passed through the composed functions and then returns a promise that will resolve to the result of
+ * the input being applied to all the methods in sequence.
+ */
+export const compose = (...functions) => data => functions.reduceRight((value, func) => value.then(func), Promise.resolve(data));
+
+export const populateResultFields = curry((schemasAPI, contentAPI, contentReference, entryReference, populate, resultSet) => {
+  return new Promise(async (resolve, reject) => {
+    if (!resultSet || !isArray(populate)) {
+      return resolve(resultSet);
+    }
+
+    const schemaFields = await schemasAPI.getFields(contentReference);
+    const fieldsToPopulate = schemaFields.filter(field => field.relation && populate.includes(field.key));
+
+    // Make requests to populate the given fieldValue
+    const populateField = async (content, fieldValue) => {
+      const snapshots = await Promise.all(fieldValue.map(value => contentAPI.getEntryRaw(content, value)));
+      return snapshots.map(snap => snap.val());
+    };
+
+    if (isArray(resultSet)) {
+    }
+
+    if (isPlainObject(resultSet)) {
+      // Only try to populate the fields that are relational and do exist in the resultSet
+      return Promise.all(
+        fieldsToPopulate.map(field => {
+          if (resultSet[entryReference].hasOwnProperty(field.key)) {
+            return populateField(field.relation, resultSet[entryReference][field.key]);
+          }
+          return Promise.resolve(null);
+        })
+      )
+        .then(populated => {
+          const result = cloneDeep(resultSet);
+          fieldsToPopulate.forEach((field, index) => {
+            if (result[entryReference].hasOwnProperty(field.key)) {
+              result[entryReference][field.key] = populated[index];
+            }
+          });
+          return resolve(result);
+        })
+        .catch(reject);
+    }
+
+    return resolve(resultSet);
+  });
+});

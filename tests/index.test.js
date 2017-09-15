@@ -145,6 +145,68 @@ describe('Flamelink SDK', () => {
       });
     });
 
+    describe('"getEntry" Method', () => {
+      test('should be exposed on the "content" object', () => {
+        const contentRef = 'get-entry-ref';
+        const entryRef = 'entry-ref';
+        return expect(flamelink(basicConfig).content.getEntry(contentRef, entryRef)).resolves.toEqual({
+          brand: [1491679616700],
+          classification: [1491683439177, 1491683439514, 1491683439236, 1491683439455, 1491683439241, 1491683439435],
+          finish: 'Chrome',
+          id: 1491827711368,
+          image: ['-KhTzFZtaoA1wwxhgIav'],
+          material: 'Brass',
+          price: '123.00',
+          productCode: 'HG31685003',
+          showPrice: '1',
+          site1: '1',
+          status: 'publish',
+          supplierCode: '31685003',
+          titleA: 'Metris Shower/Bath Finish Set Round Large'
+        });
+      });
+
+      test('should respect the "fields" option', () => {
+        const contentRef = 'get-entry-ref';
+        const entryRef = 'entry-ref';
+        const options = { fields: ['brand', 'productCode', 'status', 'price'] };
+        return expect(flamelink(basicConfig).content.getEntry(contentRef, entryRef, options)).resolves.toEqual({
+          brand: [1491679616700],
+          price: '123.00',
+          productCode: 'HG31685003',
+          status: 'publish'
+        });
+      });
+
+      test('should respect the "populate" option', () => {
+        const contentRef = 'get-entry-ref';
+        const entryRef = 'entry-ref';
+        const options = { populate: ['brand'] };
+        return expect(flamelink(basicConfig).content.getEntry(contentRef, entryRef, options)).resolves.toEqual({
+          brand: [
+            {
+              id: 1491679616700,
+              name: 'Hansgrohe',
+              order: 55,
+              parentId: 0
+            }
+          ],
+          classification: [1491683439177, 1491683439514, 1491683439236, 1491683439455, 1491683439241, 1491683439435],
+          finish: 'Chrome',
+          id: 1491827711368,
+          image: ['-KhTzFZtaoA1wwxhgIav'],
+          material: 'Brass',
+          price: '123.00',
+          productCode: 'HG31685003',
+          showPrice: '1',
+          site1: '1',
+          status: 'publish',
+          supplierCode: '31685003',
+          titleA: 'Metris Shower/Bath Finish Set Round Large'
+        });
+      });
+    });
+
     test('should expose a "set" method', () => {
       const payload = { key: 'value' };
       expect(flamelink(basicConfig).content.set('ref', payload)).toEqual(`"set" called with payload: "${JSON.stringify(payload)}"`);
@@ -396,6 +458,61 @@ describe('Flamelink SDK', () => {
             title: expect.any(String)
           }
         });
+      });
+    });
+
+    test('should expose a "getRaw" method', () => {
+      expect(flamelink(basicConfig).schemas.getRaw).toEqual(expect.any(Function));
+    });
+
+    describe('"get" method', () => {
+      test('should return a single schema', () => {
+        const ref = 'get-schema';
+        return expect(flamelink(basicConfig).schemas.get(ref)).resolves.toEqual(
+          expect.objectContaining({
+            description: expect.any(String),
+            display: expect.any(Boolean),
+            fields: expect.any(Array),
+            group: expect.any(String),
+            icon: expect.any(String),
+            id: expect.any(String),
+            menuIndex: expect.any(Number),
+            title: expect.any(String),
+            type: expect.any(String)
+          })
+        );
+      });
+
+      test('should respect the "fields" option', () => {
+        const ref = 'get-schema';
+        return expect(flamelink(basicConfig).schemas.get(ref, { fields: ['description', 'id', 'title'] })).resolves.toEqual({
+          description: expect.any(String),
+          id: expect.any(String),
+          title: expect.any(String)
+        });
+      });
+    });
+
+    test('should expose a "getFieldsRaw" method', () => {
+      expect(flamelink(basicConfig).schemas.getFieldsRaw).toEqual(expect.any(Function));
+    });
+
+    describe('"getFields" method', () => {
+      test('should return a single schema', () => {
+        const ref = 'get-entry-ref';
+        return expect(flamelink(basicConfig).schemas.getFields(ref)).resolves.toEqual(expect.any(Array));
+      });
+
+      test('should respect the "fields" option', () => {
+        const ref = 'get-entry-ref';
+        return expect(flamelink(basicConfig).schemas.getFields(ref, { fields: ['description', 'title'] })).resolves.toEqual(
+          expect.arrayContaining([
+            {
+              description: expect.any(String),
+              title: expect.any(String)
+            }
+          ])
+        );
       });
     });
   });

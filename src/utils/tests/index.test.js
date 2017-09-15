@@ -5,7 +5,8 @@ describe('Flamelink SDK > Utils', () => {
     let missingRefError = null;
 
     beforeAll(() => {
-      missingRefError = '[FLAMELINK] The reference, environment and locale arguments are all required';
+      missingRefError =
+        '[FLAMELINK] The reference, environment and locale arguments are all required';
     });
 
     afterAll(() => {
@@ -17,7 +18,9 @@ describe('Flamelink SDK > Utils', () => {
         const ref = 'my-reference';
         const env = 'my-environment';
         const locale = 'my-locale';
-        expect(utils.getContentRefPath(ref, env, locale)).toBe(`/environments/${env}/content/${ref}/${locale}`);
+        expect(utils.getContentRefPath(ref, env, locale)).toBe(
+          `/environments/${env}/content/${ref}/${locale}`
+        );
 
         try {
           utils.getContentRefPath(ref, env);
@@ -44,7 +47,9 @@ describe('Flamelink SDK > Utils', () => {
         const ref = 'my-reference';
         const env = 'my-environment';
         const locale = 'my-locale';
-        expect(utils.getNavigationRefPath(ref, env, locale)).toBe(`/environments/${env}/navigation/${ref}/${locale}`);
+        expect(utils.getNavigationRefPath(ref, env, locale)).toBe(
+          `/environments/${env}/navigation/${ref}/${locale}`
+        );
 
         try {
           utils.getNavigationRefPath(ref, env);
@@ -96,7 +101,13 @@ describe('Flamelink SDK > Utils', () => {
 
   describe('"AVAILABLE_FILTER_OPTIONS"', () => {
     test('should return all the possible firebase filter options', () => {
-      expect(utils.AVAILABLE_FILTER_OPTIONS).toEqual(['limitToFirst', 'limitToLast', 'startAt', 'endAt', 'equalTo']);
+      expect(utils.AVAILABLE_FILTER_OPTIONS).toEqual([
+        'limitToFirst',
+        'limitToLast',
+        'startAt',
+        'endAt',
+        'equalTo'
+      ]);
     });
   });
 
@@ -245,12 +256,16 @@ describe('Flamelink SDK > Utils', () => {
       let message;
 
       try {
-        await utils.applyOrderBy(ref, { orderByChild: true });
+        await utils.applyOrderBy(ref, {
+          orderByChild: true
+        });
       } catch (error) {
         message = error.message;
       }
 
-      expect(message).toMatch('[FLAMELINK] "orderByChild" should specify the child key to order by');
+      expect(message).toMatch(
+        '[FLAMELINK] "orderByChild" should specify the child key to order by'
+      );
     });
   });
 

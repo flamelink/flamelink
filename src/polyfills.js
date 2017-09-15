@@ -1,3 +1,4 @@
+/* eslint-disable */
 if (typeof Object.assign != 'function') {
   // Must be writable: true, enumerable: false, configurable: true
   Object.defineProperty(Object, 'assign', {
@@ -37,7 +38,15 @@ if (!Object.keys) {
     'use strict';
     var hasOwnProperty = Object.prototype.hasOwnProperty,
       hasDontEnumBug = !{ toString: null }.propertyIsEnumerable('toString'),
-      dontEnums = ['toString', 'toLocaleString', 'valueOf', 'hasOwnProperty', 'isPrototypeOf', 'propertyIsEnumerable', 'constructor'],
+      dontEnums = [
+        'toString',
+        'toLocaleString',
+        'valueOf',
+        'hasOwnProperty',
+        'isPrototypeOf',
+        'propertyIsEnumerable',
+        'constructor'
+      ],
       dontEnumsLength = dontEnums.length;
 
     return function(obj) {
@@ -66,3 +75,4 @@ if (!Object.keys) {
     };
   })();
 }
+/* eslint-enable */

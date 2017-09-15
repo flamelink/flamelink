@@ -34,7 +34,9 @@ describe('Flamelink SDK', () => {
   });
 
   test('should throw an error if initialized without the mandatory properties', () => {
-    expect(flamelink).toThrow('[FLAMELINK] The following config properties are mandatory: "apiKey", "authDomain", "databaseURL"');
+    expect(flamelink).toThrow(
+      '[FLAMELINK] The following config properties are mandatory: "apiKey", "authDomain", "databaseURL"'
+    );
   });
 
   test('should expose the `firebaseApp` instance if passed in via config', () => {
@@ -65,7 +67,9 @@ describe('Flamelink SDK', () => {
         message = error.message;
       }
 
-      expect(message).toMatch(`[FLAMELINK] "${testLocale}" is not a supported locale. Supported Locales: en-US`);
+      expect(message).toMatch(
+        `[FLAMELINK] "${testLocale}" is not a supported locale. Supported Locales: en-US`
+      );
     });
   });
 
@@ -98,7 +102,9 @@ describe('Flamelink SDK', () => {
         message = error.message;
       }
 
-      expect(message).toMatch(`[FLAMELINK] "${testEnvironment}" is not a supported environment. Supported Environments: production`);
+      expect(message).toMatch(
+        `[FLAMELINK] "${testEnvironment}" is not a supported environment. Supported Environments: production`
+      );
     });
   });
 
@@ -134,7 +140,9 @@ describe('Flamelink SDK', () => {
 
       test('should respect the "fields" option', () => {
         const ref = 'get-ref';
-        return expect(flamelink(basicConfig).content.get(ref, { fields: ['name'] })).resolves.toEqual({
+        return expect(
+          flamelink(basicConfig).content.get(ref, { fields: ['name'] })
+        ).resolves.toEqual({
           'content-type-1': {
             name: 'ASP'
           },
@@ -149,9 +157,18 @@ describe('Flamelink SDK', () => {
       test('should be exposed on the "content" object', () => {
         const contentRef = 'get-entry-ref';
         const entryRef = 'entry-ref';
-        return expect(flamelink(basicConfig).content.getEntry(contentRef, entryRef)).resolves.toEqual({
+        return expect(
+          flamelink(basicConfig).content.getEntry(contentRef, entryRef)
+        ).resolves.toEqual({
           brand: [1491679616700],
-          classification: [1491683439177, 1491683439514, 1491683439236, 1491683439455, 1491683439241, 1491683439435],
+          classification: [
+            1491683439177,
+            1491683439514,
+            1491683439236,
+            1491683439455,
+            1491683439241,
+            1491683439435
+          ],
           finish: 'Chrome',
           id: 1491827711368,
           image: ['-KhTzFZtaoA1wwxhgIav'],
@@ -170,7 +187,9 @@ describe('Flamelink SDK', () => {
         const contentRef = 'get-entry-ref';
         const entryRef = 'entry-ref';
         const options = { fields: ['brand', 'productCode', 'status', 'price'] };
-        return expect(flamelink(basicConfig).content.getEntry(contentRef, entryRef, options)).resolves.toEqual({
+        return expect(
+          flamelink(basicConfig).content.getEntry(contentRef, entryRef, options)
+        ).resolves.toEqual({
           brand: [1491679616700],
           price: '123.00',
           productCode: 'HG31685003',
@@ -182,7 +201,9 @@ describe('Flamelink SDK', () => {
         const contentRef = 'get-entry-ref';
         const entryRef = 'entry-ref';
         const options = { populate: ['brand'] };
-        return expect(flamelink(basicConfig).content.getEntry(contentRef, entryRef, options)).resolves.toEqual({
+        return expect(
+          flamelink(basicConfig).content.getEntry(contentRef, entryRef, options)
+        ).resolves.toEqual({
           brand: [
             {
               id: 1491679616700,
@@ -191,7 +212,14 @@ describe('Flamelink SDK', () => {
               parentId: 0
             }
           ],
-          classification: [1491683439177, 1491683439514, 1491683439236, 1491683439455, 1491683439241, 1491683439435],
+          classification: [
+            1491683439177,
+            1491683439514,
+            1491683439236,
+            1491683439455,
+            1491683439241,
+            1491683439435
+          ],
           finish: 'Chrome',
           id: 1491827711368,
           image: ['-KhTzFZtaoA1wwxhgIav'],
@@ -209,43 +237,53 @@ describe('Flamelink SDK', () => {
 
     test('should expose a "set" method', () => {
       const payload = { key: 'value' };
-      expect(flamelink(basicConfig).content.set('ref', payload)).toEqual(`"set" called with payload: "${JSON.stringify(payload)}"`);
+      expect(flamelink(basicConfig).content.set('ref', payload)).toEqual(
+        `"set" called with payload: "${JSON.stringify(payload)}"`
+      );
     });
 
     test('should expose a "onRaw" method', () => {
       const cb = jest.fn();
       flamelink(basicConfig).content.onRaw('ref', {}, cb);
       expect(cb.mock.calls.length).toEqual(1);
-      expect(cb.mock.calls[0][0].val()).toEqual(`"on" called with event: "value"`);
+      expect(cb.mock.calls[0][0].val()).toEqual('"on" called with event: "value"');
       flamelink(basicConfig).content.onRaw('ref', cb);
       expect(cb.mock.calls.length).toEqual(2);
-      expect(cb.mock.calls[0][0].val()).toEqual(`"on" called with event: "value"`);
+      expect(cb.mock.calls[0][0].val()).toEqual('"on" called with event: "value"');
     });
 
     test('should expose an "on" method', () => {
       const cb = jest.fn();
       flamelink(basicConfig).content.on('ref', {}, cb);
       expect(cb.mock.calls.length).toEqual(1);
-      expect(cb.mock.calls[0][0]).toEqual(`"on" called with event: "value"`);
+      expect(cb.mock.calls[0][0]).toEqual('"on" called with event: "value"');
       flamelink(basicConfig).content.on('ref', cb);
       expect(cb.mock.calls.length).toEqual(2);
-      expect(cb.mock.calls[0][0]).toEqual(`"on" called with event: "value"`);
+      expect(cb.mock.calls[0][0]).toEqual('"on" called with event: "value"');
     });
 
     test('should expose an "off" method', () => {
       const event = 'something';
-      expect(flamelink(basicConfig).content.off('ref', event)).toEqual(`"off" called with event: "${event}"`);
-      expect(flamelink(basicConfig).content.off('ref')).toEqual(`"off" called with event: "undefined"`);
+      expect(flamelink(basicConfig).content.off('ref', event)).toEqual(
+        `"off" called with event: "${event}"`
+      );
+      expect(flamelink(basicConfig).content.off('ref')).toEqual(
+        '"off" called with event: "undefined"'
+      );
     });
 
     test('should expose a "remove" method', () => {
       const ref = 'choccie';
-      expect(flamelink(basicConfig).content.remove(ref)).toEqual(`"remove" called for "/environments/production/content/${ref}/en-US"`);
+      expect(flamelink(basicConfig).content.remove(ref)).toEqual(
+        `"remove" called for "/environments/production/content/${ref}/en-US"`
+      );
     });
 
     test('should expose an "update" method', () => {
       const payload = { key: 'value' };
-      expect(flamelink(basicConfig).content.update('ref', payload)).toEqual(`"update" called with payload: "${JSON.stringify(payload)}"`);
+      expect(flamelink(basicConfig).content.update('ref', payload)).toEqual(
+        `"update" called with payload: "${JSON.stringify(payload)}"`
+      );
     });
 
     test('should expose a "transaction" method', () => {
@@ -338,7 +376,11 @@ describe('Flamelink SDK', () => {
 
       test('should respect the "fields" option', () => {
         const ref = 'get-items-ref';
-        return expect(flamelink(basicConfig).nav.getItems(ref, { fields: ['cssClass', 'title', 'url'] })).resolves.toEqual([
+        return expect(
+          flamelink(basicConfig).nav.getItems(ref, {
+            fields: ['cssClass', 'title', 'url']
+          })
+        ).resolves.toEqual([
           {
             cssClass: '',
             title: 'Homes',
@@ -355,43 +397,51 @@ describe('Flamelink SDK', () => {
 
     test('should expose a "set" method', () => {
       const payload = { key: 'value' };
-      expect(flamelink(basicConfig).nav.set('ref', payload)).toEqual(`"set" called with payload: "${JSON.stringify(payload)}"`);
+      expect(flamelink(basicConfig).nav.set('ref', payload)).toEqual(
+        `"set" called with payload: "${JSON.stringify(payload)}"`
+      );
     });
 
     test('should expose a "onRaw" method', () => {
       const cb = jest.fn();
       flamelink(basicConfig).nav.onRaw('ref', {}, cb);
       expect(cb.mock.calls.length).toEqual(1);
-      expect(cb.mock.calls[0][0].val()).toEqual(`"on" called with event: "value"`);
+      expect(cb.mock.calls[0][0].val()).toEqual('"on" called with event: "value"');
       flamelink(basicConfig).nav.onRaw('ref', cb);
       expect(cb.mock.calls.length).toEqual(2);
-      expect(cb.mock.calls[0][0].val()).toEqual(`"on" called with event: "value"`);
+      expect(cb.mock.calls[0][0].val()).toEqual('"on" called with event: "value"');
     });
 
     test('should expose an "on" method', () => {
       const cb = jest.fn();
       flamelink(basicConfig).nav.on('ref', {}, cb);
       expect(cb.mock.calls.length).toEqual(1);
-      expect(cb.mock.calls[0][0]).toEqual(`"on" called with event: "value"`);
+      expect(cb.mock.calls[0][0]).toEqual('"on" called with event: "value"');
       flamelink(basicConfig).nav.on('ref', cb);
       expect(cb.mock.calls.length).toEqual(2);
-      expect(cb.mock.calls[0][0]).toEqual(`"on" called with event: "value"`);
+      expect(cb.mock.calls[0][0]).toEqual('"on" called with event: "value"');
     });
 
     test('should expose an "off" method', () => {
       const event = 'something';
-      expect(flamelink(basicConfig).nav.off('ref', event)).toEqual(`"off" called with event: "${event}"`);
-      expect(flamelink(basicConfig).nav.off('ref')).toEqual(`"off" called with event: "undefined"`);
+      expect(flamelink(basicConfig).nav.off('ref', event)).toEqual(
+        `"off" called with event: "${event}"`
+      );
+      expect(flamelink(basicConfig).nav.off('ref')).toEqual('"off" called with event: "undefined"');
     });
 
     test('should expose a "remove" method', () => {
       const ref = 'choccie';
-      expect(flamelink(basicConfig).nav.remove(ref)).toEqual(`"remove" called for "/environments/production/navigation/${ref}/en-US"`);
+      expect(flamelink(basicConfig).nav.remove(ref)).toEqual(
+        `"remove" called for "/environments/production/navigation/${ref}/en-US"`
+      );
     });
 
     test('should expose an "update" method', () => {
       const payload = { key: 'value' };
-      expect(flamelink(basicConfig).nav.update('ref', payload)).toEqual(`"update" called with payload: "${JSON.stringify(payload)}"`);
+      expect(flamelink(basicConfig).nav.update('ref', payload)).toEqual(
+        `"update" called with payload: "${JSON.stringify(payload)}"`
+      );
     });
 
     test('should expose a "transaction" method', () => {
@@ -416,8 +466,8 @@ describe('Flamelink SDK', () => {
     });
 
     describe('"getAll" method', () => {
-      test('should return all schemas', () => {
-        return expect(flamelink(basicConfig).schemas.getAll()).resolves.toEqual(
+      test('should return all schemas', () =>
+        expect(flamelink(basicConfig).schemas.getAll()).resolves.toEqual(
           expect.objectContaining({
             'about-us': expect.objectContaining({
               description: expect.any(String),
@@ -442,11 +492,14 @@ describe('Flamelink SDK', () => {
               type: expect.any(String)
             })
           })
-        );
-      });
+        ));
 
-      test('should respect the "fields" option', () => {
-        return expect(flamelink(basicConfig).schemas.getAll({ fields: ['description', 'id', 'title'] })).resolves.toEqual({
+      test('should respect the "fields" option', () =>
+        expect(
+          flamelink(basicConfig).schemas.getAll({
+            fields: ['description', 'id', 'title']
+          })
+        ).resolves.toEqual({
           'about-us': {
             description: expect.any(String),
             id: expect.any(String),
@@ -457,8 +510,7 @@ describe('Flamelink SDK', () => {
             id: expect.any(String),
             title: expect.any(String)
           }
-        });
-      });
+        }));
     });
 
     test('should expose a "getRaw" method', () => {
@@ -485,7 +537,11 @@ describe('Flamelink SDK', () => {
 
       test('should respect the "fields" option', () => {
         const ref = 'get-schema';
-        return expect(flamelink(basicConfig).schemas.get(ref, { fields: ['description', 'id', 'title'] })).resolves.toEqual({
+        return expect(
+          flamelink(basicConfig).schemas.get(ref, {
+            fields: ['description', 'id', 'title']
+          })
+        ).resolves.toEqual({
           description: expect.any(String),
           id: expect.any(String),
           title: expect.any(String)
@@ -500,12 +556,18 @@ describe('Flamelink SDK', () => {
     describe('"getFields" method', () => {
       test('should return a single schema', () => {
         const ref = 'get-entry-ref';
-        return expect(flamelink(basicConfig).schemas.getFields(ref)).resolves.toEqual(expect.any(Array));
+        return expect(flamelink(basicConfig).schemas.getFields(ref)).resolves.toEqual(
+          expect.any(Array)
+        );
       });
 
       test('should respect the "fields" option', () => {
         const ref = 'get-entry-ref';
-        return expect(flamelink(basicConfig).schemas.getFields(ref, { fields: ['description', 'title'] })).resolves.toEqual(
+        return expect(
+          flamelink(basicConfig).schemas.getFields(ref, {
+            fields: ['description', 'title']
+          })
+        ).resolves.toEqual(
           expect.arrayContaining([
             {
               description: expect.any(String),

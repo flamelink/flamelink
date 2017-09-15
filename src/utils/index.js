@@ -25,7 +25,13 @@ export const applyOrderBy = (ref, opt = {}) => {
   return ref;
 };
 
-export const AVAILABLE_FILTER_OPTIONS = ['limitToFirst', 'limitToLast', 'startAt', 'endAt', 'equalTo'];
+export const AVAILABLE_FILTER_OPTIONS = [
+  'limitToFirst',
+  'limitToLast',
+  'startAt',
+  'endAt',
+  'equalTo'
+];
 
 export const applyFilters = (ref, opt = {}) => {
   if (!Object.keys(opt).length) {
@@ -45,13 +51,23 @@ const missingRefParam = () => {
   throw error('The reference, environment and locale arguments are all required');
 };
 
-export const getContentRefPath = (ref = missingRefParam(), env = missingRefParam(), locale = missingRefParam()) =>
-  `/environments/${env}/content/${ref}/${locale}`;
+export const getContentRefPath = (
+  ref = missingRefParam(),
+  env = missingRefParam(),
+  locale = missingRefParam()
+) => `/environments/${env}/content/${ref}/${locale}`;
 
-export const getNavigationRefPath = (ref = missingRefParam(), env = missingRefParam(), locale = missingRefParam()) =>
-  `/environments/${env}/navigation/${ref}/${locale}`;
+export const getNavigationRefPath = (
+  ref = missingRefParam(),
+  env = missingRefParam(),
+  locale = missingRefParam()
+) => `/environments/${env}/navigation/${ref}/${locale}`;
 
-export const getSchemasRefPath = (ref = missingRefParam(), env = missingRefParam(), locale = missingRefParam()) => `/schemas/${ref}`;
+export const getSchemasRefPath = (
+  ref = missingRefParam(),
+  env = missingRefParam(),
+  locale = missingRefParam()
+) => `/schemas/${ref}`;
 
 export const pluckResultFields = curry((fields, resultSet) => {
   if (!resultSet || !isArray(fields)) {
@@ -88,48 +104,54 @@ export const pluckResultFields = curry((fields, resultSet) => {
  * passed through the composed functions and then returns a promise that will resolve to the result of
  * the input being applied to all the methods in sequence.
  */
-export const compose = (...functions) => data => functions.reduceRight((value, func) => value.then(func), Promise.resolve(data));
+export const compose = (...functions) => input =>
+  functions.reduceRight((chain, func) => chain.then(func), Promise.resolve(input));
 
-export const populateResultFields = curry((schemasAPI, contentAPI, contentReference, entryReference, populate, resultSet) => {
-  return new Promise(async (resolve, reject) => {
-    if (!resultSet || !isArray(populate)) {
-      return resolve(resultSet);
-    }
+export const populateResultFields = curry(
+  (schemasAPI, contentAPI, contentReference, entryReference, populate, resultSet) =>
+    new Promise(async (resolve, reject) => {
+      if (!resultSet || !isArray(populate)) {
+        return resolve(resultSet);
+      }
 
-    const schemaFields = await schemasAPI.getFields(contentReference);
-    const fieldsToPopulate = schemaFields.filter(field => field.relation && populate.includes(field.key));
+      const schemaFields = await schemasAPI.getFields(contentReference);
+      const fieldsToPopulate = schemaFields.filter(
+        field => field.relation && populate.includes(field.key)
+      );
 
-    // Make requests to populate the given fieldValue
-    const populateField = async (content, fieldValue) => {
-      const snapshots = await Promise.all(fieldValue.map(value => contentAPI.getEntryRaw(content, value)));
-      return snapshots.map(snap => snap.val());
-    };
+      // Make requests to populate the given fieldValue
+      const populateField = async (content, fieldValue) => {
+        const snapshots = await Promise.all(
+          fieldValue.map(value => contentAPI.getEntryRaw(content, value))
+        );
+        return snapshots.map(snap => snap.val());
+      };
 
-    if (isArray(resultSet)) {
-    }
+      if (isArray(resultSet)) {
+      }
 
-    if (isPlainObject(resultSet)) {
-      // Only try to populate the fields that are relational and do exist in the resultSet
-      return Promise.all(
-        fieldsToPopulate.map(field => {
-          if (resultSet[entryReference].hasOwnProperty(field.key)) {
-            return populateField(field.relation, resultSet[entryReference][field.key]);
-          }
-          return Promise.resolve(null);
-        })
-      )
-        .then(populated => {
-          const result = cloneDeep(resultSet);
-          fieldsToPopulate.forEach((field, index) => {
-            if (result[entryReference].hasOwnProperty(field.key)) {
-              result[entryReference][field.key] = populated[index];
+      if (isPlainObject(resultSet)) {
+        // Only try to populate the fields that are relational and do exist in the resultSet
+        return Promise.all(
+          fieldsToPopulate.map(field => {
+            if (resultSet[entryReference].hasOwnProperty(field.key)) {
+              return populateField(field.relation, resultSet[entryReference][field.key]);
             }
-          });
-          return resolve(result);
-        })
-        .catch(reject);
-    }
+            return Promise.resolve(null);
+          })
+        )
+          .then(populated => {
+            const result = cloneDeep(resultSet);
+            fieldsToPopulate.forEach((field, index) => {
+              if (result[entryReference].hasOwnProperty(field.key)) {
+                result[entryReference][field.key] = populated[index];
+              }
+            });
+            return resolve(result);
+          })
+          .catch(reject);
+      }
 
-    return resolve(resultSet);
-  });
-});
+      return resolve(resultSet);
+    })
+);

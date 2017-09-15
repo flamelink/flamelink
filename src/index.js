@@ -1,6 +1,6 @@
 import 'regenerator-runtime/runtime';
-import './polyfills';
 import * as firebase from 'firebase';
+import './polyfills';
 import error from './utils/error';
 import {
   applyOrderBy,
@@ -35,7 +35,9 @@ function flamelink(conf = {}) {
     const { apiKey, authDomain, databaseURL, storageBucket } = config;
 
     if (!apiKey || !authDomain || !databaseURL) {
-      throw error('The following config properties are mandatory: "apiKey", "authDomain", "databaseURL"');
+      throw error(
+        'The following config properties are mandatory: "apiKey", "authDomain", "databaseURL"'
+      );
     }
 
     firebaseApp_ = firebase.initializeApp({
@@ -205,7 +207,13 @@ function flamelink(conf = {}) {
      */
     async getEntry(contentRef, entryRef, options = {}) {
       const pluckFields = pluckResultFields(options.fields);
-      const populateFields = populateResultFields(schemasAPI, contentAPI, contentRef, entryRef, options.populate);
+      const populateFields = populateResultFields(
+        schemasAPI,
+        contentAPI,
+        contentRef,
+        entryRef,
+        options.populate
+      );
       const snapshot = await this.getEntryRaw(contentRef, entryRef, options);
       const wrapValue = { [entryRef]: snapshot.val() }; // Wrapping value to create the correct structure for our filtering to work
       const result = await compose(populateFields, pluckFields)(wrapValue);
@@ -501,19 +509,25 @@ function flamelink(conf = {}) {
           .ref('/settings/locales')
           .once('value')
           .then(snapshot => {
-            let supportedLocales_ = snapshot.val();
+            const supportedLocales_ = snapshot.val();
 
             if (!supportedLocales_) {
               return reject(error('No supported locales found.'));
             }
 
             if (!supportedLocales_.includes(locale)) {
-              return reject(error(`"${locale}" is not a supported locale. Supported Locales: ${supportedLocales_.join(', ')}`));
+              return reject(
+                error(
+                  `"${locale}" is not a supported locale. Supported Locales: ${supportedLocales_.join(
+                    ', '
+                  )}`
+                )
+              );
             }
 
             locale_ = locale;
 
-            resolve(locale_);
+            return resolve(locale_);
           })
           .catch(reject);
       });
@@ -531,19 +545,25 @@ function flamelink(conf = {}) {
           .ref('/settings/environments')
           .once('value')
           .then(snapshot => {
-            let supportedEnvironments_ = snapshot.val();
+            const supportedEnvironments_ = snapshot.val();
 
             if (!supportedEnvironments_) {
               return reject(error(`No supported environments found.`));
             }
 
             if (!supportedEnvironments_.includes(env)) {
-              return reject(error(`"${env}" is not a supported environment. Supported Environments: ${supportedEnvironments_.join(', ')}`));
+              return reject(
+                error(
+                  `"${env}" is not a supported environment. Supported Environments: ${supportedEnvironments_.join(
+                    ', '
+                  )}`
+                )
+              );
             }
 
             env_ = env;
 
-            resolve(env_);
+            return resolve(env_);
           })
           .catch(reject);
       });

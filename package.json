@@ -6,7 +6,8 @@
   "scripts": {
     "build": "webpack --config ./config/webpack.config.js",
     "package": "webpack -p --config ./config/webpack.config.js",
-    "test": "jest --coverage --collectCoverageFrom=src/**/*.js --collectCoverageFrom=!src/polyfills.js"
+    "test": "jest --coverage --collectCoverageFrom=src/**/*.js --collectCoverageFrom=!src/polyfills.js",
+    "lint": "eslint ./src --cache"
   },
   "repository": {
     "type": "git",
@@ -32,14 +33,24 @@
   "license": "ISC",
   "homepage": "https://bitbucket.org/responsivestudio/flamelink-sdk#readme",
   "module": "src/index.js",
+  "dependencies": {
+    "firebase": "^4.3.1",
+    "lodash": "^4.17.4",
+    "regenerator-runtime": "^0.11.0"
+  },
   "devDependencies": {
     "babel-core": "^6.25.0",
     "babel-jest": "^21.0.2",
     "babel-loader": "^7.1.1",
     "babel-plugin-transform-es2015-modules-commonjs": "^6.24.1",
     "babel-preset-env": "^1.6.0",
-    "firebase": "^4.3.1",
+    "eslint": "^4.6.1",
+    "eslint-config-airbnb-base": "^12.0.0",
+    "eslint-config-prettier": "^2.4.0",
+    "eslint-plugin-import": "^2.7.0",
+    "eslint-plugin-prettier": "^2.2.0",
     "jest": "^21.0.2",
+    "prettier": "^1.7.0",
     "webpack": "^3.5.6"
   },
   "jest": {
@@ -48,7 +59,7 @@
       "^.+\\.js$": "babel-jest"
     },
     "globals": {
-      "__PACKAGE_VERSION__": "0.1.0"
+      "__PACKAGE_VERSION__": "0.2.0"
     }
   },
   "babel": {
@@ -75,9 +86,5 @@
         ]
       }
     }
-  },
-  "dependencies": {
-    "lodash": "^4.17.4",
-    "regenerator-runtime": "^0.11.0"
   }
 }

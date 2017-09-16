@@ -42,8 +42,7 @@ export const applyFilters = (ref, opt = {}) => {
     if (!opt[filter]) {
       return newRef;
     }
-    newRef = newRef[filter](opt[filter]);
-    return newRef;
+    return newRef[filter](opt[filter]);
   }, ref);
 };
 
@@ -107,51 +106,105 @@ export const pluckResultFields = curry((fields, resultSet) => {
 export const compose = (...functions) => input =>
   functions.reduceRight((chain, func) => chain.then(func), Promise.resolve(input));
 
-export const populateResultFields = curry(
-  (schemasAPI, contentAPI, contentReference, entryReference, populate, resultSet) =>
-    new Promise(async (resolve, reject) => {
-      if (!resultSet || !isArray(populate)) {
-        return resolve(resultSet);
-      }
+/**
+ * Ensure that the passed in `populate` property is returning an array of objects
+ * required by other populate functions.
+ * @param {Array} populate
+ * @returns {Array}
+ */
+export const prepPopulateFields = populate => {
+  if (!populate || !isArray(populate)) {
+    return [];
+  }
 
-      const schemaFields = await schemasAPI.getFields(contentReference);
-      const fieldsToPopulate = schemaFields.filter(
-        field => field.relation && populate.includes(field.key)
-      );
-
-      // Make requests to populate the given fieldValue
-      const populateField = async (content, fieldValue) => {
-        const snapshots = await Promise.all(
-          fieldValue.map(value => contentAPI.getEntryRaw(content, value))
-        );
-        return snapshots.map(snap => snap.val());
+  return populate.map(option => {
+    if (typeof option === 'string') {
+      return {
+        field: option
       };
+    }
 
-      if (isArray(resultSet)) {
+    return option;
+  });
+};
+
+/**
+ * Curried helper function that takes in an entry's object and then populates the given
+ * properties recursively.
+ */
+export const populateEntry = curry(
+  async (schemasAPI, contentAPI, contentType, entryKey, populate, entry) => {
+    const preppedPopulateFields = prepPopulateFields(populate);
+
+    if (!preppedPopulateFields[0]) {
+      return entry;
+    }
+
+    const schemaFields = await schemasAPI.getFields(contentType);
+    // TODO: Update logic here to handle `image` types as well
+    const fieldsToPopulate = preppedPopulateFields.reduce((fields, preppedField) => {
+      const schemaField = schemaFields.find(field => field.key === preppedField.field);
+      if (schemaField && schemaField.relation) {
+        return fields.concat([
+          Object.assign({}, preppedField, { contentType: schemaField.relation })
+        ]);
       }
+      return fields;
+    }, []);
 
-      if (isPlainObject(resultSet)) {
-        // Only try to populate the fields that are relational and do exist in the resultSet
-        return Promise.all(
-          fieldsToPopulate.map(field => {
-            if (resultSet[entryReference].hasOwnProperty(field.key)) {
-              return populateField(field.relation, resultSet[entryReference][field.key]);
-            }
-            return Promise.resolve(null);
-          })
-        )
-          .then(populated => {
-            const result = cloneDeep(resultSet);
-            fieldsToPopulate.forEach((field, index) => {
-              if (result[entryReference].hasOwnProperty(field.key)) {
-                result[entryReference][field.key] = populated[index];
-              }
-            });
-            return resolve(result);
-          })
-          .catch(reject);
+    if (!fieldsToPopulate[0]) {
+      return entry;
+    }
+
+    const populatedFields = await Promise.all(
+      fieldsToPopulate.map(async populateField => {
+        const { field, contentType: innerContentType } = populateField;
+
+        // if it exists, the entry value for this field should be an array
+        if (entry[entryKey].hasOwnProperty(field)) {
+          const relationalEntries = entry[entryKey][field];
+
+          if (!isArray(relationalEntries)) {
+            throw error(
+              `The "${field}" field does not seem to be a relational property for the "${contentType}" content type.`
+            );
+          }
+
+          const populatedRelationsEntries = await Promise.all(
+            relationalEntries.map(async innerEntryKey => {
+              const pluckFields = pluckResultFields(populateField.fields);
+              const populateFields = populateEntry(
+                schemasAPI,
+                contentAPI,
+                innerContentType,
+                innerEntryKey,
+                populateField.populate
+              );
+
+              const snapshot = await contentAPI.getEntryRaw(
+                innerContentType,
+                innerEntryKey,
+                populateField
+              );
+              const wrapValue = { [innerEntryKey]: snapshot.val() };
+              const result = await compose(populateFields, pluckFields)(wrapValue);
+              return result[innerEntryKey];
+            })
+          );
+
+          return populatedRelationsEntries;
+        }
+
+        return null;
+      })
+    );
+
+    return fieldsToPopulate.reduce((populatedEntry, populateField, index) => {
+      const { field } = populateField;
+      if (populatedEntry[entryKey].hasOwnProperty(field)) {
+        populatedEntry[entryKey][field] = populatedFields[index]; // eslint-disable-line no-param-reassign
       }
-
-      return resolve(resultSet);
-    })
+      return populatedEntry;
+    }, cloneDeep(entry));
+  }
 );

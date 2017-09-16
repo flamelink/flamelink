@@ -9,8 +9,8 @@ import {
   getNavigationRefPath,
   getSchemasRefPath,
   pluckResultFields,
-  compose,
-  populateResultFields
+  populateEntry,
+  compose
 } from './utils';
 
 const DEFAULT_CONFIG = {
@@ -207,7 +207,7 @@ function flamelink(conf = {}) {
      */
     async getEntry(contentRef, entryRef, options = {}) {
       const pluckFields = pluckResultFields(options.fields);
-      const populateFields = populateResultFields(
+      const populateFields = populateEntry(
         schemasAPI,
         contentAPI,
         contentRef,

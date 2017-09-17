@@ -369,4 +369,52 @@ describe('Flamelink SDK > Utils', () => {
       expect(utils.pluckResultFields(testFields, testString)).toEqual(testString);
     });
   });
+
+  describe('"prepPopulateFields"', () => {
+    test('should return an empty array if called with no arguments', () => {
+      expect(utils.prepPopulateFields()).toEqual([]);
+    });
+
+    test('should return an empty array if called with something other than an array', () => {
+      expect(utils.prepPopulateFields('a')).toEqual([]);
+      expect(utils.prepPopulateFields({ key: 'value' })).toEqual([]);
+      expect(utils.prepPopulateFields(123)).toEqual([]);
+    });
+
+    test('should convert an array of strings into an array of objects', () => {
+      expect(utils.prepPopulateFields(['a', 'b', 'c'])).toEqual([
+        { field: 'a' },
+        { field: 'b' },
+        { field: 'c' }
+      ]);
+    });
+
+    test('should keep all additional properties passed as options', () => {
+      expect(
+        utils.prepPopulateFields([
+          { field: 'a' },
+          { field: 'b', fields: ['id', 'title', 'description'], someOtherKey: 123456 },
+          'c'
+        ])
+      ).toEqual([
+        { field: 'a' },
+        { field: 'b', fields: ['id', 'title', 'description'], someOtherKey: 123456 },
+        { field: 'c' }
+      ]);
+    });
+  });
+
+  describe('"populateEntry"', () => {
+    test('should return the entry if no "populate" attributes are passed in', () => {
+      const schemasAPI = {};
+      const contentAPI = {};
+      const contentType = {};
+      const entryKey = {};
+      const populate = {};
+      const entry = { key: 'value' };
+      return expect(
+        utils.populateEntry(schemasAPI, contentAPI, contentType, entryKey, populate, entry)
+      ).resolves.toEqual(entry);
+    });
+  });
 });

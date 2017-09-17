@@ -207,13 +207,7 @@ function flamelink(conf = {}) {
      */
     async getEntry(contentRef, entryRef, options = {}) {
       const pluckFields = pluckResultFields(options.fields);
-      const populateFields = populateEntry(
-        schemasAPI,
-        contentAPI,
-        contentRef,
-        entryRef,
-        options.populate
-      );
+      const populateFields = populateEntry(schemasAPI, contentAPI, contentRef, options.populate);
       const snapshot = await this.getEntryRaw(contentRef, entryRef, options);
       const wrapValue = { [entryRef]: snapshot.val() }; // Wrapping value to create the correct structure for our filtering to work
       const result = await compose(populateFields, pluckFields)(wrapValue);

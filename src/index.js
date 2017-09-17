@@ -10,6 +10,7 @@ import {
   getSchemasRefPath,
   pluckResultFields,
   populateEntry,
+  formatNavigationStructure,
   compose
 } from './utils';
 
@@ -378,14 +379,19 @@ function flamelink(conf = {}) {
      * @param {Object} [options={}]
      * @returns {Promise} Resolves to value of query
      */
-    get(ref, options = {}) {
-      return new Promise((resolve, reject) => {
-        this.getRaw(ref, options)
-          .then(snapshot => {
-            resolve(pluckResultFields(options.fields, snapshot.val()));
-          })
-          .catch(reject);
-      });
+    async get(ref, options = {}) {
+      const snapshot = await this.getRaw(ref, options);
+      const wrappedNav = await pluckResultFields(options.fields, { [ref]: snapshot.val() });
+      const nav = wrappedNav[ref];
+
+      // Only try and structure items if items weren't plucked out
+      if (nav && nav.hasOwnProperty('items')) {
+        return Object.assign({}, nav, {
+          items: formatNavigationStructure(options.structure, nav.items)
+        });
+      }
+
+      return nav;
     },
 
     /**
@@ -409,14 +415,11 @@ function flamelink(conf = {}) {
      * @param {Object} [options={}]
      * @returns {Promise} Resolves to value of query
      */
-    getItems(ref, options = {}) {
-      return new Promise((resolve, reject) => {
-        this.getItemsRaw(ref, options)
-          .then(snapshot => {
-            resolve(pluckResultFields(options.fields, snapshot.val()));
-          })
-          .catch(reject);
-      });
+    async getItems(ref, options = {}) {
+      const pluckFields = pluckResultFields(options.fields);
+      const structureItems = formatNavigationStructure(options.structure);
+      const snapshot = await this.getItemsRaw(ref, options);
+      return compose(structureItems, pluckFields)(snapshot.val());
     },
 
     /**

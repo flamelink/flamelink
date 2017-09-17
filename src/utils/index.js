@@ -223,3 +223,30 @@ export const populateEntry = curry(async (schemasAPI, contentAPI, contentType, p
     {}
   );
 });
+
+export const formatNavigationStructure = curry((structure, items) => {
+  if (!isArray(items)) {
+    throw error('"formatNavigationStructure" should be called with an array of navigation items');
+  }
+
+  if (structure === 'nested' || structure === 'hierarchical') {
+    const mapChildren = (levelItems, previousId = 0) =>
+      levelItems
+        .map(item =>
+          Object.assign({}, item, {
+            children: items.filter(innerItem => innerItem.parentIndex === item.uuid)
+          })
+        )
+        .filter(item => item.parentIndex === previousId)
+        .map(item => {
+          if (item.children.length === 0) {
+            return item;
+          }
+          return Object.assign({}, item, { children: mapChildren(item.children, item.uuid) });
+        });
+
+    return mapChildren(items, 0);
+  }
+
+  return items;
+});

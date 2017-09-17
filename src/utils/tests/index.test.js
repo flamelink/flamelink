@@ -416,4 +416,108 @@ describe('Flamelink SDK > Utils', () => {
       ).resolves.toEqual(entry);
     });
   });
+
+  describe('"formatNavigationStructure"', () => {
+    test('should return the given items as-is if structure is "flat"', () => {
+      const structure = 'flat';
+      const items = [{ a: 1, b: 2 }];
+      expect(utils.formatNavigationStructure(structure, items)).toEqual(items);
+    });
+
+    test('should return the given items in a nested structure if structure is "nested"', () => {
+      const structure = 'nested';
+      const items = [
+        {
+          id: 1505670612291,
+          order: 0,
+          parentIndex: 0,
+          title: 'Home',
+          url: '/',
+          uuid: 1505670612291
+        },
+        {
+          id: 1505670636997,
+          order: 1,
+          parentIndex: 0,
+          title: 'About',
+          url: '/about',
+          uuid: 1505670636997
+        },
+        {
+          id: 1505670681965,
+          order: 2,
+          parentIndex: 1505670636997,
+          title: 'Our Mission',
+          url: '/our-mission',
+          uuid: 1505670681965
+        },
+        {
+          id: 1505670681966,
+          order: 2,
+          parentIndex: 1505670681965,
+          title: 'Our Values',
+          url: '/our-values',
+          uuid: 1505670681966
+        },
+        {
+          id: 1505670798697,
+          order: 3,
+          parentIndex: 0,
+          title: 'Contact Us',
+          url: '/contact',
+          uuid: 1505670798697
+        }
+      ];
+      const expectedOutput = [
+        {
+          id: 1505670612291,
+          order: 0,
+          parentIndex: 0,
+          title: 'Home',
+          url: '/',
+          uuid: 1505670612291,
+          children: []
+        },
+        {
+          id: 1505670636997,
+          order: 1,
+          parentIndex: 0,
+          title: 'About',
+          url: '/about',
+          uuid: 1505670636997,
+          children: [
+            {
+              id: 1505670681965,
+              order: 2,
+              parentIndex: 1505670636997,
+              title: 'Our Mission',
+              url: '/our-mission',
+              uuid: 1505670681965,
+              children: [
+                {
+                  id: 1505670681966,
+                  order: 2,
+                  parentIndex: 1505670681965,
+                  title: 'Our Values',
+                  url: '/our-values',
+                  uuid: 1505670681966,
+                  children: []
+                }
+              ]
+            }
+          ]
+        },
+        {
+          id: 1505670798697,
+          order: 3,
+          parentIndex: 0,
+          title: 'Contact Us',
+          url: '/contact',
+          uuid: 1505670798697,
+          children: []
+        }
+      ];
+      expect(utils.formatNavigationStructure(structure, items)).toEqual(expectedOutput);
+    });
+  });
 });

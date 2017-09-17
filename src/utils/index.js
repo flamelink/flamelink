@@ -129,79 +129,97 @@ export const prepPopulateFields = populate => {
  * Curried helper function that takes in an entry's object and then populates the given
  * properties recursively.
  */
-export const populateEntry = curry(
-  async (schemasAPI, contentAPI, contentType, entryKey, populate, entry) => {
-    const preppedPopulateFields = prepPopulateFields(populate);
+export const populateEntry = curry(async (schemasAPI, contentAPI, contentType, populate, entry) => {
+  if (!entry) {
+    return entry;
+  }
 
-    if (!preppedPopulateFields[0]) {
-      return entry;
-    }
+  const entryKeys = Object.keys(entry);
 
-    const schemaFields = await schemasAPI.getFields(contentType);
-    // TODO: Update logic here to handle `image` types as well
-    const fieldsToPopulate = preppedPopulateFields.reduce((fields, preppedField) => {
-      const schemaField = schemaFields.find(field => field.key === preppedField.field);
-      if (schemaField && schemaField.relation) {
-        return fields.concat([
-          Object.assign({}, preppedField, { contentType: schemaField.relation })
-        ]);
+  if (entryKeys.length === 0) {
+    throw error('"populateEntry" should be called with an object of objects');
+  }
+
+  const entries = await Promise.all(
+    entryKeys.map(async entryKey => {
+      const preppedPopulateFields = prepPopulateFields(populate);
+
+      if (!preppedPopulateFields[0]) {
+        return entry;
       }
-      return fields;
-    }, []);
 
-    if (!fieldsToPopulate[0]) {
-      return entry;
-    }
+      const schemaFields = await schemasAPI.getFields(contentType);
+      // TODO: Update logic here to handle `image` types as well
+      const fieldsToPopulate = preppedPopulateFields.reduce((fields, preppedField) => {
+        const schemaField = schemaFields.find(field => field.key === preppedField.field);
+        if (schemaField && schemaField.relation) {
+          return fields.concat([
+            Object.assign({}, preppedField, { contentType: schemaField.relation })
+          ]);
+        }
+        return fields;
+      }, []);
 
-    const populatedFields = await Promise.all(
-      fieldsToPopulate.map(async populateField => {
-        const { field, contentType: innerContentType } = populateField;
+      if (!fieldsToPopulate[0]) {
+        return entry;
+      }
 
-        // if it exists, the entry value for this field should be an array
-        if (entry[entryKey].hasOwnProperty(field)) {
-          const relationalEntries = entry[entryKey][field];
+      const populatedFields = await Promise.all(
+        fieldsToPopulate.map(async populateField => {
+          const { field, contentType: innerContentType } = populateField;
 
-          if (!isArray(relationalEntries)) {
-            throw error(
-              `The "${field}" field does not seem to be a relational property for the "${contentType}" content type.`
+          // if it exists, the entry value for this field should be an array
+          if (entry[entryKey].hasOwnProperty(field)) {
+            const relationalEntries = entry[entryKey][field];
+
+            if (!isArray(relationalEntries)) {
+              throw error(
+                `The "${field}" field does not seem to be a relational property for the "${contentType}" content type.`
+              );
+            }
+
+            const populatedRelationsEntries = await Promise.all(
+              relationalEntries.map(async innerEntryKey => {
+                const pluckFields = pluckResultFields(populateField.fields);
+                const populateFields = populateEntry(
+                  schemasAPI,
+                  contentAPI,
+                  innerContentType,
+                  innerEntryKey,
+                  populateField.populate
+                );
+
+                const snapshot = await contentAPI.getEntryRaw(
+                  innerContentType,
+                  innerEntryKey,
+                  populateField
+                );
+                const wrapValue = { [innerEntryKey]: snapshot.val() };
+                const result = await compose(populateFields, pluckFields)(wrapValue);
+                return result[innerEntryKey];
+              })
             );
+
+            return populatedRelationsEntries;
           }
 
-          const populatedRelationsEntries = await Promise.all(
-            relationalEntries.map(async innerEntryKey => {
-              const pluckFields = pluckResultFields(populateField.fields);
-              const populateFields = populateEntry(
-                schemasAPI,
-                contentAPI,
-                innerContentType,
-                innerEntryKey,
-                populateField.populate
-              );
+          return null;
+        })
+      );
 
-              const snapshot = await contentAPI.getEntryRaw(
-                innerContentType,
-                innerEntryKey,
-                populateField
-              );
-              const wrapValue = { [innerEntryKey]: snapshot.val() };
-              const result = await compose(populateFields, pluckFields)(wrapValue);
-              return result[innerEntryKey];
-            })
-          );
-
-          return populatedRelationsEntries;
+      return fieldsToPopulate.reduce((populatedEntry, populateField, index) => {
+        const { field } = populateField;
+        if (populatedEntry[entryKey].hasOwnProperty(field)) {
+          populatedEntry[entryKey][field] = populatedFields[index]; // eslint-disable-line no-param-reassign
         }
+        return populatedEntry;
+      }, cloneDeep(entry));
+    })
+  );
 
-        return null;
-      })
-    );
-
-    return fieldsToPopulate.reduce((populatedEntry, populateField, index) => {
-      const { field } = populateField;
-      if (populatedEntry[entryKey].hasOwnProperty(field)) {
-        populatedEntry[entryKey][field] = populatedFields[index]; // eslint-disable-line no-param-reassign
-      }
-      return populatedEntry;
-    }, cloneDeep(entry));
-  }
-);
+  return entryKeys.reduce(
+    (populatedEntries, entryKey, index) =>
+      Object.assign({}, populatedEntries, { [entryKey]: entries[index][entryKey] }),
+    {}
+  );
+});

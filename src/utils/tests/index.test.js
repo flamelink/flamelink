@@ -5,7 +5,8 @@ describe('Flamelink SDK > Utils', () => {
     let missingRefError = null;
 
     beforeAll(() => {
-      missingRefError = '[FLAMELINK] The reference, environment and locale arguments are all required';
+      missingRefError =
+        '[FLAMELINK] The reference, environment and locale arguments are all required';
     });
 
     afterAll(() => {
@@ -17,7 +18,9 @@ describe('Flamelink SDK > Utils', () => {
         const ref = 'my-reference';
         const env = 'my-environment';
         const locale = 'my-locale';
-        expect(utils.getContentRefPath(ref, env, locale)).toBe(`/environments/${env}/content/${ref}/${locale}`);
+        expect(utils.getContentRefPath(ref, env, locale)).toBe(
+          `/environments/${env}/content/${ref}/${locale}`
+        );
 
         try {
           utils.getContentRefPath(ref, env);
@@ -44,7 +47,9 @@ describe('Flamelink SDK > Utils', () => {
         const ref = 'my-reference';
         const env = 'my-environment';
         const locale = 'my-locale';
-        expect(utils.getNavigationRefPath(ref, env, locale)).toBe(`/environments/${env}/navigation/${ref}/${locale}`);
+        expect(utils.getNavigationRefPath(ref, env, locale)).toBe(
+          `/environments/${env}/navigation/${ref}/${locale}`
+        );
 
         try {
           utils.getNavigationRefPath(ref, env);
@@ -96,7 +101,28 @@ describe('Flamelink SDK > Utils', () => {
 
   describe('"AVAILABLE_FILTER_OPTIONS"', () => {
     test('should return all the possible firebase filter options', () => {
-      expect(utils.AVAILABLE_FILTER_OPTIONS).toEqual(['limitToFirst', 'limitToLast', 'startAt', 'endAt', 'equalTo']);
+      expect(utils.AVAILABLE_FILTER_OPTIONS).toEqual([
+        'limitToFirst',
+        'limitToLast',
+        'startAt',
+        'endAt',
+        'equalTo'
+      ]);
+    });
+  });
+
+  describe('"compose"', () => {
+    test('should functionally compose async or sync functions', () => {
+      const double = jest.fn(x => x * 2);
+      const square = jest.fn(x => x * x);
+      const plus3 = jest.fn(
+        x =>
+          new Promise(resolve => {
+            setTimeout(() => resolve(x + 3), 1);
+          })
+      );
+
+      return expect(utils.compose(double, square, plus3)(2)).resolves.toEqual(50);
     });
   });
 
@@ -230,12 +256,16 @@ describe('Flamelink SDK > Utils', () => {
       let message;
 
       try {
-        await utils.applyOrderBy(ref, { orderByChild: true });
+        await utils.applyOrderBy(ref, {
+          orderByChild: true
+        });
       } catch (error) {
         message = error.message;
       }
 
-      expect(message).toMatch('[FLAMELINK] "orderByChild" should specify the child key to order by');
+      expect(message).toMatch(
+        '[FLAMELINK] "orderByChild" should specify the child key to order by'
+      );
     });
   });
 
@@ -255,7 +285,7 @@ describe('Flamelink SDK > Utils', () => {
           b: 3
         }
       ];
-      expect(utils.pluckResultFields(testArray)).toEqual(testArray);
+      expect(utils.pluckResultFields(undefined, testArray)).toEqual(testArray);
       const testObject = {
         a: {
           a: 1,
@@ -270,7 +300,7 @@ describe('Flamelink SDK > Utils', () => {
           b: 3
         }
       };
-      expect(utils.pluckResultFields(testObject)).toEqual(testObject);
+      expect(utils.pluckResultFields(undefined, testObject)).toEqual(testObject);
     });
 
     test('should filter an array of objects based on passed in fields', () => {
@@ -300,7 +330,7 @@ describe('Flamelink SDK > Utils', () => {
           a: 3
         }
       ];
-      expect(utils.pluckResultFields(testArray, testFields)).toEqual(expectedResults);
+      expect(utils.pluckResultFields(testFields, testArray)).toEqual(expectedResults);
     });
 
     test('should filter an objects based on passed in fields', () => {
@@ -330,13 +360,61 @@ describe('Flamelink SDK > Utils', () => {
           a: 3
         }
       };
-      expect(utils.pluckResultFields(testObject, testFields)).toEqual(expectedResults);
+      expect(utils.pluckResultFields(testFields, testObject)).toEqual(expectedResults);
     });
 
     test('should return the result set as-is if it is not an array or object', () => {
       const testString = 'flamelink';
       const testFields = ['a', 'c'];
-      expect(utils.pluckResultFields(testString, testFields)).toEqual(testString);
+      expect(utils.pluckResultFields(testFields, testString)).toEqual(testString);
+    });
+  });
+
+  describe('"prepPopulateFields"', () => {
+    test('should return an empty array if called with no arguments', () => {
+      expect(utils.prepPopulateFields()).toEqual([]);
+    });
+
+    test('should return an empty array if called with something other than an array', () => {
+      expect(utils.prepPopulateFields('a')).toEqual([]);
+      expect(utils.prepPopulateFields({ key: 'value' })).toEqual([]);
+      expect(utils.prepPopulateFields(123)).toEqual([]);
+    });
+
+    test('should convert an array of strings into an array of objects', () => {
+      expect(utils.prepPopulateFields(['a', 'b', 'c'])).toEqual([
+        { field: 'a' },
+        { field: 'b' },
+        { field: 'c' }
+      ]);
+    });
+
+    test('should keep all additional properties passed as options', () => {
+      expect(
+        utils.prepPopulateFields([
+          { field: 'a' },
+          { field: 'b', fields: ['id', 'title', 'description'], someOtherKey: 123456 },
+          'c'
+        ])
+      ).toEqual([
+        { field: 'a' },
+        { field: 'b', fields: ['id', 'title', 'description'], someOtherKey: 123456 },
+        { field: 'c' }
+      ]);
+    });
+  });
+
+  describe('"populateEntry"', () => {
+    test('should return the entry if no "populate" attributes are passed in', () => {
+      const schemasAPI = {};
+      const contentAPI = {};
+      const contentType = {};
+      const entryKey = {};
+      const populate = {};
+      const entry = { key: 'value' };
+      return expect(
+        utils.populateEntry(schemasAPI, contentAPI, contentType, entryKey, populate, entry)
+      ).resolves.toEqual(entry);
     });
   });
 });

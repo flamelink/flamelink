@@ -172,14 +172,12 @@ function flamelink(conf = {}) {
      * @param {Object} [options={}]
      * @returns {Promise} Resolves to value of query
      */
-    get(ref, options = {}) {
-      return new Promise((resolve, reject) => {
-        this.getRaw(ref, options)
-          .then(snapshot => {
-            resolve(pluckResultFields(options.fields, snapshot.val()));
-          })
-          .catch(reject);
-      });
+    async get(ref, options = {}) {
+      const pluckFields = pluckResultFields(options.fields);
+      const populateFields = populateEntry(schemasAPI, contentAPI, ref, options.populate);
+      const snapshot = await this.getRaw(ref, options);
+      const result = await compose(populateFields, pluckFields)(snapshot.val());
+      return result;
     },
 
     /**

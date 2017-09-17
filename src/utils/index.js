@@ -84,10 +84,7 @@ export const pluckResultFields = curry((fields, resultSet) => {
   if (isPlainObject(resultSet)) {
     return reduce(
       resultSet,
-      (result, val, key) => {
-        result[key] = pickFields(val);
-        return result;
-      },
+      (result, val, key) => Object.assign({}, result, { [key]: pickFields(val) }),
       {}
     );
   }

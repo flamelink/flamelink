@@ -409,11 +409,10 @@ describe('Flamelink SDK > Utils', () => {
       const schemasAPI = {};
       const contentAPI = {};
       const contentType = {};
-      const entryKey = {};
       const populate = {};
       const entry = { key: 'value' };
       return expect(
-        utils.populateEntry(schemasAPI, contentAPI, contentType, entryKey, populate, entry)
+        utils.populateEntry(schemasAPI, contentAPI, contentType, populate, entry)
       ).resolves.toEqual(entry);
     });
   });

@@ -172,14 +172,12 @@ function flamelink(conf = {}) {
      * @param {Object} [options={}]
      * @returns {Promise} Resolves to value of query
      */
-    get(ref, options = {}) {
-      return new Promise((resolve, reject) => {
-        this.getRaw(ref, options)
-          .then(snapshot => {
-            resolve(pluckResultFields(options.fields, snapshot.val()));
-          })
-          .catch(reject);
-      });
+    async get(ref, options = {}) {
+      const pluckFields = pluckResultFields(options.fields);
+      const populateFields = populateEntry(schemasAPI, contentAPI, ref, options.populate);
+      const snapshot = await this.getRaw(ref, options);
+      const result = await compose(populateFields, pluckFields)(snapshot.val());
+      return result;
     },
 
     /**
@@ -207,17 +205,45 @@ function flamelink(conf = {}) {
      */
     async getEntry(contentRef, entryRef, options = {}) {
       const pluckFields = pluckResultFields(options.fields);
-      const populateFields = populateEntry(
-        schemasAPI,
-        contentAPI,
-        contentRef,
-        entryRef,
-        options.populate
-      );
+      const populateFields = populateEntry(schemasAPI, contentAPI, contentRef, options.populate);
       const snapshot = await this.getEntryRaw(contentRef, entryRef, options);
       const wrapValue = { [entryRef]: snapshot.val() }; // Wrapping value to create the correct structure for our filtering to work
       const result = await compose(populateFields, pluckFields)(wrapValue);
       return result[entryRef];
+    },
+
+    /**
+     * Get individual content entry for given content reference and entry ID/reference and return raw snapshot
+     *
+     * @param {String} contentRef
+     * @param {String} field
+     * @param {String} value
+     * @param {Object} [options={}]
+     * @returns {Promise} Resolves to snapshot of query
+     */
+    getByFieldRaw(contentRef, field, value, options = {}) {
+      const opts = Object.assign({}, options, { orderByChild: field, equalTo: value });
+      const ordered = applyOrderBy(this.ref(contentRef), opts);
+      const filtered = applyFilters(ordered, opts);
+
+      return filtered.once('value');
+    },
+
+    /**
+     * Read value once from db
+     *
+     * @param {String} contentRef
+     * @param {String} field
+     * @param {String} value
+     * @param {Object} [options={}]
+     * @returns {Promise} Resolves to value of query
+     */
+    async getByField(contentRef, field, value, options = {}) {
+      const pluckFields = pluckResultFields(options.fields);
+      const populateFields = populateEntry(schemasAPI, contentAPI, contentRef, options.populate);
+      const snapshot = await this.getByFieldRaw(contentRef, field, value, options);
+      const result = await compose(populateFields, pluckFields)(snapshot.val());
+      return result;
     },
 
     /**

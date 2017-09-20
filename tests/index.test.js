@@ -119,14 +119,14 @@ describe('Flamelink SDK', () => {
       expect(flamelink(basicConfig).content.ref).toEqual(expect.any(Function));
     });
 
-    test('should expose a "getRaw" method', () => {
-      expect(flamelink(basicConfig).content.getRaw).toEqual(expect.any(Function));
+    test('should expose a "getAllRaw" method', () => {
+      expect(flamelink(basicConfig).content.getAllRaw).toEqual(expect.any(Function));
     });
 
-    describe('"get" Method', () => {
+    describe('"getAll" Method', () => {
       test('should be exposed on the "content" object', () => {
         const ref = 'get-ref';
-        return expect(flamelink(basicConfig).content.get(ref, {})).resolves.toEqual({
+        return expect(flamelink(basicConfig).content.getAll(ref, {})).resolves.toEqual({
           'content-type-1': {
             id: 1491679616674,
             name: 'ASP'
@@ -141,7 +141,7 @@ describe('Flamelink SDK', () => {
       test('should respect the "fields" option', () => {
         const ref = 'get-ref';
         return expect(
-          flamelink(basicConfig).content.get(ref, { fields: ['name'] })
+          flamelink(basicConfig).content.getAll(ref, { fields: ['name'] })
         ).resolves.toEqual({
           'content-type-1': {
             name: 'ASP'

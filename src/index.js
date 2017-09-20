@@ -159,7 +159,7 @@ function flamelink(conf = {}) {
      * @param {Object} [options={}]
      * @returns {Promise} Resolves to snapshot of query
      */
-    getRaw(ref, options = {}) {
+    getAllRaw(ref, options = {}) {
       const ordered = applyOrderBy(this.ref(ref), options);
       const filtered = applyFilters(ordered, options);
 
@@ -173,10 +173,10 @@ function flamelink(conf = {}) {
      * @param {Object} [options={}]
      * @returns {Promise} Resolves to value of query
      */
-    async get(ref, options = {}) {
+    async getAll(ref, options = {}) {
       const pluckFields = pluckResultFields(options.fields);
       const populateFields = populateEntry(schemasAPI, contentAPI, ref, options.populate);
-      const snapshot = await this.getRaw(ref, options);
+      const snapshot = await this.getAllRaw(ref, options);
       const result = await compose(populateFields, pluckFields)(snapshot.val());
       return result;
     },

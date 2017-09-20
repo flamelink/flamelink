@@ -10,7 +10,7 @@ To retrieve a context aware (environment and locale) reference to any node/locat
 
 
 ```js
-app.ref('your-reference')
+app.nav.ref('your-reference')
   .then(reference => console.log('The reference:', reference)
   .catch(error => console.error('Something went wrong while retrieving the reference. Details:', error);
 ```

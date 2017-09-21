@@ -363,7 +363,9 @@ const mockedRef = jest.fn(ref => ({
 firebase.initializeApp = jest.fn(payload => ({
   database: jest.fn(() => ({
     ref: mockedRef
-  }))
+  })),
+  storage: jest.fn(),
+  auth: jest.fn()
 }));
 
 module.exports = firebase;

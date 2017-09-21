@@ -18,7 +18,7 @@ yarn add flamelink-sdk
 
 You can either create your `flamelink` app instance by passing in all the required config options that you would normally use to instantiate a firebase application:
 
-```js
+```javascript
 import * as firebase from 'firebase';
 import flamelink from 'flamelink-sdk';
 
@@ -35,7 +35,7 @@ const app = flamelink({
 
 Or you can pass in an existing `firebaseApp` instance along with all the other `flamelink` config options:
 
-```js
+```javascript
 import * as firebase from 'firebase';
 import flamelink from 'flamelink-sdk';
 
@@ -63,7 +63,7 @@ Once you have an instance of the `flamelink` app, you can start using it to inte
 
 Using standard promises:
 
-```js
+```javascript
 app.content.getAll('products')
   .then(products => console.log('All of your products:', products))
   .catch(error => // handle any errors)
@@ -71,7 +71,7 @@ app.content.getAll('products')
 
 Using async-await:
 
-```js
+```javascript
 const products = await app.content.getAll('products');
 console.log('All of your products:', products);
 ```

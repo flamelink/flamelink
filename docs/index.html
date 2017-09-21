@@ -6,6 +6,7 @@
   <title>Flamelink SDK - Javascript SDK for integrating with Flamelink CMS</title>
   <meta name="description" content="Javascript SDK for integrating with Flamelink CMS">
   <meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+  <link rel="icon" type="image/png" href="_assets/favicon.ico">
   <link rel="stylesheet" href="//unpkg.com/docsify/lib/themes/vue.css">
 </head>
 
@@ -17,14 +18,15 @@
     name: 'Flamelink SDK',
     nameLink: {
       '/': '/',
-      '/en-us/': '/en-us/readme'
+      '/af/': '/af/readme'
     },
     repo: 'ssh://git@bitbucket.org/responsivestudio/flamelink-sdk',
-    // homepage: 'en-us/README.md',
+    homepage: false,
     themeColor: 'rgba(243, 112, 70, 1)',
     maxLevel: 4,
-    subMaxLevel: 2,
+    subMaxLevel: 3,
     coverpage: true,
+    loadNavbar: true,
     loadSidebar: true,
     autoHeader: true,
     mergeNavbar: true,
@@ -33,12 +35,12 @@
       maxAge: 86400000, // Expiration time, the default one day
       paths: 'auto',
       placeholder: {
-        '/en-us/': 'Type to search'
+        '/': 'Search'
       },
       noData: {
-        '/en-us/': 'No Results'
+        '/': 'No Results'
       },
-      // Headline depth, 1 - 6
+      // Headline search depth, 1 - 6
       depth: 3
     }
   }

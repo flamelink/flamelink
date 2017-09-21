@@ -26,7 +26,6 @@ const app = flamelink({
   apiKey: '<your-api-key>',                     // required
   authDomain: '<your-auth-domain>',             // required
   databaseURL: '<your-database-url>',           // required
-  projectId: '<your-project-id>',               // required
   storageBucket: '<your-storage-bucket-code>',  // required
   messagingSenderId: '<your-messenger-id>',     // optional
   env: 'production',                            // optional - will default to "production"
@@ -44,7 +43,6 @@ const firebaseConfig = {
   apiKey: '<your-api-key>',                     // required
   authDomain: '<your-auth-domain>',             // required
   databaseURL: '<your-database-url>',           // required
-  projectId: '<your-project-id>',               // required
   storageBucket: '<your-storage-bucket-code>',  // required
   messagingSenderId: '<your-messenger-id>'      // optional
 };
@@ -60,7 +58,8 @@ const app = flamelink({
 
 ### Using your flamelink app
 
-Once you have an instance of the `flamelink` app, you can start using it to interact with your data stored in your firebase database, for example: let's suppose you want to retrieve all your products created in `flamelink`.
+<!-- TODO: Make the `flamelink` references links to the CMS once it is live -->
+Once you have an instance of the `flamelink` app, you can start using it to interact with your data stored in your firebase database, for example: let's suppose you want to retrieve all your products created under the "Content" section in `flamelink`.
 
 Using standard promises:
 
@@ -76,3 +75,5 @@ Using async-await:
 const products = await app.content.getAll('products');
 console.log('All of your products:', products);
 ```
+
+Check out the [API docs](/api-overview) for all the available methods!

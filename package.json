@@ -9,7 +9,7 @@
     "test":
       "jest --coverage --collectCoverageFrom=src/**/*.js --collectCoverageFrom=!src/polyfills.js",
     "lint": "eslint ./src --cache",
-    "serve-docs": "docsify serve ./docs"
+    "serve-docs": "docsify serve ./docs -o true -p 4000"
   },
   "repository": {
     "type": "git",

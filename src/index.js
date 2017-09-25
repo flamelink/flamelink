@@ -21,7 +21,9 @@ const DEFAULT_CONFIG = {
 
 function flamelink(conf = {}) {
   let firebaseApp_ = null;
-  let db_ = null;
+  let databaseService_ = null;
+  let storageService_ = null;
+  let authService_ = null;
 
   const config = Object.assign({}, DEFAULT_CONFIG, conf);
 
@@ -49,7 +51,12 @@ function flamelink(conf = {}) {
     });
   }
 
-  db_ = db_ || firebaseApp_.database();
+  const getService = (service, serviceName) =>
+    service || typeof firebaseApp_[serviceName] === 'function' ? firebaseApp_[serviceName]() : null;
+
+  databaseService_ = getService(databaseService_, 'database');
+  storageService_ = getService(storageService_, 'storage');
+  authService_ = getService(authService_, 'auth');
 
   const schemasAPI = {
     /**
@@ -59,7 +66,7 @@ function flamelink(conf = {}) {
      * @returns {Object} Ref object
      */
     ref(ref) {
-      return db_.ref(getSchemasRefPath(ref, env_, locale_));
+      return databaseService_.ref(getSchemasRefPath(ref, env_, locale_));
     },
 
     /**
@@ -149,17 +156,17 @@ function flamelink(conf = {}) {
      * @returns {Object} Ref object
      */
     ref(ref) {
-      return db_.ref(getContentRefPath(ref, env_, locale_));
+      return databaseService_.ref(getContentRefPath(ref, env_, locale_));
     },
 
     /**
-     * Read value once from db and return raw snapshot
+     * Read all entries for given content type once from db and return raw snapshot
      *
      * @param {String} ref
      * @param {Object} [options={}]
      * @returns {Promise} Resolves to snapshot of query
      */
-    getRaw(ref, options = {}) {
+    getAllRaw(ref, options = {}) {
       const ordered = applyOrderBy(this.ref(ref), options);
       const filtered = applyFilters(ordered, options);
 
@@ -167,16 +174,16 @@ function flamelink(conf = {}) {
     },
 
     /**
-     * Read value once from db
+     * Read all entries for given content type once from db and return processed results
      *
      * @param {String} ref
      * @param {Object} [options={}]
      * @returns {Promise} Resolves to value of query
      */
-    async get(ref, options = {}) {
+    async getAll(ref, options = {}) {
       const pluckFields = pluckResultFields(options.fields);
       const populateFields = populateEntry(schemasAPI, contentAPI, ref, options.populate);
-      const snapshot = await this.getRaw(ref, options);
+      const snapshot = await this.getAllRaw(ref, options);
       const result = await compose(populateFields, pluckFields)(snapshot.val());
       return result;
     },
@@ -355,7 +362,7 @@ function flamelink(conf = {}) {
      * @returns {Object} Ref object
      */
     ref(ref) {
-      return db_.ref(getNavigationRefPath(ref, env_, locale_));
+      return databaseService_.ref(getNavigationRefPath(ref, env_, locale_));
     },
 
     /**
@@ -526,6 +533,12 @@ function flamelink(conf = {}) {
   return {
     firebaseApp: firebaseApp_,
 
+    databaseService: databaseService_,
+
+    storageService: storageService_,
+
+    authService: authService_,
+
     /**
      * Sets the locale to be used for the flamelink app
      *
@@ -534,7 +547,7 @@ function flamelink(conf = {}) {
      */
     setLocale(locale = locale_) {
       return new Promise((resolve, reject) => {
-        db_
+        databaseService_
           .ref('/settings/locales')
           .once('value')
           .then(snapshot => {
@@ -570,7 +583,7 @@ function flamelink(conf = {}) {
      */
     setEnv(env = env_) {
       return new Promise((resolve, reject) => {
-        db_
+        databaseService_
           .ref('/settings/environments')
           .once('value')
           .then(snapshot => {

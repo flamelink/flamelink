@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <title>Flamelink SDK - Javascript SDK for integrating with Flamelink CMS</title>
+  <meta name="description" content="Javascript SDK for integrating with Flamelink CMS">
+  <meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+  <link rel="icon" type="image/png" href="_assets/favicon.ico">
+  <link rel="stylesheet" href="//unpkg.com/docsify/lib/themes/vue.css">
+</head>
+
+<body>
+  <div id="app">Initializing the awesome...</div>
+</body>
+<script>
+  window.$docsify = {
+    name: 'Flamelink SDK',
+    nameLink: {
+      '/': '/',
+      '/af/': '/af/readme'
+    },
+    repo: 'ssh://git@bitbucket.org/responsivestudio/flamelink-sdk',
+    homepage: false,
+    themeColor: 'rgba(243, 112, 70, 1)',
+    maxLevel: 4,
+    subMaxLevel: 3,
+    coverpage: true,
+    loadNavbar: true,
+    loadSidebar: true,
+    autoHeader: true,
+    mergeNavbar: true,
+    auto2top: true,
+    search: {
+      maxAge: 86400000, // Expiration time, the default one day
+      paths: 'auto',
+      placeholder: {
+        '/': 'Search'
+      },
+      noData: {
+        '/': 'No Results'
+      },
+      // Headline search depth, 1 - 6
+      depth: 3
+    }
+  }
+</script>
+<script src="//unpkg.com/docsify/lib/docsify.min.js"></script>
+<script src="//unpkg.com/docsify/lib/plugins/search.min.js"></script>
+<script>
+  if (typeof navigator.serviceWorker !== 'undefined') {
+    navigator.serviceWorker.register('sw.js')
+  }
+</script>
+
+</html>

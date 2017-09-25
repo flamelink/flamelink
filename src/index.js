@@ -10,6 +10,7 @@ import {
   getSchemasRefPath,
   pluckResultFields,
   populateEntry,
+  formatNavigationStructure,
   compose
 } from './utils';
 
@@ -20,7 +21,9 @@ const DEFAULT_CONFIG = {
 
 function flamelink(conf = {}) {
   let firebaseApp_ = null;
-  let db_ = null;
+  let databaseService_ = null;
+  let storageService_ = null;
+  let authService_ = null;
 
   const config = Object.assign({}, DEFAULT_CONFIG, conf);
 
@@ -48,7 +51,12 @@ function flamelink(conf = {}) {
     });
   }
 
-  db_ = db_ || firebaseApp_.database();
+  const getService = (service, serviceName) =>
+    service || typeof firebaseApp_[serviceName] === 'function' ? firebaseApp_[serviceName]() : null;
+
+  databaseService_ = getService(databaseService_, 'database');
+  storageService_ = getService(storageService_, 'storage');
+  authService_ = getService(authService_, 'auth');
 
   const schemasAPI = {
     /**
@@ -58,7 +66,7 @@ function flamelink(conf = {}) {
      * @returns {Object} Ref object
      */
     ref(ref) {
-      return db_.ref(getSchemasRefPath(ref, env_, locale_));
+      return databaseService_.ref(getSchemasRefPath(ref, env_, locale_));
     },
 
     /**
@@ -148,17 +156,17 @@ function flamelink(conf = {}) {
      * @returns {Object} Ref object
      */
     ref(ref) {
-      return db_.ref(getContentRefPath(ref, env_, locale_));
+      return databaseService_.ref(getContentRefPath(ref, env_, locale_));
     },
 
     /**
-     * Read value once from db and return raw snapshot
+     * Read all entries for given content type once from db and return raw snapshot
      *
      * @param {String} ref
      * @param {Object} [options={}]
      * @returns {Promise} Resolves to snapshot of query
      */
-    getRaw(ref, options = {}) {
+    getAllRaw(ref, options = {}) {
       const ordered = applyOrderBy(this.ref(ref), options);
       const filtered = applyFilters(ordered, options);
 
@@ -166,20 +174,18 @@ function flamelink(conf = {}) {
     },
 
     /**
-     * Read value once from db
+     * Read all entries for given content type once from db and return processed results
      *
      * @param {String} ref
      * @param {Object} [options={}]
      * @returns {Promise} Resolves to value of query
      */
-    get(ref, options = {}) {
-      return new Promise((resolve, reject) => {
-        this.getRaw(ref, options)
-          .then(snapshot => {
-            resolve(pluckResultFields(options.fields, snapshot.val()));
-          })
-          .catch(reject);
-      });
+    async getAll(ref, options = {}) {
+      const pluckFields = pluckResultFields(options.fields);
+      const populateFields = populateEntry(schemasAPI, contentAPI, ref, options.populate);
+      const snapshot = await this.getAllRaw(ref, options);
+      const result = await compose(populateFields, pluckFields)(snapshot.val());
+      return result;
     },
 
     /**
@@ -207,17 +213,45 @@ function flamelink(conf = {}) {
      */
     async getEntry(contentRef, entryRef, options = {}) {
       const pluckFields = pluckResultFields(options.fields);
-      const populateFields = populateEntry(
-        schemasAPI,
-        contentAPI,
-        contentRef,
-        entryRef,
-        options.populate
-      );
+      const populateFields = populateEntry(schemasAPI, contentAPI, contentRef, options.populate);
       const snapshot = await this.getEntryRaw(contentRef, entryRef, options);
       const wrapValue = { [entryRef]: snapshot.val() }; // Wrapping value to create the correct structure for our filtering to work
       const result = await compose(populateFields, pluckFields)(wrapValue);
       return result[entryRef];
+    },
+
+    /**
+     * Get individual content entry for given content reference and entry ID/reference and return raw snapshot
+     *
+     * @param {String} contentRef
+     * @param {String} field
+     * @param {String} value
+     * @param {Object} [options={}]
+     * @returns {Promise} Resolves to snapshot of query
+     */
+    getByFieldRaw(contentRef, field, value, options = {}) {
+      const opts = Object.assign({}, options, { orderByChild: field, equalTo: value });
+      const ordered = applyOrderBy(this.ref(contentRef), opts);
+      const filtered = applyFilters(ordered, opts);
+
+      return filtered.once('value');
+    },
+
+    /**
+     * Read value once from db
+     *
+     * @param {String} contentRef
+     * @param {String} field
+     * @param {String} value
+     * @param {Object} [options={}]
+     * @returns {Promise} Resolves to value of query
+     */
+    async getByField(contentRef, field, value, options = {}) {
+      const pluckFields = pluckResultFields(options.fields);
+      const populateFields = populateEntry(schemasAPI, contentAPI, contentRef, options.populate);
+      const snapshot = await this.getByFieldRaw(contentRef, field, value, options);
+      const result = await compose(populateFields, pluckFields)(snapshot.val());
+      return result;
     },
 
     /**
@@ -328,7 +362,7 @@ function flamelink(conf = {}) {
      * @returns {Object} Ref object
      */
     ref(ref) {
-      return db_.ref(getNavigationRefPath(ref, env_, locale_));
+      return databaseService_.ref(getNavigationRefPath(ref, env_, locale_));
     },
 
     /**
@@ -352,14 +386,19 @@ function flamelink(conf = {}) {
      * @param {Object} [options={}]
      * @returns {Promise} Resolves to value of query
      */
-    get(ref, options = {}) {
-      return new Promise((resolve, reject) => {
-        this.getRaw(ref, options)
-          .then(snapshot => {
-            resolve(pluckResultFields(options.fields, snapshot.val()));
-          })
-          .catch(reject);
-      });
+    async get(ref, options = {}) {
+      const snapshot = await this.getRaw(ref, options);
+      const wrappedNav = await pluckResultFields(options.fields, { [ref]: snapshot.val() });
+      const nav = wrappedNav[ref];
+
+      // Only try and structure items if items weren't plucked out
+      if (nav && nav.hasOwnProperty('items')) {
+        return Object.assign({}, nav, {
+          items: formatNavigationStructure(options.structure, nav.items)
+        });
+      }
+
+      return nav;
     },
 
     /**
@@ -383,14 +422,11 @@ function flamelink(conf = {}) {
      * @param {Object} [options={}]
      * @returns {Promise} Resolves to value of query
      */
-    getItems(ref, options = {}) {
-      return new Promise((resolve, reject) => {
-        this.getItemsRaw(ref, options)
-          .then(snapshot => {
-            resolve(pluckResultFields(options.fields, snapshot.val()));
-          })
-          .catch(reject);
-      });
+    async getItems(ref, options = {}) {
+      const pluckFields = pluckResultFields(options.fields);
+      const structureItems = formatNavigationStructure(options.structure);
+      const snapshot = await this.getItemsRaw(ref, options);
+      return compose(structureItems, pluckFields)(snapshot.val());
     },
 
     /**
@@ -497,6 +533,12 @@ function flamelink(conf = {}) {
   return {
     firebaseApp: firebaseApp_,
 
+    databaseService: databaseService_,
+
+    storageService: storageService_,
+
+    authService: authService_,
+
     /**
      * Sets the locale to be used for the flamelink app
      *
@@ -505,7 +547,7 @@ function flamelink(conf = {}) {
      */
     setLocale(locale = locale_) {
       return new Promise((resolve, reject) => {
-        db_
+        databaseService_
           .ref('/settings/locales')
           .once('value')
           .then(snapshot => {
@@ -541,7 +583,7 @@ function flamelink(conf = {}) {
      */
     setEnv(env = env_) {
       return new Promise((resolve, reject) => {
-        db_
+        databaseService_
           .ref('/settings/environments')
           .once('value')
           .then(snapshot => {

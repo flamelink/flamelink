@@ -150,8 +150,7 @@ function flamelink(conf = {}) {
 
   const contentAPI = {
     /**
-     * Establish and return a reference to section in firebase db
-     *
+     * @description Establish and return a reference to section in firebase db
      * @param {String} ref
      * @returns {Object} Ref object
      */
@@ -160,64 +159,56 @@ function flamelink(conf = {}) {
     },
 
     /**
-     * Read all entries for given content type once from db and return raw snapshot
-     *
-     * @param {String} ref
+     * @description Read entries/entry for given content type and optional entry reference and return raw snapshot
+     * @param {String} contentRef
+     * @param {String} entryRef
      * @param {Object} [options={}]
      * @returns {Promise} Resolves to snapshot of query
      */
-    getAllRaw(ref, options = {}) {
-      const ordered = applyOrderBy(this.ref(ref), options);
-      const filtered = applyFilters(ordered, options);
+    getRaw(contentRef, entryRef, options = {}) {
+      // Is single entry query?
+      if (['string', 'number'].includes(typeof entryRef)) {
+        const ordered = applyOrderBy(this.ref(contentRef).child(entryRef), options);
+        const filtered = applyFilters(ordered, options);
+
+        return filtered.once('value');
+      }
+
+      // Query all entries for given content type
+      const opts = entryRef; // second param is then the options
+
+      const ordered = applyOrderBy(this.ref(contentRef), opts);
+      const filtered = applyFilters(ordered, opts);
 
       return filtered.once('value');
     },
 
     /**
-     * Read all entries for given content type once from db and return processed results
-     *
-     * @param {String} ref
+     * @description Get entries/entry for given content type and optional entry ID/reference
+     * @param {String} contentRef
+     * @param {String} entryRef
      * @param {Object} [options={}]
      * @returns {Promise} Resolves to value of query
      */
-    async getAll(ref, options = {}) {
-      const pluckFields = pluckResultFields(options.fields);
-      const populateFields = populateEntry(schemasAPI, contentAPI, ref, options.populate);
-      const snapshot = await this.getAllRaw(ref, options);
+    async get(contentRef, entryRef, options = {}) {
+      // Is single entry query?
+      if (['string', 'number'].includes(typeof entryRef)) {
+        const pluckFields = pluckResultFields(options.fields);
+        const populateFields = populateEntry(schemasAPI, contentAPI, contentRef, options.populate);
+        const snapshot = await this.getRaw(contentRef, entryRef, options);
+        const wrapValue = { [entryRef]: snapshot.val() }; // Wrapping value to create the correct structure for our filtering to work
+        const result = await compose(populateFields, pluckFields)(wrapValue);
+        return result[entryRef];
+      }
+
+      // Query all entries for given content type
+      const opts = entryRef; // second param is then the options
+
+      const pluckFields = pluckResultFields(opts.fields);
+      const populateFields = populateEntry(schemasAPI, contentAPI, contentRef, opts.populate);
+      const snapshot = await this.getRaw(contentRef, opts);
       const result = await compose(populateFields, pluckFields)(snapshot.val());
       return result;
-    },
-
-    /**
-     * Get individual content entry for given content reference and entry ID/reference and return raw snapshot
-     *
-     * @param {String} contentRef
-     * @param {String} entryRef
-     * @param {Object} [options={}]
-     * @returns {Promise} Resolves to snapshot of query
-     */
-    getEntryRaw(contentRef, entryRef, options = {}) {
-      const ordered = applyOrderBy(this.ref(contentRef).child(entryRef), options);
-      const filtered = applyFilters(ordered, options);
-
-      return filtered.once('value');
-    },
-
-    /**
-     * Get individual content entry for given content reference and entry ID/reference
-     *
-     * @param {String} contentRef
-     * @param {String} entryRef
-     * @param {Object} [options={}]
-     * @returns {Promise} Resolves to value of query
-     */
-    async getEntry(contentRef, entryRef, options = {}) {
-      const pluckFields = pluckResultFields(options.fields);
-      const populateFields = populateEntry(schemasAPI, contentAPI, contentRef, options.populate);
-      const snapshot = await this.getEntryRaw(contentRef, entryRef, options);
-      const wrapValue = { [entryRef]: snapshot.val() }; // Wrapping value to create the correct structure for our filtering to work
-      const result = await compose(populateFields, pluckFields)(wrapValue);
-      return result[entryRef];
     },
 
     /**

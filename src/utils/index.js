@@ -189,7 +189,7 @@ export const populateEntry = curry(async (schemasAPI, contentAPI, contentType, p
                   populateField.populate
                 );
 
-                const snapshot = await contentAPI.getEntryRaw(
+                const snapshot = await contentAPI.getRaw(
                   innerContentType,
                   innerEntryKey,
                   populateField

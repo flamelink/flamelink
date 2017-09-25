@@ -64,7 +64,7 @@ Once you have an instance of the `flamelink` app, you can start using it to inte
 Using standard promises:
 
 ```javascript
-app.content.getAll('products')
+app.content.get('products')
   .then(products => console.log('All of your products:', products))
   .catch(error => // handle any errors)
 ```
@@ -72,7 +72,7 @@ app.content.getAll('products')
 Using async-await:
 
 ```javascript
-const products = await app.content.getAll('products');
+const products = await app.content.get('products');
 console.log('All of your products:', products);
 ```
 

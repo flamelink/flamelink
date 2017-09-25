@@ -2,15 +2,15 @@
 
 The Flamelink API is a Promise-based API that is intended to be very intuitive for you as the developer. If you are familiar with JavaScript Promises you should feel right at home. If you are not, take a quick peak at the [MDN](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise) or [Google Developer](https://developers.google.com/web/fundamentals/getting-started/primers/promises) docs and `then` come straight back.
 
-All API methods are available on your Flamelink `app` instance that you created. It will either be directly available on the instance object for any general methods, like `app.getLocale()`, or it will be available on one of the namespaces, like `app.content.getAll('blog-posts')`. The details for each of these methods can be found under the relevant sub-headings in these docs.
+All API methods are available on your Flamelink `app` instance that you created. It will either be directly available on the instance object for any general methods, like `app.getLocale()`, or it will be available on one of the namespaces, like `app.content.get('blog-posts')`. The details for each of these methods can be found under the relevant sub-headings in these docs.
 
 ## Naming Conventions
 
-All API methods used to retrieve data **once** from the Firebase database start with `get`, like `app.content.getAll()` or `app.nav.getItems()`, etc. Think of this as the equivalent of the `firebaseApp.database().ref().once()` method with nice sugar on top.
+All API methods used to retrieve data **once** from the Firebase database start with `get`, like `app.content.get()` or `app.nav.getItems()`, etc. Think of this as the equivalent of the `firebaseApp.database().ref().once()` method with nice sugar on top.
 
-Almost all API methods have a *raw* method as well which will return the raw **snapshot** from your Firebase db, where the normal API methods will return the actual values ready to consume. As an example, `app.content.getAllRaw()` vs `app.content.getAll()`.
+Almost all API methods have a *raw* method as well which will return the raw **snapshot** from your Firebase db, where the normal API methods will return the actual values ready to consume. As an example, `app.content.getRaw()` vs `app.content.get()`.
 
-> The raw methods are not explicitly documented in detail, but it is good to know about them if you find you need to access the response snapshots directly. Be aware that the raw methods can not include all the nice data manipulations that you will get with the standard API methods because all of it is what you will get back from a Firebase query directly, but it includes the filtering and ordering options that Firebase provides.
+!> The raw methods are not explicitly documented in detail, but it is good to know about them if you find you need to access the response snapshots directly. Be aware that the raw methods can not include all the nice data manipulations that you will get with the standard API methods because all of it is what you will get back from a Firebase query directly, but it includes the filtering and ordering options that Firebase provides.
 
 ## Firebase App Instance
 

@@ -1,5 +1,5 @@
 # Flamelink SDK
 
-[![CircleCI - master](https://circleci.com/bb/responsivestudio/flamelink-sdk/tree/master.svg?style=svg)](https://circleci.com/bb/responsivestudio/flamelink-sdk/tree/master)
+![CircleCI - master](https://circleci.com/bb/responsivestudio/flamelink-sdk/tree/master.svg?style=svg)
 
-[![CircleCI - develop](https://circleci.com/bb/responsivestudio/flamelink-sdk/tree/develop.svg?style=svg)](https://circleci.com/bb/responsivestudio/flamelink-sdk/tree/develop)
+![CircleCI - develop](https://circleci.com/bb/responsivestudio/flamelink-sdk/tree/develop.svg?style=svg)

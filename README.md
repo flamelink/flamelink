@@ -1,5 +1,4 @@
-# Flamelink SDK
+# Flamelink JavaScript SDK
 
-![CircleCI - master](https://circleci.com/bb/responsivestudio/flamelink-sdk/tree/master.svg?style=svg)
-
-![CircleCI - develop](https://circleci.com/bb/responsivestudio/flamelink-sdk/tree/develop.svg?style=svg)
+> THIS PACKAGE IS UNDER DEVELOPMENT AND NOT READY TO BE USED YET!
+> [SIGN UP](https://flamelink.io/#mc-embedded-subscribe-form) TO BE INFORMED WHEN FLAMELINK LAUNCHES!

@@ -1,19 +1,21 @@
 {
   "name": "flamelink",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "description": "Javascript SDK for integrating with Flamelink CMS",
   "main": "dist/flamelink.js",
   "scripts": {
     "build": "webpack --config ./config/webpack.config.js",
     "package": "webpack -p --config ./config/webpack.config.js",
-    "test":
-      "jest --coverage --collectCoverageFrom=src/**/*.js --collectCoverageFrom=!src/polyfills.js",
+    "test": "jest --coverage --collectCoverageFrom=src/**/*.js --collectCoverageFrom=!src/polyfills.js",
     "lint": "eslint ./src --cache",
     "serve-docs": "docsify serve ./docs -o true -p 4000"
   },
   "repository": {
     "type": "git",
-    "url": "git+ssh://git@bitbucket.org/responsivestudio/flamelink-sdk.git"
+    "url": "git@github.com:flamelink/flamelink.git"
+  },
+  "bugs": {
+    "url": "https://github.com/flamelink/flamelink/issues"
   },
   "engines": {
     "node": ">=6",
@@ -62,7 +64,7 @@
       "^.+\\.js$": "babel-jest"
     },
     "globals": {
-      "__PACKAGE_VERSION__": "0.2.0"
+      "__PACKAGE_VERSION__": "0.3.0"
     }
   },
   "babel": {
@@ -71,7 +73,11 @@
         "env",
         {
           "targets": {
-            "browsers": ["last 2 versions", "safari >= 8", "ie >= 9"]
+            "browsers": [
+              "last 2 versions",
+              "safari >= 8",
+              "ie >= 9"
+            ]
           },
           "modules": false,
           "loose": true
@@ -80,7 +86,9 @@
     ],
     "env": {
       "test": {
-        "plugins": ["transform-es2015-modules-commonjs"]
+        "plugins": [
+          "transform-es2015-modules-commonjs"
+        ]
       }
     }
   }

@@ -13,7 +13,10 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+ssh://git@bitbucket.org/responsivestudio/flamelink-sdk.git"
+    "url": "git@github.com:flamelink/flamelink.git"
+  },
+  "bugs": {
+    "url": "https://github.com/flamelink/flamelink/issues"
   },
   "engines": {
     "node": ">=6",
@@ -62,7 +65,7 @@
       "^.+\\.js$": "babel-jest"
     },
     "globals": {
-      "__PACKAGE_VERSION__": "0.2.0"
+      "__PACKAGE_VERSION__": "0.3.0"
     }
   },
   "babel": {

@@ -8,51 +8,13 @@
   <meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
   <link rel="icon" type="image/png" href="_assets/favicon.ico">
   <link rel="stylesheet" href="//unpkg.com/docsify/lib/themes/vue.css">
-  <style>
-    .docsify-copy-code-button {
-      background: rgba(243, 112, 70, 1);
-      color: #fff;
-      position: absolute;
-      top: 0;
-      right: 0;
-      outline: 0;
-      border: 0;
-      border-radius: 0;
-      cursor: pointer;
-      z-index: 1;
-      padding: 10px;
-      transition: all .25s ease;
-      opacity: 0;
-    }
-
-    .docsify-copy-code-button::after {
-      content: 'Copied!';
-      position: absolute;
-      right: 100%;
-      top: 0;
-      background: #ccc;
-      color: #222;
-      padding: 5px;
-      margin: 5px 10px 0;
-      font-size: 11px;
-      z-index: 0;
-      transition: all .25s ease;
-      transform: translateX(120%) scale(0);
-    }
-
-    .docsify-copy-code-button.success::after {
-      transform: translateX(0) scale(1);
-    }
-
-    pre[v-pre]:hover .docsify-copy-code-button {
-      opacity: 1;
-    }
-  </style>
+  <link rel="stylesheet" href="//unpkg.com/docsify-copy-code/styles.css">
 </head>
 
 <body>
   <div id="app">Initializing the awesome...</div>
 </body>
+<script src="//unpkg.com/docsify-copy-code/index.js"></script>
 <script>
   window.$docsify = {
     name: 'Flamelink SDK',
@@ -84,46 +46,7 @@
       depth: 3
     },
     plugins: [
-      function (hook, vm) {
-        hook.doneEach(function () {
-          var codeBlocks = document.querySelectorAll('pre[v-pre]')
-
-          codeBlocks.forEach((element, i, obj) => {
-            var button = document.createElement("button");
-            button.appendChild(document.createTextNode('Click to copy'));
-            button.classList.add('docsify-copy-code-button');
-
-            button.addEventListener('click', function (event) {
-              var range = document.createRange();
-              var codeBlock = element.querySelector('code')
-              range.selectNode(codeBlock);
-              window.getSelection().addRange(range);
-
-              try {
-                // Now that we've selected the anchor text, execute the copy command
-                var successful = document.execCommand('copy');
-                if (successful) {
-                  button.classList.add('success');
-                  setTimeout(function () {
-                    button.classList.remove('success');
-                  }, 1000);
-                }
-              } catch (err) {
-                button.classList.add('error');
-                setTimeout(function () {
-                  button.classList.remove('error');
-                }, 1000);
-              }
-
-              // Remove the selections - NOTE: Should use
-              // removeRange(range) when it is supported
-              window.getSelection().removeAllRanges();
-            });
-
-            element.appendChild(button);
-          })
-        })
-      }
+      window.DocsifyCopyCodePlugin.init()
     ]
   }
 </script>

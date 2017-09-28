@@ -248,18 +248,38 @@ function flamelink(conf = {}) {
     /**
      * Establish stream to read value consistently from db, returning the raw snapshot
      *
-     * @param {String} ref
+     * @param {String} contentRef
+     * @param {String} entryRef
      * @param {Object} [options={}]
      * @param {Function} cb
      * @returns {Promise} Resolves to snapshot of query
      */
-    onRaw(ref, options = {}, cb) {
-      if (!cb) {
-        cb = options;
-        options = {};
+    subscribeRaw(contentRef, entryRef, options = {}, cb) {
+      // Is single entry subscription?
+      if (['string', 'number'].includes(typeof entryRef)) {
+        if (!cb) {
+          cb = options;
+          options = {};
+        }
+
+        const ordered = applyOrderBy(this.ref(contentRef).child(entryRef), options);
+        const filtered = applyFilters(ordered, options);
+
+        return filtered.on('value', cb);
       }
 
-      const ordered = applyOrderBy(this.ref(ref), options);
+      // Subscribe to all entries for given content type
+      if (typeof entryRef === 'object') {
+        cb = options; // third param is then the callback
+        options = entryRef; // second param is then the options
+      } else if (typeof entryRef === 'function') {
+        cb = entryRef; // second param is then the callback
+        options = {}; // set default options
+      } else {
+        throw error('Check out the docs for the required parameters for this method');
+      }
+
+      const ordered = applyOrderBy(this.ref(contentRef), options);
       const filtered = applyFilters(ordered, options);
 
       return filtered.on('value', cb);
@@ -268,18 +288,37 @@ function flamelink(conf = {}) {
     /**
      * Establish stream to read value consistently from db, returning the processed value
      *
-     * @param {String} ref
+     * @param {String} contentRef
+     * @param {String} entryRef
      * @param {Object} [options={}]
      * @param {Function} cb
      * @returns {Promise} Resolves to value of query
      */
-    on(ref, options = {}, cb) {
-      if (!cb) {
-        cb = options;
-        options = {};
+    subscribe(contentRef, entryRef, options = {}, cb) {
+      // Is single entry subscription?
+      if (['string', 'number'].includes(typeof entryRef)) {
+        if (!cb) {
+          cb = options;
+          options = {};
+        }
+
+        return this.subscribeRaw(contentRef, entryRef, options, snapshot => {
+          cb(snapshot.val());
+        });
       }
 
-      return this.onRaw(ref, options, snapshot => {
+      // Subscribe to all entries for given content type
+      if (typeof entryRef === 'object') {
+        cb = options; // third param is then the callback
+        options = entryRef; // second param is then the options
+      } else if (typeof entryRef === 'function') {
+        cb = entryRef; // second param is then the callback
+        options = {}; // set default options
+      } else {
+        throw error('Check out the docs for the required parameters for this method');
+      }
+
+      return this.subscribeRaw(contentRef, options, snapshot => {
         cb(snapshot.val());
       });
     },
@@ -291,7 +330,7 @@ function flamelink(conf = {}) {
      * @param {String} event
      * @returns {Promise}
      */
-    off(ref, event) {
+    unsubscribe(ref, event) {
       if (event) {
         return this.ref(ref).off(event);
       }

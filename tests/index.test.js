@@ -238,32 +238,60 @@ describe('Flamelink SDK', () => {
       );
     });
 
-    test('should expose a "onRaw" method', () => {
+    test('should expose a "subscribeRaw" method', () => {
       const cb = jest.fn();
-      flamelink(basicConfig).content.onRaw('ref', {}, cb);
-      expect(cb.mock.calls.length).toEqual(1);
-      expect(cb.mock.calls[0][0].val()).toEqual('"on" called with event: "value"');
-      flamelink(basicConfig).content.onRaw('ref', cb);
-      expect(cb.mock.calls.length).toEqual(2);
-      expect(cb.mock.calls[0][0].val()).toEqual('"on" called with event: "value"');
+      const tests = [
+        {
+          args: ['contentRef', cb]
+        },
+        {
+          args: ['contentRef', {}, cb]
+        },
+        {
+          args: ['contentRef', 'entryRef', cb]
+        },
+        {
+          args: ['contentRef', 'entryRef', {}, cb]
+        }
+      ];
+
+      tests.forEach((test, index) => {
+        flamelink(basicConfig).content.subscribeRaw(...test.args);
+        expect(cb.mock.calls.length).toEqual(index + 1);
+        expect(cb.mock.calls[0][0].val()).toEqual('"on" called with event: "value"');
+      });
     });
 
-    test('should expose an "on" method', () => {
+    test('should expose an "subscribe" method', () => {
       const cb = jest.fn();
-      flamelink(basicConfig).content.on('ref', {}, cb);
-      expect(cb.mock.calls.length).toEqual(1);
-      expect(cb.mock.calls[0][0]).toEqual('"on" called with event: "value"');
-      flamelink(basicConfig).content.on('ref', cb);
-      expect(cb.mock.calls.length).toEqual(2);
-      expect(cb.mock.calls[0][0]).toEqual('"on" called with event: "value"');
+      const tests = [
+        {
+          args: ['contentRef', cb]
+        },
+        {
+          args: ['contentRef', {}, cb]
+        },
+        {
+          args: ['contentRef', 'entryRef', cb]
+        },
+        {
+          args: ['contentRef', 'entryRef', {}, cb]
+        }
+      ];
+
+      tests.forEach((test, index) => {
+        flamelink(basicConfig).content.subscribe(...test.args);
+        expect(cb.mock.calls.length).toEqual(index + 1);
+        expect(cb.mock.calls[0][0]).toEqual('"on" called with event: "value"');
+      });
     });
 
-    test('should expose an "off" method', () => {
+    test('should expose an "unsubscribe" method', () => {
       const event = 'something';
-      expect(flamelink(basicConfig).content.off('ref', event)).toEqual(
+      expect(flamelink(basicConfig).content.unsubscribe('ref', event)).toEqual(
         `"off" called with event: "${event}"`
       );
-      expect(flamelink(basicConfig).content.off('ref')).toEqual(
+      expect(flamelink(basicConfig).content.unsubscribe('ref')).toEqual(
         '"off" called with event: "undefined"'
       );
     });

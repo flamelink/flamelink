@@ -73,7 +73,14 @@ const mockedRef = jest.fn(ref => ({
         default:
           return Promise.resolve();
       }
-    }
+    },
+    on: jest.fn((event, cb) => {
+      if (cb) {
+        cb({
+          val: () => `"on" called with event: "${event}"`
+        });
+      }
+    })
   })),
   once: () => {
     switch (ref) {

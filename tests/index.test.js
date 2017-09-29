@@ -242,23 +242,35 @@ describe('Flamelink SDK', () => {
       const cb = jest.fn();
       const tests = [
         {
-          args: ['contentRef', cb]
+          args: ['contentRef', cb],
+          expect: '"on" called with event: "value"'
         },
         {
-          args: ['contentRef', {}, cb]
+          args: ['contentRef', {}, cb],
+          expect: '"on" called with event: "value"'
         },
         {
-          args: ['contentRef', 'entryRef', cb]
+          args: ['contentRef', { event: 'child_moved' }, cb],
+          expect: '"on" called with event: "child_moved"'
         },
         {
-          args: ['contentRef', 'entryRef', {}, cb]
+          args: ['contentRef', 'entryRef', cb],
+          expect: '"on" called with event: "value"'
+        },
+        {
+          args: ['contentRef', 'entryRef', {}, cb],
+          expect: '"on" called with event: "value"'
+        },
+        {
+          args: ['contentRef', 'entryRef', { event: 'child_added' }, cb],
+          expect: '"on" called with event: "child_added"'
         }
       ];
 
       tests.forEach((test, index) => {
         flamelink(basicConfig).content.subscribeRaw(...test.args);
         expect(cb.mock.calls.length).toEqual(index + 1);
-        expect(cb.mock.calls[0][0].val()).toEqual('"on" called with event: "value"');
+        expect(cb.mock.calls[0][0].val()).toEqual(test.expect);
       });
     });
 
@@ -266,23 +278,35 @@ describe('Flamelink SDK', () => {
       const cb = jest.fn();
       const tests = [
         {
-          args: ['contentRef', cb]
+          args: ['contentRef', cb],
+          expect: '"on" called with event: "value"'
         },
         {
-          args: ['contentRef', {}, cb]
+          args: ['contentRef', {}, cb],
+          expect: '"on" called with event: "value"'
         },
         {
-          args: ['contentRef', 'entryRef', cb]
+          args: ['contentRef', { event: 'child_moved' }, cb],
+          expect: '"on" called with event: "child_moved"'
         },
         {
-          args: ['contentRef', 'entryRef', {}, cb]
+          args: ['contentRef', 'entryRef', cb],
+          expect: '"on" called with event: "value"'
+        },
+        {
+          args: ['contentRef', 'entryRef', {}, cb],
+          expect: '"on" called with event: "value"'
+        },
+        {
+          args: ['contentRef', 'entryRef', { event: 'child_added' }, cb],
+          expect: '"on" called with event: "child_added"'
         }
       ];
 
       tests.forEach((test, index) => {
         flamelink(basicConfig).content.subscribe(...test.args);
         expect(cb.mock.calls.length).toEqual(index + 1);
-        expect(cb.mock.calls[0][0]).toEqual('"on" called with event: "value"');
+        expect(cb.mock.calls[0][0]).toEqual(test.expect);
       });
     });
 

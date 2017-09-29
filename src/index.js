@@ -19,6 +19,14 @@ const DEFAULT_CONFIG = {
   locale: 'en-US'
 };
 
+const ALLOWED_CHILD_EVENTS = [
+  'value',
+  'child_added',
+  'child_removed',
+  'child_changed',
+  'child_moved'
+];
+
 function flamelink(conf = {}) {
   let firebaseApp_ = null;
   let databaseService_ = null;
@@ -324,17 +332,45 @@ function flamelink(conf = {}) {
     },
 
     /**
-     * Detach listeners from given reference.
+     * Detach event listeners from given reference.
      *
-     * @param {String} ref
+     * @param {String} contentRef
+     * @param {String} entryRef
      * @param {String} event
      * @returns {Promise}
      */
-    unsubscribe(ref, event) {
-      if (event) {
-        return this.ref(ref).off(event);
+    unsubscribe(...args) {
+      if (args.length === 3) {
+        // args[0] = contentRef
+        // args[1] = entryRef
+        // args[2] = event
+        return this.ref(args[0])
+          .child(args[1])
+          .off(args[2]);
       }
-      return this.ref(ref).off();
+
+      if (args.length === 2) {
+        // Is second arg a valid firebase child event?
+        if (ALLOWED_CHILD_EVENTS.includes(args[1])) {
+          // args[0] = contentRef
+          // args[1] = event
+          return this.ref(args[0]).off(args[1]);
+        }
+
+        // args[0] = contentRef
+        // args[1] = entryRef
+        return this.ref(args[0])
+          .child(args[1])
+          .off();
+      }
+
+      if (args.length === 1) {
+        return this.ref(args[0]).off();
+      }
+
+      throw error(
+        '"unsubscribe" method needs to be called with min 1 argument and max 3 arguments'
+      );
     },
 
     /**

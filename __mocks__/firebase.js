@@ -82,7 +82,8 @@ const mockedRef = jest.fn(ref => ({
           val: () => `"on" called with event: "${event}"`
         });
       }
-    })
+    }),
+    off: jest.fn(event => `"off" called with event: "${event}"`)
   })),
   once: event => {
     switch (ref) {

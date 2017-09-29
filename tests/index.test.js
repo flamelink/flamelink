@@ -325,14 +325,58 @@ describe('Flamelink SDK', () => {
       });
     });
 
-    test('should expose an "unsubscribe" method', () => {
-      const event = 'something';
-      expect(flamelink(basicConfig).content.unsubscribe('ref', event)).toEqual(
-        `"off" called with event: "${event}"`
-      );
-      expect(flamelink(basicConfig).content.unsubscribe('ref')).toEqual(
-        '"off" called with event: "undefined"'
-      );
+    describe('"unsubscribe" Method', () => {
+      test('should throw if called with incorrect number of arguments', () => {
+        let message;
+
+        try {
+          flamelink(basicConfig).content.unsubscribe();
+        } catch (error) {
+          message = error.message;
+        }
+
+        expect(message).toMatch(
+          '[FLAMELINK] "unsubscribe" method needs to be called with min 1 argument and max 3 arguments'
+        );
+
+        message = '';
+
+        try {
+          flamelink(basicConfig).content.unsubscribe('ref', 'entry', 'value', 'some-4th-arg');
+        } catch (error) {
+          message = error.message;
+        }
+
+        expect(message).toMatch(
+          '[FLAMELINK] "unsubscribe" method needs to be called with min 1 argument and max 3 arguments'
+        );
+      });
+
+      test('should unsubscribe all events for given content ref', () => {
+        expect(flamelink(basicConfig).content.unsubscribe('ref')).toEqual(
+          '"off" called with event: "undefined"'
+        );
+      });
+
+      test('should unsubscribe all events for given entry ref', () => {
+        expect(flamelink(basicConfig).content.unsubscribe('ref', 'entry')).toEqual(
+          '"off" called with event: "undefined"'
+        );
+      });
+
+      test('should unsubscribe given event for given content ref', () => {
+        const event = 'child_moved';
+        expect(flamelink(basicConfig).content.unsubscribe('ref', event)).toEqual(
+          `"off" called with event: "${event}"`
+        );
+      });
+
+      test('should unsubscribe given event for given entry ref', () => {
+        const event = 'child_moved';
+        expect(flamelink(basicConfig).content.unsubscribe('ref', 'entry', event)).toEqual(
+          `"off" called with event: "${event}"`
+        );
+      });
     });
 
     test('should expose a "remove" method', () => {

@@ -265,7 +265,7 @@ function flamelink(conf = {}) {
         const ordered = applyOrderBy(this.ref(contentRef).child(entryRef), options);
         const filtered = applyFilters(ordered, options);
 
-        return filtered.on('value', cb);
+        return filtered.on(options.event || 'value', cb);
       }
 
       // Subscribe to all entries for given content type
@@ -282,7 +282,7 @@ function flamelink(conf = {}) {
       const ordered = applyOrderBy(this.ref(contentRef), options);
       const filtered = applyFilters(ordered, options);
 
-      return filtered.on('value', cb);
+      return filtered.on(options.event || 'value', cb);
     },
 
     /**

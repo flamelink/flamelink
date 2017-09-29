@@ -239,73 +239,73 @@ describe('Flamelink SDK', () => {
     });
 
     test('should expose a "subscribeRaw" method', () => {
-      const cb = jest.fn();
       const tests = [
         {
-          args: ['contentRef', cb],
+          args: ['contentRef', jest.fn()],
           expect: '"on" called with event: "value"'
         },
         {
-          args: ['contentRef', {}, cb],
+          args: ['contentRef', {}, jest.fn()],
           expect: '"on" called with event: "value"'
         },
         {
-          args: ['contentRef', { event: 'child_moved' }, cb],
+          args: ['contentRef', { event: 'child_moved' }, jest.fn()],
           expect: '"on" called with event: "child_moved"'
         },
         {
-          args: ['contentRef', 'entryRef', cb],
+          args: ['contentRef', 'entryRef', jest.fn()],
           expect: '"on" called with event: "value"'
         },
         {
-          args: ['contentRef', 'entryRef', {}, cb],
+          args: ['contentRef', 'entryRef', {}, jest.fn()],
           expect: '"on" called with event: "value"'
         },
         {
-          args: ['contentRef', 'entryRef', { event: 'child_added' }, cb],
+          args: ['contentRef', 'entryRef', { event: 'child_added' }, jest.fn()],
           expect: '"on" called with event: "child_added"'
         }
       ];
 
-      tests.forEach((test, index) => {
+      tests.forEach(test => {
         flamelink(basicConfig).content.subscribeRaw(...test.args);
-        expect(cb.mock.calls.length).toEqual(index + 1);
+        const cb = test.args.pop();
+        expect(cb.mock.calls.length).toEqual(1);
         expect(cb.mock.calls[0][0].val()).toEqual(test.expect);
       });
     });
 
     test('should expose an "subscribe" method', () => {
-      const cb = jest.fn();
       const tests = [
         {
-          args: ['contentRef', cb],
+          args: ['contentRef', jest.fn()],
           expect: '"on" called with event: "value"'
         },
         {
-          args: ['contentRef', {}, cb],
+          args: ['contentRef', {}, jest.fn()],
           expect: '"on" called with event: "value"'
         },
         {
-          args: ['contentRef', { event: 'child_moved' }, cb],
+          args: ['contentRef', { event: 'child_moved' }, jest.fn()],
           expect: '"on" called with event: "child_moved"'
         },
         {
-          args: ['contentRef', 'entryRef', cb],
+          args: ['contentRef', 'entryRef', jest.fn()],
           expect: '"on" called with event: "value"'
         },
         {
-          args: ['contentRef', 'entryRef', {}, cb],
+          args: ['contentRef', 'entryRef', {}, jest.fn()],
           expect: '"on" called with event: "value"'
         },
         {
-          args: ['contentRef', 'entryRef', { event: 'child_added' }, cb],
+          args: ['contentRef', 'entryRef', { event: 'child_added' }, jest.fn()],
           expect: '"on" called with event: "child_added"'
         }
       ];
 
-      tests.forEach((test, index) => {
+      tests.forEach(test => {
         flamelink(basicConfig).content.subscribe(...test.args);
-        expect(cb.mock.calls.length).toEqual(index + 1);
+        const cb = test.args.pop();
+        expect(cb.mock.calls.length).toEqual(1);
         expect(cb.mock.calls[0][0]).toEqual(test.expect);
       });
     });

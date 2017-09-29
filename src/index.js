@@ -310,8 +310,13 @@ function flamelink(conf = {}) {
           options = {};
         }
 
-        return this.subscribeRaw(contentRef, entryRef, options, snapshot => {
-          cb(snapshot.val());
+        const pluckFields = pluckResultFields(options.fields);
+        const populateFields = populateEntry(schemasAPI, contentAPI, contentRef, options.populate);
+
+        return this.subscribeRaw(contentRef, entryRef, options, async snapshot => {
+          const wrapValue = { [entryRef]: snapshot.val() }; // Wrapping value to create the correct structure for our filtering to work
+          const result = await compose(populateFields, pluckFields)(wrapValue);
+          cb(result[entryRef]);
         });
       }
 
@@ -326,8 +331,12 @@ function flamelink(conf = {}) {
         throw error('Check out the docs for the required parameters for this method');
       }
 
-      return this.subscribeRaw(contentRef, options, snapshot => {
-        cb(snapshot.val());
+      const pluckFields = pluckResultFields(options.fields);
+      const populateFields = populateEntry(schemasAPI, contentAPI, contentRef, options.populate);
+
+      return this.subscribeRaw(contentRef, options, async snapshot => {
+        const result = await compose(populateFields, pluckFields)(snapshot.val());
+        cb(result);
       });
     },
 

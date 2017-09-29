@@ -246,82 +246,132 @@ describe('Flamelink SDK', () => {
       });
     });
 
-    test('should expose a "set" method', () => {
-      const payload = { key: 'value' };
-      expect(flamelink(basicConfig).content.set('ref', payload)).toEqual(
-        `"set" called with payload: "${JSON.stringify(payload)}"`
-      );
-    });
+    describe('"subscribe" Method', () => {
+      test('should have a related "subscribeRaw" method', () => {
+        const tests = [
+          {
+            args: ['contentRef', jest.fn()],
+            expect: '"on" called with event: "value"'
+          },
+          {
+            args: ['contentRef', {}, jest.fn()],
+            expect: '"on" called with event: "value"'
+          },
+          {
+            args: ['contentRef', { event: 'child_moved' }, jest.fn()],
+            expect: '"on" called with event: "child_moved"'
+          },
+          {
+            args: ['contentRef', 'entryRef', jest.fn()],
+            expect: '"on" called with event: "value"'
+          },
+          {
+            args: ['contentRef', 'entryRef', {}, jest.fn()],
+            expect: '"on" called with event: "value"'
+          },
+          {
+            args: ['contentRef', 'entryRef', { event: 'child_added' }, jest.fn()],
+            expect: '"on" called with event: "child_added"'
+          }
+        ];
 
-    test('should expose a "subscribeRaw" method', () => {
-      const tests = [
-        {
-          args: ['contentRef', jest.fn()],
-          expect: '"on" called with event: "value"'
-        },
-        {
-          args: ['contentRef', {}, jest.fn()],
-          expect: '"on" called with event: "value"'
-        },
-        {
-          args: ['contentRef', { event: 'child_moved' }, jest.fn()],
-          expect: '"on" called with event: "child_moved"'
-        },
-        {
-          args: ['contentRef', 'entryRef', jest.fn()],
-          expect: '"on" called with event: "value"'
-        },
-        {
-          args: ['contentRef', 'entryRef', {}, jest.fn()],
-          expect: '"on" called with event: "value"'
-        },
-        {
-          args: ['contentRef', 'entryRef', { event: 'child_added' }, jest.fn()],
-          expect: '"on" called with event: "child_added"'
-        }
-      ];
-
-      tests.forEach(test => {
-        flamelink(basicConfig).content.subscribeRaw(...test.args);
-        const cb = test.args.pop();
-        expect(cb.mock.calls.length).toEqual(1);
-        expect(cb.mock.calls[0][0].val()).toEqual(test.expect);
+        tests.forEach(test => {
+          flamelink(basicConfig).content.subscribeRaw(...test.args);
+          const cb = test.args.pop();
+          expect(cb.mock.calls.length).toEqual(1);
+          expect(cb.mock.calls[0][0].val()).toEqual(test.expect);
+        });
       });
-    });
 
-    test('should expose an "subscribe" method', () => {
-      const tests = [
-        {
-          args: ['contentRef', jest.fn()],
-          expect: '"on" called with event: "value"'
-        },
-        {
-          args: ['contentRef', {}, jest.fn()],
-          expect: '"on" called with event: "value"'
-        },
-        {
-          args: ['contentRef', { event: 'child_moved' }, jest.fn()],
-          expect: '"on" called with event: "child_moved"'
-        },
-        {
-          args: ['contentRef', 'entryRef', jest.fn()],
-          expect: '"on" called with event: "value"'
-        },
-        {
-          args: ['contentRef', 'entryRef', {}, jest.fn()],
-          expect: '"on" called with event: "value"'
-        },
-        {
-          args: ['contentRef', 'entryRef', { event: 'child_added' }, jest.fn()],
-          expect: '"on" called with event: "child_added"'
-        }
-      ];
+      test('should handle arguments in any of the acceptable orders', () => {
+        const tests = [
+          {
+            args: ['contentRef', jest.fn()],
+            expect: '"on" called with event: "value"'
+          },
+          {
+            args: ['contentRef', {}, jest.fn()],
+            expect: '"on" called with event: "value"'
+          },
+          {
+            args: ['contentRef', { event: 'child_moved' }, jest.fn()],
+            expect: '"on" called with event: "child_moved"'
+          },
+          {
+            args: ['contentRef', 'entryRef', jest.fn()],
+            expect: '"on" called with event: "value"'
+          },
+          {
+            args: ['contentRef', 'entryRef', {}, jest.fn()],
+            expect: '"on" called with event: "value"'
+          },
+          {
+            args: ['contentRef', 'entryRef', { event: 'child_added' }, jest.fn()],
+            expect: '"on" called with event: "child_added"'
+          }
+        ];
 
-      tests.forEach(test => {
-        flamelink(basicConfig).content.subscribe(...test.args);
-        const cb = test.args.pop();
-        expect(cb.mock.calls.length).toEqual(1);
-        expect(cb.mock.calls[0][0]).toEqual(test.expect);
+        tests.forEach(test => {
+          flamelink(basicConfig).content.subscribe(...test.args);
+          const cb = test.args.pop();
+          expect(cb.mock.calls.length).toEqual(1);
+          expect(cb.mock.calls[0][0]).toEqual(test.expect);
+        });
+      });
+
+      test('should respect the "fields" option', done => {
+        const contentRef = 'subscribe-content-entry-ref';
+        const entryRef = 'entry-ref';
+        const options = { fields: ['brand', 'productCode', 'status', 'price'] };
+
+        flamelink(basicConfig).content.subscribe(contentRef, entryRef, options, result => {
+          expect(result).toEqual({
+            brand: [1491679616700],
+            price: '123.00',
+            productCode: 'HG31685003',
+            status: 'publish'
+          });
+          done();
+        });
+      });
+
+      test.only('should respect the "populate" option', done => {
+        const contentRef = 'subscribe-content-entry-ref';
+        const entryRef = 'entry-ref';
+        const options = { populate: ['brand'] };
+
+        flamelink(basicConfig).content.subscribe(contentRef, entryRef, options, result => {
+          expect(result).toEqual({
+            brand: [
+              {
+                id: 1491679616700,
+                name: 'Hansgrohe',
+                order: 55,
+                parentId: 0
+              }
+            ],
+            classification: [
+              1491683439177,
+              1491683439514,
+              1491683439236,
+              1491683439455,
+              1491683439241,
+              1491683439435
+            ],
+            finish: 'Chrome',
+            id: 1491827711368,
+            image: ['-KhTzFZtaoA1wwxhgIav'],
+            material: 'Brass',
+            price: '123.00',
+            productCode: 'HG31685003',
+            showPrice: '1',
+            site1: '1',
+            status: 'publish',
+            supplierCode: '31685003',
+            titleA: 'Metris Shower/Bath Finish Set Round Large'
+          });
+          done();
+        });
       });
     });
 
@@ -377,6 +427,13 @@ describe('Flamelink SDK', () => {
           `"off" called with event: "${event}"`
         );
       });
+    });
+
+    test('should expose a "set" method', () => {
+      const payload = { key: 'value' };
+      expect(flamelink(basicConfig).content.set('ref', payload)).toEqual(
+        `"set" called with payload: "${JSON.stringify(payload)}"`
+      );
     });
 
     test('should expose a "remove" method', () => {

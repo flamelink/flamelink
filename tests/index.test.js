@@ -148,6 +148,13 @@ describe('Flamelink SDK', () => {
             }
           });
         });
+
+        test('should pass through custom events', () => {
+          const ref = 'random-non-existing-ref';
+          return expect(
+            flamelink(basicConfig).content.get(ref, { event: 'child_added' })
+          ).resolves.toEqual({ test: '"once" called with event: "child_added"' });
+        });
       });
 
       describe('for a single entry of a given content type', () => {
@@ -176,6 +183,14 @@ describe('Flamelink SDK', () => {
             supplierCode: '31685003',
             titleA: 'Metris Shower/Bath Finish Set Round Large'
           });
+        });
+
+        test('should pass through custom events', () => {
+          const contentRef = 'random-non-existing-ref';
+          const entryRef = 'random-non-existing-ref';
+          return expect(
+            flamelink(basicConfig).content.get(contentRef, entryRef, { event: 'child_added' })
+          ).resolves.toEqual('"once" called with event: "child_added"');
         });
 
         test('should respect the "fields" option', () => {

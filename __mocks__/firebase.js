@@ -2,7 +2,7 @@ const firebase = jest.genMockFromModule('firebase');
 
 const mockedRef = jest.fn(ref => ({
   child: jest.fn(child => ({
-    once: () => {
+    once: event => {
       switch (ref) {
         case '/environments/production/navigation/get-items-ref/en-US':
           return Promise.resolve({
@@ -71,7 +71,9 @@ const mockedRef = jest.fn(ref => ({
           });
 
         default:
-          return Promise.resolve();
+          return Promise.resolve({
+            val: jest.fn(() => `"once" called with event: "${event}"`)
+          });
       }
     },
     on: jest.fn((event, cb) => {
@@ -82,7 +84,7 @@ const mockedRef = jest.fn(ref => ({
       }
     })
   })),
-  once: () => {
+  once: event => {
     switch (ref) {
       case '/settings/locales':
         return Promise.resolve({
@@ -338,7 +340,7 @@ const mockedRef = jest.fn(ref => ({
 
       default:
         return Promise.resolve({
-          val: jest.fn()
+          val: jest.fn(() => ({ test: `"once" called with event: "${event}"` }))
         });
     }
   },

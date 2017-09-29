@@ -171,7 +171,7 @@ function flamelink(conf = {}) {
         const ordered = applyOrderBy(this.ref(contentRef).child(entryRef), options);
         const filtered = applyFilters(ordered, options);
 
-        return filtered.once('value');
+        return filtered.once(options.event || 'value');
       }
 
       // Query all entries for given content type
@@ -180,7 +180,7 @@ function flamelink(conf = {}) {
       const ordered = applyOrderBy(this.ref(contentRef), opts);
       const filtered = applyFilters(ordered, opts);
 
-      return filtered.once('value');
+      return filtered.once(opts.event || 'value');
     },
 
     /**

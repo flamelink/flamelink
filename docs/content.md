@@ -263,7 +263,7 @@ This method is used to unsubscribe from previously subscribed content updates or
 app.content.unsubscribe('blog-posts');
 ```
 
-*To unsubscirbe from an individual entry for that type:*
+*To unsubscribe from an individual entry for that type:*
 
 ```javascript
 app.content.unsubscribe('blog-posts', '1502966447501');

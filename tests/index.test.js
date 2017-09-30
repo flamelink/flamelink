@@ -579,12 +579,14 @@ describe('Flamelink SDK', () => {
     });
 
     test('should expose a "transaction" method', () => {
+      const contentRef = 'ref';
+      const entryRef = 'entry-ref';
       const updateFn = jest.fn();
       const completeFn = jest.fn();
-      flamelink(basicConfig).content.transaction('ref', updateFn, completeFn);
+      flamelink(basicConfig).content.transaction(contentRef, entryRef, updateFn, completeFn);
       expect(updateFn.mock.calls.length).toEqual(1);
       expect(completeFn.mock.calls.length).toEqual(1);
-      flamelink(basicConfig).content.transaction('ref', updateFn);
+      flamelink(basicConfig).content.transaction(contentRef, entryRef, updateFn);
       expect(updateFn.mock.calls.length).toEqual(2);
       expect(completeFn.mock.calls.length).toEqual(1);
     });

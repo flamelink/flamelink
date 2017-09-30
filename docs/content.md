@@ -374,6 +374,43 @@ A `Promise` that resolves when the entry is removed or will reject with an error
 
 ---
 
+## .transaction()
+
+> This is a more advanced API method, that for most use cases will not be necessary.
+
+If you need to update an entry whose data could be corrupted by concurrent changes, Firebase allows us to perform a "transaction" update that updates data based on the existing data/state.
+
+Read more about transactions in the [Firebase docs](https://firebase.google.com/docs/reference/js/firebase.database.Reference#transaction).
+
+```javascript
+app.content.transaction(
+  'blog-posts',
+  '1502966447501',
+  function updateFn(blogEntry) {
+    // Take in the existing state (blogEntry) and return the new state
+    return blogEntry;
+  },
+  function callback() {
+    // Transaction finished
+  }
+);
+```
+
+### Input parameters
+
+| Type     | Variable         | Required | Description                                                           |
+| -------- | ---------------- | -------- | --------------------------------------------------------------------- |
+| String   | `contentType`    | required | The content type reference for the entry you want to update           |
+| String   | `entryReference` | required | The entry ID/reference for given content type to update               |
+| Function | `updateFn`       | required | The update function that will be called with the existing entry state |
+| Function | `callback`       | optional | The callback function that will be called when transaction finishes   |
+
+### Return value
+
+This method has no return value. Use the optional `callback` function to determine when the transaction succeeded.
+
+---
+
 ## .ref()
 
 > This is a more advanced API method, that for most use cases will not be necessary.

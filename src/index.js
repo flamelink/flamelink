@@ -450,13 +450,26 @@ function flamelink(conf = {}) {
      * Transactional operation
      * https://firebase.google.com/docs/reference/js/firebase.database.Reference#transaction
      *
-     * @param {any} ref
-     * @param {any} updateFn
-     * @param {any} [cb=() => {}]
+     * @param {String} contentRef
+     * @param {String} entryRef
+     * @param {Function} updateFn
+     * @param {Function} [cb=() => {}]
      * @returns
      */
-    transaction(ref, updateFn, cb = () => {}) {
-      return this.ref(ref).transaction(updateFn, cb);
+    transaction(contentRef, entryRef, updateFn, cb = () => {}) {
+      if (
+        typeof contentRef !== 'string' ||
+        typeof entryRef !== 'string' ||
+        typeof updateFn !== 'function'
+      ) {
+        throw error(
+          '"transaction" called with the incorrect arguments. Check the docs for details.'
+        );
+      }
+
+      return this.ref(contentRef)
+        .child(entryRef)
+        .transaction(updateFn, cb);
     }
   };
 

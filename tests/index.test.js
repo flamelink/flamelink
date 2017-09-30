@@ -246,6 +246,21 @@ describe('Flamelink SDK', () => {
       });
     });
 
+    describe('"getByField" Method', () => {
+      test('should pass all values to the "get" method', done => {
+        const app = flamelink(basicConfig);
+        const spy = jest.spyOn(app.content, 'get');
+        const ref = 'get-ref';
+        const fieldName = 'name';
+        const fieldValue = 'value';
+        const options = {};
+        app.content.getByField(ref, fieldName, fieldValue, options).then(() => {
+          expect(spy).toHaveBeenCalledWith(ref, { equalTo: fieldValue, orderByChild: fieldName });
+          done();
+        });
+      });
+    });
+
     describe('"subscribe" Method', () => {
       test('should have a related "subscribeRaw" method', () => {
         const tests = [

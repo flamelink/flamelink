@@ -2,7 +2,7 @@ const firebase = jest.genMockFromModule('firebase');
 
 const mockedRef = jest.fn(ref => ({
   child: jest.fn(child => ({
-    once: () => {
+    once: event => {
       switch (ref) {
         case '/environments/production/navigation/get-items-ref/en-US':
           return Promise.resolve({
@@ -71,18 +71,52 @@ const mockedRef = jest.fn(ref => ({
           });
 
         default:
-          return Promise.resolve();
+          return Promise.resolve({
+            val: jest.fn(() => `"once" called with event: "${event}"`)
+          });
       }
     },
     on: jest.fn((event, cb) => {
       if (cb) {
-        cb({
-          val: () => `"on" called with event: "${event}"`
-        });
+        switch (ref) {
+          case '/environments/production/content/subscribe-content-entry-ref/en-US':
+            cb({
+              val: () => ({
+                brand: [1491679616700],
+                classification: [
+                  1491683439177,
+                  1491683439514,
+                  1491683439236,
+                  1491683439455,
+                  1491683439241,
+                  1491683439435
+                ],
+                finish: 'Chrome',
+                id: 1491827711368,
+                image: ['-KhTzFZtaoA1wwxhgIav'],
+                material: 'Brass',
+                price: '123.00',
+                productCode: 'HG31685003',
+                showPrice: '1',
+                site1: '1',
+                status: 'publish',
+                supplierCode: '31685003',
+                titleA: 'Metris Shower/Bath Finish Set Round Large'
+              })
+            });
+            break;
+
+          default:
+            cb({
+              val: () => `"on" called with event: "${event}"`
+            });
+            break;
+        }
       }
-    })
+    }),
+    off: jest.fn(event => `"off" called with event: "${event}"`)
   })),
-  once: () => {
+  once: event => {
     switch (ref) {
       case '/settings/locales':
         return Promise.resolve({
@@ -298,6 +332,7 @@ const mockedRef = jest.fn(ref => ({
         });
 
       case '/schemas/get-entry-ref/fields':
+      case '/schemas/subscribe-content-entry-ref/fields':
         return Promise.resolve({
           val: jest.fn(() => [
             {
@@ -338,7 +373,7 @@ const mockedRef = jest.fn(ref => ({
 
       default:
         return Promise.resolve({
-          val: jest.fn()
+          val: jest.fn(() => ({ test: `"once" called with event: "${event}"` }))
         });
     }
   },

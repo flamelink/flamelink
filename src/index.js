@@ -19,6 +19,14 @@ const DEFAULT_CONFIG = {
   locale: 'en-US'
 };
 
+const ALLOWED_CHILD_EVENTS = [
+  'value',
+  'child_added',
+  'child_removed',
+  'child_changed',
+  'child_moved'
+];
+
 function flamelink(conf = {}) {
   let firebaseApp_ = null;
   let databaseService_ = null;
@@ -171,7 +179,7 @@ function flamelink(conf = {}) {
         const ordered = applyOrderBy(this.ref(contentRef).child(entryRef), options);
         const filtered = applyFilters(ordered, options);
 
-        return filtered.once('value');
+        return filtered.once(options.event || 'value');
       }
 
       // Query all entries for given content type
@@ -180,7 +188,7 @@ function flamelink(conf = {}) {
       const ordered = applyOrderBy(this.ref(contentRef), opts);
       const filtered = applyFilters(ordered, opts);
 
-      return filtered.once('value');
+      return filtered.once(opts.event || 'value');
     },
 
     /**
@@ -212,7 +220,7 @@ function flamelink(conf = {}) {
     },
 
     /**
-     * Get individual content entry for given content reference and entry ID/reference and return raw snapshot
+     * Get an entry for a given content reference, field and value.
      *
      * @param {String} contentRef
      * @param {String} field
@@ -222,14 +230,11 @@ function flamelink(conf = {}) {
      */
     getByFieldRaw(contentRef, field, value, options = {}) {
       const opts = Object.assign({}, options, { orderByChild: field, equalTo: value });
-      const ordered = applyOrderBy(this.ref(contentRef), opts);
-      const filtered = applyFilters(ordered, opts);
-
-      return filtered.once('value');
+      return this.getRaw(contentRef, opts);
     },
 
     /**
-     * Read value once from db
+     * Get an entry for a given content reference, field and value.
      *
      * @param {String} contentRef
      * @param {String} field
@@ -237,12 +242,9 @@ function flamelink(conf = {}) {
      * @param {Object} [options={}]
      * @returns {Promise} Resolves to value of query
      */
-    async getByField(contentRef, field, value, options = {}) {
-      const pluckFields = pluckResultFields(options.fields);
-      const populateFields = populateEntry(schemasAPI, contentAPI, contentRef, options.populate);
-      const snapshot = await this.getByFieldRaw(contentRef, field, value, options);
-      const result = await compose(populateFields, pluckFields)(snapshot.val());
-      return result;
+    getByField(contentRef, field, value, options = {}) {
+      const opts = Object.assign({}, options, { orderByChild: field, equalTo: value });
+      return this.get(contentRef, opts);
     },
 
     /**
@@ -265,7 +267,7 @@ function flamelink(conf = {}) {
         const ordered = applyOrderBy(this.ref(contentRef).child(entryRef), options);
         const filtered = applyFilters(ordered, options);
 
-        return filtered.on('value', cb);
+        return filtered.on(options.event || 'value', cb);
       }
 
       // Subscribe to all entries for given content type
@@ -282,7 +284,7 @@ function flamelink(conf = {}) {
       const ordered = applyOrderBy(this.ref(contentRef), options);
       const filtered = applyFilters(ordered, options);
 
-      return filtered.on('value', cb);
+      return filtered.on(options.event || 'value', cb);
     },
 
     /**
@@ -295,46 +297,92 @@ function flamelink(conf = {}) {
      * @returns {Promise} Resolves to value of query
      */
     subscribe(contentRef, entryRef, options = {}, cb) {
-      // Is single entry subscription?
-      if (['string', 'number'].includes(typeof entryRef)) {
-        if (!cb) {
-          cb = options;
-          options = {};
+      try {
+        // Is single entry subscription?
+        if (['string', 'number'].includes(typeof entryRef)) {
+          if (!cb) {
+            cb = options;
+            options = {};
+          }
+
+          const pluckFields = pluckResultFields(options.fields);
+          const populateFields = populateEntry(
+            schemasAPI,
+            contentAPI,
+            contentRef,
+            options.populate
+          );
+
+          return this.subscribeRaw(contentRef, entryRef, options, async snapshot => {
+            const wrapValue = { [entryRef]: snapshot.val() }; // Wrapping value to create the correct structure for our filtering to work
+            const result = await compose(populateFields, pluckFields)(wrapValue);
+            cb(null, result[entryRef]); // Error-first callback
+          });
         }
 
-        return this.subscribeRaw(contentRef, entryRef, options, snapshot => {
-          cb(snapshot.val());
+        // Subscribe to all entries for given content type
+        if (typeof entryRef === 'object') {
+          cb = options; // third param is then the callback
+          options = entryRef; // second param is then the options
+        } else if (typeof entryRef === 'function') {
+          cb = entryRef; // second param is then the callback
+          options = {}; // set default options
+        } else {
+          throw error('Check out the docs for the required parameters for this method');
+        }
+
+        const pluckFields = pluckResultFields(options.fields);
+        const populateFields = populateEntry(schemasAPI, contentAPI, contentRef, options.populate);
+
+        return this.subscribeRaw(contentRef, options, async snapshot => {
+          const result = await compose(populateFields, pluckFields)(snapshot.val());
+          cb(null, result); // Error-first callback
         });
+      } catch (err) {
+        return cb(err);
       }
-
-      // Subscribe to all entries for given content type
-      if (typeof entryRef === 'object') {
-        cb = options; // third param is then the callback
-        options = entryRef; // second param is then the options
-      } else if (typeof entryRef === 'function') {
-        cb = entryRef; // second param is then the callback
-        options = {}; // set default options
-      } else {
-        throw error('Check out the docs for the required parameters for this method');
-      }
-
-      return this.subscribeRaw(contentRef, options, snapshot => {
-        cb(snapshot.val());
-      });
     },
 
     /**
-     * Detach listeners from given reference.
+     * Detach event listeners from given reference.
      *
-     * @param {String} ref
+     * @param {String} contentRef
+     * @param {String} entryRef
      * @param {String} event
      * @returns {Promise}
      */
-    unsubscribe(ref, event) {
-      if (event) {
-        return this.ref(ref).off(event);
+    unsubscribe(...args) {
+      if (args.length === 3) {
+        // args[0] = contentRef
+        // args[1] = entryRef
+        // args[2] = event
+        return this.ref(args[0])
+          .child(args[1])
+          .off(args[2]);
       }
-      return this.ref(ref).off();
+
+      if (args.length === 2) {
+        // Is second arg a valid firebase child event?
+        if (ALLOWED_CHILD_EVENTS.includes(args[1])) {
+          // args[0] = contentRef
+          // args[1] = event
+          return this.ref(args[0]).off(args[1]);
+        }
+
+        // args[0] = contentRef
+        // args[1] = entryRef
+        return this.ref(args[0])
+          .child(args[1])
+          .off();
+      }
+
+      if (args.length === 1) {
+        return this.ref(args[0]).off();
+      }
+
+      throw error(
+        '"unsubscribe" method needs to be called with min 1 argument and max 3 arguments'
+      );
     },
 
     /**

@@ -148,6 +148,13 @@ describe('Flamelink SDK', () => {
             }
           });
         });
+
+        test('should pass through custom events', () => {
+          const ref = 'random-non-existing-ref';
+          return expect(
+            flamelink(basicConfig).content.get(ref, { event: 'child_added' })
+          ).resolves.toEqual({ test: '"once" called with event: "child_added"' });
+        });
       });
 
       describe('for a single entry of a given content type', () => {
@@ -176,6 +183,14 @@ describe('Flamelink SDK', () => {
             supplierCode: '31685003',
             titleA: 'Metris Shower/Bath Finish Set Round Large'
           });
+        });
+
+        test('should pass through custom events', () => {
+          const contentRef = 'random-non-existing-ref';
+          const entryRef = 'random-non-existing-ref';
+          return expect(
+            flamelink(basicConfig).content.get(contentRef, entryRef, { event: 'child_added' })
+          ).resolves.toEqual('"once" called with event: "child_added"');
         });
 
         test('should respect the "fields" option', () => {
@@ -231,68 +246,212 @@ describe('Flamelink SDK', () => {
       });
     });
 
+    describe('"getByField" Method', () => {
+      test('should pass all values to the "get" method', done => {
+        const app = flamelink(basicConfig);
+        const spy = jest.spyOn(app.content, 'get');
+        const ref = 'get-ref';
+        const fieldName = 'name';
+        const fieldValue = 'value';
+        const options = {};
+        app.content.getByField(ref, fieldName, fieldValue, options).then(() => {
+          expect(spy).toHaveBeenCalledWith(ref, { equalTo: fieldValue, orderByChild: fieldName });
+          done();
+        });
+      });
+    });
+
+    describe('"subscribe" Method', () => {
+      test('should have a related "subscribeRaw" method', () => {
+        const tests = [
+          {
+            args: ['contentRef', jest.fn()],
+            expect: '"on" called with event: "value"'
+          },
+          {
+            args: ['contentRef', {}, jest.fn()],
+            expect: '"on" called with event: "value"'
+          },
+          {
+            args: ['contentRef', { event: 'child_moved' }, jest.fn()],
+            expect: '"on" called with event: "child_moved"'
+          },
+          {
+            args: ['contentRef', 'entryRef', jest.fn()],
+            expect: '"on" called with event: "value"'
+          },
+          {
+            args: ['contentRef', 'entryRef', {}, jest.fn()],
+            expect: '"on" called with event: "value"'
+          },
+          {
+            args: ['contentRef', 'entryRef', { event: 'child_added' }, jest.fn()],
+            expect: '"on" called with event: "child_added"'
+          }
+        ];
+
+        tests.forEach(test => {
+          flamelink(basicConfig).content.subscribeRaw(...test.args);
+          const cb = test.args.pop();
+          expect(cb.mock.calls.length).toEqual(1);
+          expect(cb.mock.calls[0][0].val()).toEqual(test.expect);
+        });
+      });
+
+      test('should handle arguments in any of the acceptable orders', done => {
+        // Callback automatically added as the last argument for each test
+        const tests = [
+          {
+            args: ['contentRef'],
+            expect: '"on" called with event: "value"'
+          },
+          {
+            args: ['contentRef', {}],
+            expect: '"on" called with event: "value"'
+          },
+          {
+            args: ['contentRef', { event: 'child_moved' }],
+            expect: '"on" called with event: "child_moved"'
+          },
+          {
+            args: ['contentRef', 'entryRef'],
+            expect: '"on" called with event: "value"'
+          },
+          {
+            args: ['contentRef', 'entryRef', {}],
+            expect: '"on" called with event: "value"'
+          },
+          {
+            args: ['contentRef', 'entryRef', { event: 'child_added' }],
+            expect: '"on" called with event: "child_added"'
+          }
+        ];
+
+        tests.forEach((test, index) => {
+          flamelink(basicConfig).content.subscribe(...test.args, result => {
+            expect(result).toEqual(null, test.expect);
+
+            if (tests.length === index + 1) {
+              done();
+            }
+          });
+        });
+      });
+
+      test('should respect the "fields" option', done => {
+        const contentRef = 'subscribe-content-entry-ref';
+        const entryRef = 'entry-ref';
+        const options = { fields: ['brand', 'productCode', 'status', 'price'] };
+
+        flamelink(basicConfig).content.subscribe(contentRef, entryRef, options, result => {
+          expect(result).toEqual(null, {
+            brand: [1491679616700],
+            price: '123.00',
+            productCode: 'HG31685003',
+            status: 'publish'
+          });
+          done();
+        });
+      });
+
+      test('should respect the "populate" option', done => {
+        const contentRef = 'subscribe-content-entry-ref';
+        const entryRef = 'entry-ref';
+        const options = { populate: ['brand'] };
+
+        flamelink(basicConfig).content.subscribe(contentRef, entryRef, options, result => {
+          expect(result).toEqual(null, {
+            brand: [
+              {
+                id: 1491679616700,
+                name: 'Hansgrohe',
+                order: 55,
+                parentId: 0
+              }
+            ],
+            classification: [
+              1491683439177,
+              1491683439514,
+              1491683439236,
+              1491683439455,
+              1491683439241,
+              1491683439435
+            ],
+            finish: 'Chrome',
+            id: 1491827711368,
+            image: ['-KhTzFZtaoA1wwxhgIav'],
+            material: 'Brass',
+            price: '123.00',
+            productCode: 'HG31685003',
+            showPrice: '1',
+            site1: '1',
+            status: 'publish',
+            supplierCode: '31685003',
+            titleA: 'Metris Shower/Bath Finish Set Round Large'
+          });
+          done();
+        });
+      });
+    });
+
+    describe('"unsubscribe" Method', () => {
+      test('should throw if called with incorrect number of arguments', () => {
+        let message;
+
+        try {
+          flamelink(basicConfig).content.unsubscribe();
+        } catch (error) {
+          message = error.message;
+        }
+
+        expect(message).toMatch(
+          '[FLAMELINK] "unsubscribe" method needs to be called with min 1 argument and max 3 arguments'
+        );
+
+        message = '';
+
+        try {
+          flamelink(basicConfig).content.unsubscribe('ref', 'entry', 'value', 'some-4th-arg');
+        } catch (error) {
+          message = error.message;
+        }
+
+        expect(message).toMatch(
+          '[FLAMELINK] "unsubscribe" method needs to be called with min 1 argument and max 3 arguments'
+        );
+      });
+
+      test('should unsubscribe all events for given content ref', () => {
+        expect(flamelink(basicConfig).content.unsubscribe('ref')).toEqual(
+          '"off" called with event: "undefined"'
+        );
+      });
+
+      test('should unsubscribe all events for given entry ref', () => {
+        expect(flamelink(basicConfig).content.unsubscribe('ref', 'entry')).toEqual(
+          '"off" called with event: "undefined"'
+        );
+      });
+
+      test('should unsubscribe given event for given content ref', () => {
+        const event = 'child_moved';
+        expect(flamelink(basicConfig).content.unsubscribe('ref', event)).toEqual(
+          `"off" called with event: "${event}"`
+        );
+      });
+
+      test('should unsubscribe given event for given entry ref', () => {
+        const event = 'child_moved';
+        expect(flamelink(basicConfig).content.unsubscribe('ref', 'entry', event)).toEqual(
+          `"off" called with event: "${event}"`
+        );
+      });
+    });
+
     test('should expose a "set" method', () => {
       const payload = { key: 'value' };
       expect(flamelink(basicConfig).content.set('ref', payload)).toEqual(
         `"set" called with payload: "${JSON.stringify(payload)}"`
-      );
-    });
-
-    test('should expose a "subscribeRaw" method', () => {
-      const cb = jest.fn();
-      const tests = [
-        {
-          args: ['contentRef', cb]
-        },
-        {
-          args: ['contentRef', {}, cb]
-        },
-        {
-          args: ['contentRef', 'entryRef', cb]
-        },
-        {
-          args: ['contentRef', 'entryRef', {}, cb]
-        }
-      ];
-
-      tests.forEach((test, index) => {
-        flamelink(basicConfig).content.subscribeRaw(...test.args);
-        expect(cb.mock.calls.length).toEqual(index + 1);
-        expect(cb.mock.calls[0][0].val()).toEqual('"on" called with event: "value"');
-      });
-    });
-
-    test('should expose an "subscribe" method', () => {
-      const cb = jest.fn();
-      const tests = [
-        {
-          args: ['contentRef', cb]
-        },
-        {
-          args: ['contentRef', {}, cb]
-        },
-        {
-          args: ['contentRef', 'entryRef', cb]
-        },
-        {
-          args: ['contentRef', 'entryRef', {}, cb]
-        }
-      ];
-
-      tests.forEach((test, index) => {
-        flamelink(basicConfig).content.subscribe(...test.args);
-        expect(cb.mock.calls.length).toEqual(index + 1);
-        expect(cb.mock.calls[0][0]).toEqual('"on" called with event: "value"');
-      });
-    });
-
-    test('should expose an "unsubscribe" method', () => {
-      const event = 'something';
-      expect(flamelink(basicConfig).content.unsubscribe('ref', event)).toEqual(
-        `"off" called with event: "${event}"`
-      );
-      expect(flamelink(basicConfig).content.unsubscribe('ref')).toEqual(
-        '"off" called with event: "undefined"'
       );
     });
 

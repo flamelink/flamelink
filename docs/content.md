@@ -36,9 +36,11 @@ app.content.get('blog-posts', '1502966447501', { fields: [ 'title', 'description
 
 The following optional options can be specified when retrieving your data:
 
+##### Fields
+
 - `fields` **{Array}** - A list of fields to be plucked from an/each entry.
 
-##### Fields Example
+*Example*
 
 To retrieve all of your blog posts, but only the `title`, `description` and `image` property for each individual post.
 
@@ -46,9 +48,11 @@ To retrieve all of your blog posts, but only the `title`, `description` and `ima
 app.content.get('blog-posts', { fields: [ 'title', 'description', 'image' ] })
 ```
 
+##### Populate
+
 - `populate` **{Array}** - A list of relational fields to be populated with their content for each entry.
 
-##### Populate Example
+*Example*
 
 To retrieve all of your blog posts and populate the `category` property for each individual post.
 
@@ -71,6 +75,73 @@ app.content.get('blog-posts', {
 ```
 
 ?> **Tip:** The array of __strings__ *vs* array of __objects__ syntax can be mixed and matched if you want.
+
+##### Event
+
+- `event` **{String}** - The Firebase child event to retrieve data for. By default, the event is `value`, which is used for retrieving the entire content at the given reference(s) path.
+
+*Example*
+
+The allowed child event options are: `value`, `child_added`, `child_changed`, `child_removed` and `child_moved`.
+
+To read more about these events, see the [Firebase docs](https://firebase.google.com/docs/database/web/lists-of-data#listen_for_child_events).
+
+```javascript
+app.content.get('blog-posts', { event: 'child_changed' })
+```
+
+### Return value
+
+A `Promise` that resolves to the reference `{Object}` on success or will reject with an error if the request fails.
+
+---
+
+## .getByField()
+
+To retrieve a single entry once for a given field and value, ie. Give me my blog post with the `slug` `"my-famous-blog-post"`.
+
+*or to get an individual entry for that type (with options):*
+
+```javascript
+app.content.getByField('blog-posts', 'slug', 'my-famous-blog-post')
+  .then(blogPost => console.log('Individual blog post:', blogPost))
+  .catch(error => console.error('Something went wrong while retrieving the entry. Details:', error));
+```
+
+> This method is simply a convenience method, but the same can be achieved with the standard `app.content.get()` method by adding the following options:
+
+```javascript
+app.content.getByField('blog-posts', { orderByChild: 'slug', equalTo: 'my-famous-blog-post' })
+  .then(blogPost => console.log('Individual blog post:', blogPost))
+  .catch(error => console.error('Something went wrong while retrieving the entry. Details:', error));
+```
+
+### Input parameters
+
+| Type   | Variable         | Required | Description                                      |
+| ------ | ---------------- | -------- | ------------------------------------------------ |
+| String | `contentType`    | required | The content type reference you want to retrieve  |
+| String | `fieldName`      | required | The name of the field to check the value against |
+| String | `fieldValue`     | required | The value of the given field to find             |
+| Object | `options`        | optional | Additional options                               |
+
+#### Available Options
+
+All options available to the `app.content.get()` method, expect for the already applied `orderByChild` and `equalTo`, is available for this method.
+
+*Example*
+
+```javascript
+app.content.getByField('blog-posts', 'slug', 'my-blog-post-title', {
+  event: 'child_changed',
+  fields: [ 'title', 'description', 'image', 'category' ],
+  populate: [{
+    field: 'category',
+    fields: [ 'id', 'name', 'icon', 'section' ],
+    populate: [ 'section' ]
+  }]
+});
+```
 
 ### Return value
 
@@ -95,7 +166,18 @@ app.content.subscribe('blog-posts', function(error, blogPosts) {
 });
 ```
 
-*or to subscirbe to an individual entry for that type (with options):*
+*To subscribe to the `child_added` child event for a specific content type:*
+
+```javascript
+app.content.subscribe('blog-posts', { event: 'child_added' }, function(error, blogPost) {
+  if (error) {
+    return console.error('Something went wrong while retrieving the content that got added. Details:', error);
+  }
+  console.log('The blog post that got added:', blogPost);
+});
+```
+
+*To subscribe to an individual entry for that type (with options):*
 
 ```javascript
 app.content.subscribe('blog-posts', '1502966447501', { fields: [ 'title', 'description' ] }, function(error, blogPost) {
@@ -121,9 +203,11 @@ Parameters should be passed in the order of the following table. If an optional 
 
 The following optional options can be specified when retrieving your data:
 
+##### Fields
+
 - `fields` **{Array}** - A list of fields to be plucked from an/each entry.
 
-##### Fields Example
+*Example*
 
 To retrieve all of your blog posts, but only the `title`, `description` and `image` property for each individual post.
 
@@ -133,9 +217,11 @@ app.content.subscribe('blog-posts', { fields: [ 'title', 'description', 'image' 
 });
 ```
 
+##### Populate
+
 - `populate` **{Array}** - A list of relational fields to be populated with their content for each entry.
 
-##### Populate Example
+*Example*
 
 To retrieve all of your blog posts and populate the `category` property for each individual post.
 
@@ -147,6 +233,22 @@ app.content.subscribe('blog-posts', { populate: [ 'category' ] }, function(error
 
 The alternative `populate` option, as described [above](/content?id=populate-example), can also be used - just remember to pass your callback function as the last parameter.
 
+##### Event
+
+- `event` **{String}** - The Firebase child event to retrieve data for. By default, the event is `value`, which is used for retrieving the entire content at the given reference(s) path.
+
+*Example*
+
+The allowed child event options are: `value`, `child_added`, `child_changed`, `child_removed` and `child_moved`.
+
+To read more about these events, see the [Firebase docs](https://firebase.google.com/docs/database/web/lists-of-data#listen_for_child_events).
+
+```javascript
+app.content.subscribe('blog-posts', { event: 'child_changed' }, function(error, blogPosts) {
+  // Handle callback
+})
+```
+
 ### Return value
 
 This method has no return value, but makes use of an [error-first callback](https://www.google.com/search?q=error-first+callback&oq=javascript+error-first+callback) function that should be passed as the last argument.
@@ -155,7 +257,7 @@ This method has no return value, but makes use of an [error-first callback](http
 
 ## .unsubscribe()
 
-This method is used to unsubscribe from previously subscribed content updates. It is the equivalent of Firebase's `.off()` method and taking the Flamelink database structure into consideration.
+This method is used to unsubscribe from previously subscribed content updates or other child events. It is the equivalent of Firebase's `.off()` method and taking the Flamelink database structure into consideration.
 
 *To unsubscribe from all entries for a specific content type:*
 
@@ -163,20 +265,33 @@ This method is used to unsubscribe from previously subscribed content updates. I
 app.content.unsubscribe('blog-posts');
 ```
 
-*or to unsubscirbe from an individual entry for that type:*
+*To unsubscirbe from an individual entry for that type:*
 
 ```javascript
 app.content.unsubscribe('blog-posts', '1502966447501');
+```
+
+*To unsubscribe from the `child_removed` event for a specific content type:*
+
+```javascript
+app.content.unsubscribe('blog-posts', 'child_removed');
+```
+
+*To unsubscirbe from the `child_moved` event for an individual entry for that type:*
+
+```javascript
+app.content.unsubscribe('blog-posts', '1502966447501', 'child_moved');
 ```
 
 ### Input parameters
 
 All parameters are optional and calling this method without options will unsubscribe from all callbacks.
 
-| Type     | Variable         | Required | Description                                             |
-| -------- | ---------------- | -------- | ------------------------------------------------------- |
-| String   | `contentType`    | optional | The content type reference you want to unsubscribe from |
-| String   | `entryReference` | optional | The entry ID/reference for given content type           |
+| Type     | Variable         | Required | Description                                                    |
+| -------- | ---------------- | -------- | -------------------------------------------------------------- |
+| String   | `contentType`    | optional | The content type reference you want to unsubscribe from        |
+| String   | `entryReference` | optional | The entry ID/reference for given content type                  |
+| String   | `event`          | optional | The child event to unsubscribe from (see allowed child events) |
 
 ### Return value
 

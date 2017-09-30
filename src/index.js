@@ -411,12 +411,23 @@ function flamelink(conf = {}) {
     /**
      * Simultaneously write to specific children of a node without overwriting other child nodes.
      *
-     * @param {String} ref
+     * @param {String} contentRef
+     * @param {String} entryRef
      * @param {Object} payload
      * @returns {Promise}
      */
-    update(ref, payload) {
-      return this.ref(ref).update(payload);
+    update(contentRef, entryRef, payload) {
+      if (
+        typeof contentRef !== 'string' ||
+        typeof entryRef !== 'string' ||
+        (typeof payload !== 'object' && payload !== null)
+      ) {
+        throw error('"update" called with the incorrect arguments. Check the docs for details.');
+      }
+
+      return this.ref(contentRef)
+        .child(entryRef)
+        .update(payload);
     },
 
     /**

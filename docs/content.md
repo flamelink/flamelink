@@ -304,9 +304,9 @@ This method can be used to save data and overwrite the whole object for a single
 !> Using `set()` overwrites data for the specified entry, including any child nodes. For this reason, this method can only be used to set the data for an individual entry at a time and not to set all the entries for a given content type.
 
 ```javascript
-app.content.set('blog-posts', '1502966447501', {})
-  .then(blogPost => console.log('Individual blog post:', blogPost))
-  .catch(error => console.error('Something went wrong while retrieving the entry. Details:', error));
+app.content.set('blog-posts', '1502966447501', { id: 'new-id', title: 'new-title' })
+  .then(() => console.log('Setting the entry succeeded'))
+  .catch(() => console.error('Something went wrong while setting the entry.'));
 ```
 
 ### Input parameters
@@ -320,6 +320,32 @@ app.content.set('blog-posts', '1502966447501', {})
 ### Return value
 
 A `Promise` that resolves when the payload is set or will reject with an error if the request fails.
+
+---
+
+## .update()
+
+This method can be used to save data for a single given entry without overwriting other child properties.
+
+!> This method can only be used to update the data for an individual entry at a time and not to update all the entries for a given content type.
+
+```javascript
+app.content.update('blog-posts', '1502966447501', { id: 'new-id', title: 'new-title' })
+  .then(() => console.log('Updating the entry succeeded'))
+  .catch(() => console.error('Something went wrong while updating the entry.'));
+```
+
+### Input parameters
+
+| Type   | Variable         | Required | Description                                                 |
+| ------ | ---------------- | -------- | ----------------------------------------------------------- |
+| String | `contentType`    | required | The content type reference for the entry you want to update |
+| String | `entryReference` | required | The entry ID/reference for given content type to update     |
+| Object | `updates`        | required | Payload object to update at the given entry's reference     |
+
+### Return value
+
+A `Promise` that resolves when the payload is update or will reject with an error if the request fails.
 
 ---
 

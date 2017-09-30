@@ -603,8 +603,8 @@ describe('Flamelink SDK', () => {
 
     describe('"get" Method', () => {
       test('should be exposed on the "nav" object', () => {
-        const ref = 'get-ref';
-        return expect(flamelink(basicConfig).nav.get(ref, {})).resolves.toEqual({
+        const navRef = 'get-ref';
+        return expect(flamelink(basicConfig).nav.get(navRef, {})).resolves.toEqual({
           id: 'main',
           items: [
             {
@@ -639,8 +639,8 @@ describe('Flamelink SDK', () => {
 
     describe('"getItems" Method', () => {
       test('should be exposed on the "nav" object', () => {
-        const ref = 'get-items-ref';
-        return expect(flamelink(basicConfig).nav.getItems(ref, {})).resolves.toEqual([
+        const navRef = 'get-items-ref';
+        return expect(flamelink(basicConfig).nav.getItems(navRef, {})).resolves.toEqual([
           {
             attachment: 0,
             component: 'Template',
@@ -669,9 +669,9 @@ describe('Flamelink SDK', () => {
       });
 
       test('should respect the "fields" option', () => {
-        const ref = 'get-items-ref';
+        const navRef = 'get-items-ref';
         return expect(
-          flamelink(basicConfig).nav.getItems(ref, {
+          flamelink(basicConfig).nav.getItems(navRef, {
             fields: ['cssClass', 'title', 'url']
           })
         ).resolves.toEqual([

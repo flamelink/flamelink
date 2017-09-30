@@ -485,30 +485,36 @@ function flamelink(conf = {}) {
     },
 
     /**
-     * Read value once from db and return raw snapshot
-     *
-     * @param {String} ref
+     * @description Get snapshot for given navigation ID/reference
+     * @param {String} navRef
      * @param {Object} [options={}]
      * @returns {Promise} Resolves to snapshot of query
      */
-    getRaw(ref, options = {}) {
-      const ordered = applyOrderBy(this.ref(ref), options);
+    getRaw(navRef, options = {}) {
+      if (!navRef) {
+        throw error('"getRaw" method requires a navigation reference');
+      }
+
+      const ordered = applyOrderBy(this.ref(navRef), options);
       const filtered = applyFilters(ordered, options);
 
-      return filtered.once('value');
+      return filtered.once(options.event || 'value');
     },
 
     /**
-     * Read value once from db
-     *
-     * @param {String} ref
+     * @description Get navigation object for given navigation ID/reference
+     * @param {String} navRef
      * @param {Object} [options={}]
      * @returns {Promise} Resolves to value of query
      */
-    async get(ref, options = {}) {
-      const snapshot = await this.getRaw(ref, options);
-      const wrappedNav = await pluckResultFields(options.fields, { [ref]: snapshot.val() });
-      const nav = wrappedNav[ref];
+    async get(navRef, options = {}) {
+      if (!navRef) {
+        throw error('"get" method requires a navigation reference');
+      }
+
+      const snapshot = await this.getRaw(navRef, options);
+      const wrappedNav = await pluckResultFields(options.fields, { [navRef]: snapshot.val() });
+      const nav = wrappedNav[navRef];
 
       // Only try and structure items if items weren't plucked out
       if (nav && nav.hasOwnProperty('items')) {
@@ -523,66 +529,74 @@ function flamelink(conf = {}) {
     /**
      * Read value once from db and return raw snapshot
      *
-     * @param {String} ref
+     * @param {String} navRef
      * @param {Object} [options={}]
      * @returns {Promise} Resolves to snapshot of query
      */
-    getItemsRaw(ref, options = {}) {
-      const ordered = applyOrderBy(this.ref(ref).child('items'), options);
+    getItemsRaw(navRef, options = {}) {
+      if (!navRef) {
+        throw error('"getItemsRaw" method requires a navigation reference');
+      }
+
+      const ordered = applyOrderBy(this.ref(navRef).child('items'), options);
       const filtered = applyFilters(ordered, options);
 
-      return filtered.once('value');
+      return filtered.once(options.event || 'value');
     },
 
     /**
      * Read value once from db
      *
-     * @param {String} ref
+     * @param {String} navRef
      * @param {Object} [options={}]
      * @returns {Promise} Resolves to value of query
      */
-    async getItems(ref, options = {}) {
+    async getItems(navRef, options = {}) {
+      if (!navRef) {
+        throw error('"getItems" method requires a navigation reference');
+      }
+
       const pluckFields = pluckResultFields(options.fields);
       const structureItems = formatNavigationStructure(options.structure);
-      const snapshot = await this.getItemsRaw(ref, options);
-      return compose(structureItems, pluckFields)(snapshot.val());
+      const snapshot = await this.getItemsRaw(navRef, options);
+      return compose(pluckFields, structureItems)(snapshot.val());
     },
 
     /**
      * Establish stream to read value consistently from db, returning the raw snapshot
      *
-     * @param {String} ref
+     * @param {String} navRef
      * @param {Object} [options={}]
      * @param {Function} cb
      * @returns {Promise} Resolves to snapshot of query
      */
-    onRaw(ref, options = {}, cb) {
+    onRaw(navRef, options = {}, cb) {
       if (!cb) {
         cb = options;
         options = {};
       }
 
-      const ordered = applyOrderBy(this.ref(ref), options);
+      const ordered = applyOrderBy(this.ref(navRef), options);
       const filtered = applyFilters(ordered, options);
 
-      return filtered.on('value', cb);
+      return filtered.on(options.event || 'value', cb);
     },
 
     /**
      * Establish stream to read value consistently from db, returning the processed value
      *
-     * @param {String} ref
+     * @param {String} navRef
      * @param {Object} [options={}]
      * @param {Function} cb
      * @returns {Promise} Resolves to value of query
      */
-    on(ref, options = {}, cb) {
+    on(navRef, options = {}, cb) {
       if (!cb) {
         cb = options;
         options = {};
       }
 
-      return this.onRaw(ref, options, snapshot => {
+      return this.onRaw(navRef, options, snapshot => {
         cb(snapshot.val());
       });
     },
@@ -590,61 +604,61 @@ function flamelink(conf = {}) {
     /**
      * Detach listeners from given reference.
      *
-     * @param {String} ref
+     * @param {String} navRef
      * @param {String} event
      * @returns {Promise}
      */
-    off(ref, event) {
+    off(navRef, event) {
       if (event) {
-        return this.ref(ref).off(event);
+        return this.ref(navRef).off(event);
       }
-      return this.ref(ref).off();
+      return this.ref(navRef).off();
     },
 
     /**
      * Save data for a specific reference.
      * This overwrites data at the specified location, including any child nodes.
      *
-     * @param {String} ref
+     * @param {String} navRef
      * @param {Object} payload
      * @returns {Promise}
      */
-    set(ref, payload) {
-      return this.ref(ref).set(payload);
+    set(navRef, payload) {
+      return this.ref(navRef).set(payload);
     },
 
     /**
      * Simultaneously write to specific children of a node without overwriting other child nodes.
      *
-     * @param {String} ref
+     * @param {String} navRef
      * @param {Object} payload
      * @returns {Promise}
      */
-    update(ref, payload) {
-      return this.ref(ref).update(payload);
+    update(navRef, payload) {
+      return this.ref(navRef).update(payload);
     },
 
     /**
      * The simplest way to delete data for a given reference.
      *
-     * @param {String} ref
+     * @param {String} navRef
      * @returns {Promise}
      */
-    remove(ref) {
-      return this.ref(ref).remove();
+    remove(navRef) {
+      return this.ref(navRef).remove();
     },
 
     /**
      * Transactional operation
      * https://firebase.google.com/docs/reference/js/firebase.database.Reference#transaction
      *
-     * @param {any} ref
+     * @param {any} navRef
      * @param {any} updateFn
      * @param {any} [cb=() => {}]
      * @returns
      */
-    transaction(ref, updateFn, cb = () => {}) {
-      return this.ref(ref).transaction(updateFn, cb);
+    transaction(navRef, updateFn, cb = () => {}) {
+      return this.ref(navRef).transaction(updateFn, cb);
     }
   };
 

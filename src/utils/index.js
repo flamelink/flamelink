@@ -73,6 +73,7 @@ export const pluckResultFields = curry((fields, resultSet) => {
     return resultSet;
   }
 
+  // TODO: Write our own "pick" that can work with an array of strings or an array of objects for nested objects
   const pickFields = pick(fields);
 
   // If resultSet is an array of objects, we just pluck the given fields from each object
@@ -230,7 +231,7 @@ export const formatNavigationStructure = curry((structure, items) => {
     throw error('"formatNavigationStructure" should be called with an array of navigation items');
   }
 
-  if (structure === 'nested' || structure === 'hierarchical') {
+  if (structure === 'nested' || structure === 'tree') {
     const mapChildren = (levelItems, previousId = 0) =>
       levelItems
         .map(item =>

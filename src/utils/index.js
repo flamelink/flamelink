@@ -151,7 +151,8 @@ export const populateEntry = curry(async (schemasAPI, contentAPI, contentType, p
       const schemaFields = await schemasAPI.getFields(contentType);
       // TODO: Update logic here to handle `image` types as well
       const fieldsToPopulate = preppedPopulateFields.reduce((fields, preppedField) => {
-        const schemaField = schemaFields.find(field => field.key === preppedField.field);
+        const schemaField =
+          schemaFields && schemaFields.find(field => field.key === preppedField.field);
         if (schemaField && schemaField.relation) {
           return fields.concat([
             Object.assign({}, preppedField, { contentType: schemaField.relation })

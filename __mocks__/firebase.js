@@ -119,7 +119,11 @@ const mockedRef = jest.fn(ref => ({
     update: jest.fn(data =>
       Promise.resolve(`"update" called with payload: "${JSON.stringify(data)}"`)
     ),
-    remove: jest.fn(() => Promise.resolve(`"remove" called for "${ref}"`))
+    remove: jest.fn(() => Promise.resolve(`"remove" called for "${ref}"`)),
+    transaction: jest.fn((updateFn, cb) => {
+      if (updateFn) updateFn();
+      if (cb) cb();
+    })
   })),
   once: event => {
     switch (ref) {

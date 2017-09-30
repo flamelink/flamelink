@@ -96,6 +96,59 @@ A `Promise` that resolves to the reference `{Object}` on success or will reject 
 
 ---
 
+## .getByField()
+
+To retrieve a single entry once for a given field and value, ie. Give me my blog post with the `slug` `"my-famous-blog-post"`.
+
+*or to get an individual entry for that type (with options):*
+
+```javascript
+app.content.getByField('blog-posts', 'slug', 'my-famous-blog-post')
+  .then(blogPost => console.log('Individual blog post:', blogPost))
+  .catch(error => console.error('Something went wrong while retrieving the entry. Details:', error));
+```
+
+> This method is simply a convenience method, but the same can be achieved with the standard `app.content.get()` method by adding the following options:
+
+```javascript
+app.content.getByField('blog-posts', { orderByChild: 'slug', equalTo: 'my-famous-blog-post' })
+  .then(blogPost => console.log('Individual blog post:', blogPost))
+  .catch(error => console.error('Something went wrong while retrieving the entry. Details:', error));
+```
+
+### Input parameters
+
+| Type   | Variable         | Required | Description                                      |
+| ------ | ---------------- | -------- | ------------------------------------------------ |
+| String | `contentType`    | required | The content type reference you want to retrieve  |
+| String | `fieldName`      | required | The name of the field to check the value against |
+| String | `fieldValue`     | required | The value of the given field to find             |
+| Object | `options`        | optional | Additional options                               |
+
+#### Available Options
+
+All options available to the `app.content.get()` method, expect for the already applied `orderByChild` and `equalTo`, is available for this method.
+
+*Example*
+
+```javascript
+app.content.getByField('blog-posts', 'slug', 'my-blog-post-title', {
+  event: 'child_changed',
+  fields: [ 'title', 'description', 'image', 'category' ],
+  populate: [{
+    field: 'category',
+    fields: [ 'id', 'name', 'icon', 'section' ],
+    populate: [ 'section' ]
+  }]
+});
+```
+
+### Return value
+
+A `Promise` that resolves to the reference `{Object}` on success or will reject with an error if the request fails.
+
+---
+
 ## .subscribe()
 
 This method is similar to the `app.content.get()` method except that where the `.get()` method returns a `Promise` resolving to the once-off value, this method subscribes to either a single content entry or all the entries for real-time updates. A callback method should be passed as the last argument which will be called each time the data changes in your Firebase db.

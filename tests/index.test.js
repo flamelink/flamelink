@@ -572,7 +572,8 @@ describe('Flamelink SDK', () => {
 
     test('should expose a "remove" method', () => {
       const ref = 'choccie';
-      expect(flamelink(basicConfig).content.remove(ref)).toEqual(
+      const entryRef = 'choccie';
+      return expect(flamelink(basicConfig).content.remove(ref, entryRef)).resolves.toEqual(
         `"remove" called for "/environments/production/content/${ref}/en-US"`
       );
     });
@@ -702,6 +703,14 @@ describe('Flamelink SDK', () => {
       );
     });
 
+    test('should expose a "remove" method', () => {
+      const ref = 'choccie';
+      const entryRef = 'choccie';
+      return expect(flamelink(basicConfig).nav.remove(ref, entryRef)).resolves.toEqual(
+        `"remove" called for "/environments/production/navigation/${ref}/en-US"`
+      );
+    });
+
     test('should expose a "onRaw" method', () => {
       const cb = jest.fn();
       flamelink(basicConfig).nav.onRaw('ref', {}, cb);
@@ -728,13 +737,6 @@ describe('Flamelink SDK', () => {
         `"off" called with event: "${event}"`
       );
       expect(flamelink(basicConfig).nav.off('ref')).toEqual('"off" called with event: "undefined"');
-    });
-
-    test('should expose a "remove" method', () => {
-      const ref = 'choccie';
-      expect(flamelink(basicConfig).nav.remove(ref)).toEqual(
-        `"remove" called for "/environments/production/navigation/${ref}/en-US"`
-      );
     });
 
     test('should expose a "transaction" method', () => {

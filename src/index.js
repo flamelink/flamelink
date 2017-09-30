@@ -433,11 +433,17 @@ function flamelink(conf = {}) {
     /**
      * The simplest way to delete data for a given reference.
      *
-     * @param {String} ref
+     * @param {String} contentRef
+     * @param {String} entryRef
      * @returns {Promise}
      */
-    remove(ref) {
-      return this.ref(ref).remove();
+    remove(contentRef, entryRef) {
+      if (typeof contentRef !== 'string' || typeof entryRef !== 'string') {
+        throw error('"remove" called with the incorrect arguments. Check the docs for details.');
+      }
+      return this.ref(contentRef)
+        .child(entryRef)
+        .remove();
     },
 
     /**

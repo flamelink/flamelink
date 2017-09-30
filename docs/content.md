@@ -100,8 +100,6 @@ A `Promise` that resolves to the reference `{Object}` on success or will reject 
 
 To retrieve a single entry once for a given field and value, ie. Give me my blog post with the `slug` `"my-famous-blog-post"`.
 
-*or to get an individual entry for that type (with options):*
-
 ```javascript
 app.content.getByField('blog-posts', 'slug', 'my-famous-blog-post')
   .then(blogPost => console.log('Individual blog post:', blogPost))

@@ -303,41 +303,50 @@ function flamelink(conf = {}) {
      * @returns {Promise} Resolves to value of query
      */
     subscribe(contentRef, entryRef, options = {}, cb) {
-      // Is single entry subscription?
-      if (['string', 'number'].includes(typeof entryRef)) {
-        if (!cb) {
-          cb = options;
-          options = {};
+      try {
+        // Is single entry subscription?
+        if (['string', 'number'].includes(typeof entryRef)) {
+          if (!cb) {
+            cb = options;
+            options = {};
+          }
+
+          const pluckFields = pluckResultFields(options.fields);
+          const populateFields = populateEntry(
+            schemasAPI,
+            contentAPI,
+            contentRef,
+            options.populate
+          );
+
+          return this.subscribeRaw(contentRef, entryRef, options, async snapshot => {
+            const wrapValue = { [entryRef]: snapshot.val() }; // Wrapping value to create the correct structure for our filtering to work
+            const result = await compose(populateFields, pluckFields)(wrapValue);
+            cb(null, result[entryRef]); // Error-first callback
+          });
+        }
+
+        // Subscribe to all entries for given content type
+        if (typeof entryRef === 'object') {
+          cb = options; // third param is then the callback
+          options = entryRef; // second param is then the options
+        } else if (typeof entryRef === 'function') {
+          cb = entryRef; // second param is then the callback
+          options = {}; // set default options
+        } else {
+          throw error('Check out the docs for the required parameters for this method');
         }
 
         const pluckFields = pluckResultFields(options.fields);
         const populateFields = populateEntry(schemasAPI, contentAPI, contentRef, options.populate);
 
-        return this.subscribeRaw(contentRef, entryRef, options, async snapshot => {
-          const wrapValue = { [entryRef]: snapshot.val() }; // Wrapping value to create the correct structure for our filtering to work
-          const result = await compose(populateFields, pluckFields)(wrapValue);
-          cb(result[entryRef]);
+        return this.subscribeRaw(contentRef, options, async snapshot => {
+          const result = await compose(populateFields, pluckFields)(snapshot.val());
+          cb(null, result); // Error-first callback
         });
+      } catch (err) {
+        return cb(err);
       }
-
-      // Subscribe to all entries for given content type
-      if (typeof entryRef === 'object') {
-        cb = options; // third param is then the callback
-        options = entryRef; // second param is then the options
-      } else if (typeof entryRef === 'function') {
-        cb = entryRef; // second param is then the callback
-        options = {}; // set default options
-      } else {
-        throw error('Check out the docs for the required parameters for this method');
-      }
-
-      const pluckFields = pluckResultFields(options.fields);
-      const populateFields = populateEntry(schemasAPI, contentAPI, contentRef, options.populate);
-
-      return this.subscribeRaw(contentRef, options, async snapshot => {
-        const result = await compose(populateFields, pluckFields)(snapshot.val());
-        cb(result);
-      });
     },
 
     /**

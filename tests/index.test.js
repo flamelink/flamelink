@@ -283,39 +283,43 @@ describe('Flamelink SDK', () => {
         });
       });
 
-      test('should handle arguments in any of the acceptable orders', () => {
+      test('should handle arguments in any of the acceptable orders', done => {
+        // Callback automatically added as the last argument for each test
         const tests = [
           {
-            args: ['contentRef', jest.fn()],
+            args: ['contentRef'],
             expect: '"on" called with event: "value"'
           },
           {
-            args: ['contentRef', {}, jest.fn()],
+            args: ['contentRef', {}],
             expect: '"on" called with event: "value"'
           },
           {
-            args: ['contentRef', { event: 'child_moved' }, jest.fn()],
+            args: ['contentRef', { event: 'child_moved' }],
             expect: '"on" called with event: "child_moved"'
           },
           {
-            args: ['contentRef', 'entryRef', jest.fn()],
+            args: ['contentRef', 'entryRef'],
             expect: '"on" called with event: "value"'
           },
           {
-            args: ['contentRef', 'entryRef', {}, jest.fn()],
+            args: ['contentRef', 'entryRef', {}],
             expect: '"on" called with event: "value"'
           },
           {
-            args: ['contentRef', 'entryRef', { event: 'child_added' }, jest.fn()],
+            args: ['contentRef', 'entryRef', { event: 'child_added' }],
             expect: '"on" called with event: "child_added"'
           }
         ];
 
-        tests.forEach(test => {
-          flamelink(basicConfig).content.subscribe(...test.args);
-          const cb = test.args.pop();
-          expect(cb.mock.calls.length).toEqual(1);
-          expect(cb.mock.calls[0][0]).toEqual(test.expect);
+        tests.forEach((test, index) => {
+          flamelink(basicConfig).content.subscribe(...test.args, result => {
+            expect(result).toEqual(null, test.expect);
+
+            if (tests.length === index + 1) {
+              done();
+            }
+          });
         });
       });
 
@@ -325,7 +329,7 @@ describe('Flamelink SDK', () => {
         const options = { fields: ['brand', 'productCode', 'status', 'price'] };
 
         flamelink(basicConfig).content.subscribe(contentRef, entryRef, options, result => {
-          expect(result).toEqual({
+          expect(result).toEqual(null, {
             brand: [1491679616700],
             price: '123.00',
             productCode: 'HG31685003',
@@ -335,13 +339,13 @@ describe('Flamelink SDK', () => {
         });
       });
 
-      test.only('should respect the "populate" option', done => {
+      test('should respect the "populate" option', done => {
         const contentRef = 'subscribe-content-entry-ref';
         const entryRef = 'entry-ref';
         const options = { populate: ['brand'] };
 
         flamelink(basicConfig).content.subscribe(contentRef, entryRef, options, result => {
-          expect(result).toEqual({
+          expect(result).toEqual(null, {
             brand: [
               {
                 id: 1491679616700,

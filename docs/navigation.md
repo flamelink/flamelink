@@ -227,6 +227,113 @@ This method has no return value.
 
 ---
 
+## .set()
+
+This method can be used to save data and overwrite the whole object for a given navigation entry/menu.
+
+!> Using `set()` overwrites data for the specified entry, including any child nodes.
+
+```javascript
+app.nav.set('main-menu', { id: 'new-id', title: 'new-title', items: [] })
+  .then(() => console.log('Setting the menu succeeded'))
+  .catch(() => console.error('Something went wrong while setting the menu.'));
+```
+
+### Input parameters
+
+| Type   | Variable       | Required | Description                                          |
+| ------ | -------------- | -------- | ---------------------------------------------------- |
+| String | `navReference` | required | The navigation entry you want to set                 |
+| Object | `payload`      | required | Payload object to set at the given entry's reference |
+
+### Return value
+
+A `Promise` that resolves when the payload is set or will reject with an error if the request fails.
+
+---
+
+## .update()
+
+This method can be used to save data for a single given navigation entry without overwriting other child properties.
+
+```javascript
+app.nav.update('main-menu', { items: [] })
+  .then(() => console.log('Updating the navigation entry succeeded'))
+  .catch(() => console.error('Something went wrong while updating the navigation entry.'));
+```
+
+### Input parameters
+
+| Type   | Variable       | Required | Description                                             |
+| ------ | -------------- | -------- | ------------------------------------------------------- |
+| String | `navReference` | required | The navigation entry you want to update                 |
+| Object | `updates`      | required | Payload object to update at the given entry's reference |
+
+### Return value
+
+A `Promise` that resolves when the payload is update or will reject with an error if the request fails.
+
+---
+
+## .remove()
+
+This method can be used to remove a single given navigation entry.
+
+```javascript
+app.nav.remove('main-menu')
+  .then(() => console.log('Removing the entry succeeded'))
+  .catch(() => console.error('Something went wrong while removing the entry.'));
+```
+
+?> **Tip:** An entry can also be removed by passing `null` as the payload to the `app.nav.set()` or `app.nav.update()` methods.
+
+### Input parameters
+
+| Type   | Variable       | Required | Description                             |
+| ------ | -------------- | -------- | --------------------------------------- |
+| String | `navReference` | required | The navigation entry you want to remove |
+
+### Return value
+
+A `Promise` that resolves when the entry is removed or will reject with an error if the request fails.
+
+---
+
+## .transaction()
+
+> This is a more advanced API method, that for most use cases will not be necessary.
+
+If you need to update a navigation entry whose data could be corrupted by concurrent changes, Firebase allows us to perform a "transaction" update that updates data based on the existing data/state.
+
+Read more about transactions in the [Firebase docs](https://firebase.google.com/docs/reference/js/firebase.database.Reference#transaction).
+
+```javascript
+app.nav.transaction(
+  'main-menu',
+  function updateFn(menu) {
+    // Take in the existing state (menu) and return the new state
+    return menu;
+  },
+  function callback() {
+    // Transaction finished
+  }
+);
+```
+
+### Input parameters
+
+| Type     | Variable       | Required | Description                                                           |
+| -------- | -------------- | -------- | --------------------------------------------------------------------- |
+| String   | `navReference` | required | The navigation entry you want to update                               |
+| Function | `updateFn`     | required | The update function that will be called with the existing entry state |
+| Function | `callback`     | optional | The callback function that will be called when transaction finishes   |
+
+### Return value
+
+This method has no return value. Use the optional `callback` function to determine when the transaction succeeded.
+
+---
+
 ## .ref()
 
 > This is a more advanced API method, that for most use cases will not be necessary.

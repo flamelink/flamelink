@@ -637,7 +637,7 @@ function flamelink(conf = {}) {
     },
 
     /**
-     * Save data for a specific reference.
+     * Save data for a specific navigation entry/menu.
      * This overwrites data at the specified location, including any child nodes.
      *
      * @param {String} navRef
@@ -645,6 +645,10 @@ function flamelink(conf = {}) {
      * @returns {Promise}
      */
     set(navRef, payload) {
+      if (typeof navRef !== 'string' || (typeof payload !== 'object' && payload !== null)) {
+        throw error('"set" called with the incorrect arguments. Check the docs for details.');
+      }
+
       return this.ref(navRef).set(payload);
     },
 
@@ -656,6 +660,10 @@ function flamelink(conf = {}) {
      * @returns {Promise}
      */
     update(navRef, payload) {
+      if (typeof navRef !== 'string' || (typeof payload !== 'object' && payload !== null)) {
+        throw error('"update" called with the incorrect arguments. Check the docs for details.');
+      }
+
       return this.ref(navRef).update(payload);
     },
 
@@ -666,6 +674,9 @@ function flamelink(conf = {}) {
      * @returns {Promise}
      */
     remove(navRef) {
+      if (typeof navRef !== 'string') {
+        throw error('"remove" called with the incorrect arguments. Check the docs for details.');
+      }
       return this.ref(navRef).remove();
     },
 
@@ -673,12 +684,18 @@ function flamelink(conf = {}) {
      * Transactional operation
      * https://firebase.google.com/docs/reference/js/firebase.database.Reference#transaction
      *
-     * @param {any} navRef
-     * @param {any} updateFn
-     * @param {any} [cb=() => {}]
+     * @param {String} navRef
+     * @param {Function} updateFn
+     * @param {Function} [cb=() => {}]
      * @returns
      */
     transaction(navRef, updateFn, cb = () => {}) {
+      if (typeof navRef !== 'string' || typeof updateFn !== 'function') {
+        throw error(
+          '"transaction" called with the incorrect arguments. Check the docs for details.'
+        );
+      }
+
       return this.ref(navRef).transaction(updateFn, cb);
     }
   };

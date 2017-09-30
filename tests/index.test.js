@@ -689,30 +689,6 @@ describe('Flamelink SDK', () => {
       });
     });
 
-    test('should expose a "set" method', () => {
-      const payload = { key: 'value' };
-
-      return expect(flamelink(basicConfig).nav.set('ref', payload)).resolves.toEqual(
-        `"set" called with payload: "${JSON.stringify(payload)}"`
-      );
-    });
-
-    test('should expose an "update" method', () => {
-      const payload = { key: 'value' };
-
-      return expect(flamelink(basicConfig).nav.update('ref', payload)).resolves.toEqual(
-        `"update" called with payload: "${JSON.stringify(payload)}"`
-      );
-    });
-
-    test('should expose a "remove" method', () => {
-      const ref = 'choccie';
-      const entryRef = 'choccie';
-      return expect(flamelink(basicConfig).nav.remove(ref, entryRef)).resolves.toEqual(
-        `"remove" called for "/environments/production/navigation/${ref}/en-US"`
-      );
-    });
-
     test('should expose a "subscribeRaw" method', () => {
       const cb = jest.fn();
       flamelink(basicConfig).nav.subscribeRaw('ref', {}, cb);
@@ -844,6 +820,29 @@ describe('Flamelink SDK', () => {
           `"off" called with event: "${event}"`
         );
       });
+    });
+
+    test('should expose a "set" method', () => {
+      const payload = { key: 'value' };
+
+      return expect(flamelink(basicConfig).nav.set('ref', payload)).resolves.toEqual(
+        `"set" called with payload: "${JSON.stringify(payload)}"`
+      );
+    });
+
+    test('should expose an "update" method', () => {
+      const payload = { key: 'value' };
+
+      return expect(flamelink(basicConfig).nav.update('ref', payload)).resolves.toEqual(
+        `"update" called with payload: "${JSON.stringify(payload)}"`
+      );
+    });
+
+    test('should expose a "remove" method', () => {
+      const ref = 'choccie';
+      return expect(flamelink(basicConfig).nav.remove(ref)).resolves.toEqual(
+        `"remove" called for "/environments/production/navigation/${ref}/en-US"`
+      );
     });
 
     test('should expose a "transaction" method', () => {

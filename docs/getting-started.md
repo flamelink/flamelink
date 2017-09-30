@@ -2,13 +2,13 @@
 
 Install through `npm`
 
-```shell
+```bash
 npm install --save flamelink-sdk
 ```
 
 or through `yarn`
 
-```shell
+```bash
 yarn add flamelink-sdk
 ```
 

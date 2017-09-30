@@ -509,17 +509,71 @@ describe('Flamelink SDK', () => {
       });
     });
 
+    describe('"update" Method', () => {
+      test('should be exposed on the "content" object', () => {
+        const contentRef = 'ref';
+        const entryRef = 'entry-ref';
+        const payload = { key: 'value' };
+        return expect(
+          flamelink(basicConfig).content.update(contentRef, entryRef, payload)
+        ).resolves.toEqual(`"update" called with payload: "${JSON.stringify(payload)}"`);
+      });
+
+      test('should throw if called with the incorrect arguments', () => {
+        let message;
+
+        try {
+          flamelink(basicConfig).content.update();
+        } catch (error) {
+          message = error.message;
+        }
+
+        expect(message).toMatch(
+          '[FLAMELINK] "update" called with the incorrect arguments. Check the docs for details.'
+        );
+
+        message = '';
+
+        try {
+          flamelink(basicConfig).content.update('content-ref');
+        } catch (error) {
+          message = error.message;
+        }
+
+        expect(message).toMatch(
+          '[FLAMELINK] "update" called with the incorrect arguments. Check the docs for details.'
+        );
+
+        message = '';
+
+        try {
+          flamelink(basicConfig).content.update('content-ref', 'entry-ref');
+        } catch (error) {
+          message = error.message;
+        }
+
+        expect(message).toMatch(
+          '[FLAMELINK] "update" called with the incorrect arguments. Check the docs for details.'
+        );
+
+        message = '';
+
+        try {
+          flamelink(basicConfig).content.update('content-ref', 'entry-ref', 'not-an-object');
+        } catch (error) {
+          message = error.message;
+        }
+
+        expect(message).toMatch(
+          '[FLAMELINK] "update" called with the incorrect arguments. Check the docs for details.'
+        );
+      });
+    });
+
     test('should expose a "remove" method', () => {
       const ref = 'choccie';
       expect(flamelink(basicConfig).content.remove(ref)).toEqual(
         `"remove" called for "/environments/production/content/${ref}/en-US"`
-      );
-    });
-
-    test('should expose an "update" method', () => {
-      const payload = { key: 'value' };
-      expect(flamelink(basicConfig).content.update('ref', payload)).toEqual(
-        `"update" called with payload: "${JSON.stringify(payload)}"`
       );
     });
 
@@ -640,6 +694,14 @@ describe('Flamelink SDK', () => {
       );
     });
 
+    test('should expose an "update" method', () => {
+      const payload = { key: 'value' };
+
+      return expect(flamelink(basicConfig).nav.update('ref', payload)).resolves.toEqual(
+        `"update" called with payload: "${JSON.stringify(payload)}"`
+      );
+    });
+
     test('should expose a "onRaw" method', () => {
       const cb = jest.fn();
       flamelink(basicConfig).nav.onRaw('ref', {}, cb);
@@ -672,13 +734,6 @@ describe('Flamelink SDK', () => {
       const ref = 'choccie';
       expect(flamelink(basicConfig).nav.remove(ref)).toEqual(
         `"remove" called for "/environments/production/navigation/${ref}/en-US"`
-      );
-    });
-
-    test('should expose an "update" method', () => {
-      const payload = { key: 'value' };
-      expect(flamelink(basicConfig).nav.update('ref', payload)).toEqual(
-        `"update" called with payload: "${JSON.stringify(payload)}"`
       );
     });
 

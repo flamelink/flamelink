@@ -115,7 +115,10 @@ const mockedRef = jest.fn(ref => ({
       }
     }),
     off: jest.fn(event => `"off" called with event: "${event}"`),
-    set: jest.fn(data => Promise.resolve(`"set" called with payload: "${JSON.stringify(data)}"`))
+    set: jest.fn(data => Promise.resolve(`"set" called with payload: "${JSON.stringify(data)}"`)),
+    update: jest.fn(data =>
+      Promise.resolve(`"update" called with payload: "${JSON.stringify(data)}"`)
+    )
   })),
   once: event => {
     switch (ref) {
@@ -387,7 +390,9 @@ const mockedRef = jest.fn(ref => ({
   }),
   off: jest.fn(event => `"off" called with event: "${event}"`),
   set: jest.fn(data => Promise.resolve(`"set" called with payload: "${JSON.stringify(data)}"`)),
-  update: jest.fn(data => `"update" called with payload: "${JSON.stringify(data)}"`),
+  update: jest.fn(data =>
+    Promise.resolve(`"update" called with payload: "${JSON.stringify(data)}"`)
+  ),
   remove: jest.fn(() => `"remove" called for "${ref}"`),
   transaction: jest.fn((updateFn, cb) => {
     if (updateFn) updateFn();

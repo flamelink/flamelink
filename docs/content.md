@@ -349,6 +349,31 @@ A `Promise` that resolves when the payload is update or will reject with an erro
 
 ---
 
+## .remove()
+
+This method can be used to remove a single given entry.
+
+```javascript
+app.content.remove('blog-posts', '1502966447501')
+  .then(() => console.log('Removing the entry succeeded'))
+  .catch(() => console.error('Something went wrong while removing the entry.'));
+```
+
+?> **Tip:** An entry can also be removed by passing `null` as the payload to the `app.content.set()` or `app.content.update()` methods.
+
+### Input parameters
+
+| Type   | Variable         | Required | Description                                                 |
+| ------ | ---------------- | -------- | ----------------------------------------------------------- |
+| String | `contentType`    | required | The content type reference for the entry you want to remove |
+| String | `entryReference` | required | The entry ID/reference for given content type to remove     |
+
+### Return value
+
+A `Promise` that resolves when the entry is removed or will reject with an error if the request fails.
+
+---
+
 ## .ref()
 
 > This is a more advanced API method, that for most use cases will not be necessary.

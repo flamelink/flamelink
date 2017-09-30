@@ -448,11 +448,65 @@ describe('Flamelink SDK', () => {
       });
     });
 
-    test('should expose a "set" method', () => {
-      const payload = { key: 'value' };
-      expect(flamelink(basicConfig).content.set('ref', payload)).toEqual(
-        `"set" called with payload: "${JSON.stringify(payload)}"`
-      );
+    describe('"set" Method', () => {
+      test('should be exposed on the "content" object', () => {
+        const contentRef = 'ref';
+        const entryRef = 'entry-ref';
+        const payload = { key: 'value' };
+        return expect(
+          flamelink(basicConfig).content.set(contentRef, entryRef, payload)
+        ).resolves.toEqual(`"set" called with payload: "${JSON.stringify(payload)}"`);
+      });
+
+      test('should throw if called with the incorrect arguments', () => {
+        let message;
+
+        try {
+          flamelink(basicConfig).content.set();
+        } catch (error) {
+          message = error.message;
+        }
+
+        expect(message).toMatch(
+          '[FLAMELINK] "set" called with the incorrect arguments. Check the docs for details.'
+        );
+
+        message = '';
+
+        try {
+          flamelink(basicConfig).content.set('content-ref');
+        } catch (error) {
+          message = error.message;
+        }
+
+        expect(message).toMatch(
+          '[FLAMELINK] "set" called with the incorrect arguments. Check the docs for details.'
+        );
+
+        message = '';
+
+        try {
+          flamelink(basicConfig).content.set('content-ref', 'entry-ref');
+        } catch (error) {
+          message = error.message;
+        }
+
+        expect(message).toMatch(
+          '[FLAMELINK] "set" called with the incorrect arguments. Check the docs for details.'
+        );
+
+        message = '';
+
+        try {
+          flamelink(basicConfig).content.set('content-ref', 'entry-ref', 'not-an-object');
+        } catch (error) {
+          message = error.message;
+        }
+
+        expect(message).toMatch(
+          '[FLAMELINK] "set" called with the incorrect arguments. Check the docs for details.'
+        );
+      });
     });
 
     test('should expose a "remove" method', () => {
@@ -580,7 +634,8 @@ describe('Flamelink SDK', () => {
 
     test('should expose a "set" method', () => {
       const payload = { key: 'value' };
-      expect(flamelink(basicConfig).nav.set('ref', payload)).toEqual(
+
+      return expect(flamelink(basicConfig).nav.set('ref', payload)).resolves.toEqual(
         `"set" called with payload: "${JSON.stringify(payload)}"`
       );
     });

@@ -100,8 +100,6 @@ A `Promise` that resolves to the reference `{Object}` on success or will reject 
 
 To retrieve a single entry once for a given field and value, ie. Give me my blog post with the `slug` `"my-famous-blog-post"`.
 
-*or to get an individual entry for that type (with options):*
-
 ```javascript
 app.content.getByField('blog-posts', 'slug', 'my-famous-blog-post')
   .then(blogPost => console.log('Individual blog post:', blogPost))
@@ -296,6 +294,32 @@ All parameters are optional and calling this method without options will unsubsc
 ### Return value
 
 This method has no return value.
+
+---
+
+## .set()
+
+This method can be used to save data and overwrite the whole object for a single given entry.
+
+!> Using `set()` overwrites data for the specified entry, including any child nodes. For this reason, this method can only be used to set the data for an individual entry at a time and not to set all the entries for a given content type.
+
+```javascript
+app.content.set('blog-posts', '1502966447501', {})
+  .then(blogPost => console.log('Individual blog post:', blogPost))
+  .catch(error => console.error('Something went wrong while retrieving the entry. Details:', error));
+```
+
+### Input parameters
+
+| Type   | Variable         | Required | Description                                              |
+| ------ | ---------------- | -------- | -------------------------------------------------------- |
+| String | `contentType`    | required | The content type reference for the entry you want to set |
+| String | `entryReference` | required | The entry ID/reference for given content type to set     |
+| Object | `payload`        | required | Payload object to set at the given entry's reference     |
+
+### Return value
+
+A `Promise` that resolves when the payload is set or will reject with an error if the request fails.
 
 ---
 

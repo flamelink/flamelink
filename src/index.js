@@ -386,15 +386,26 @@ function flamelink(conf = {}) {
     },
 
     /**
-     * Save data for a specific reference.
+     * Save data for a specific content type's entry.
      * This overwrites data at the specified location, including any child nodes.
      *
-     * @param {String} ref
+     * @param {String} contentRef
+     * @param {String} entryRef
      * @param {Object} payload
      * @returns {Promise}
      */
-    set(ref, payload) {
-      return this.ref(ref).set(payload);
+    set(contentRef, entryRef, payload) {
+      if (
+        typeof contentRef !== 'string' ||
+        typeof entryRef !== 'string' ||
+        (typeof payload !== 'object' && payload !== null)
+      ) {
+        throw error('"set" called with the incorrect arguments. Check the docs for details.');
+      }
+
+      return this.ref(contentRef)
+        .child(entryRef)
+        .set(payload);
     },
 
     /**

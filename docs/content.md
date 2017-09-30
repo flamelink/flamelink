@@ -297,6 +297,32 @@ This method has no return value.
 
 ---
 
+## .set()
+
+This method can be used to save data and overwrite the whole object for a single given entry.
+
+!> Using `set()` overwrites data for the specified entry, including any child nodes. For this reason, this method can only be used to set the data for an individual entry at a time and not to set all the entries for a given content type.
+
+```javascript
+app.content.set('blog-posts', '1502966447501', {})
+  .then(blogPost => console.log('Individual blog post:', blogPost))
+  .catch(error => console.error('Something went wrong while retrieving the entry. Details:', error));
+```
+
+### Input parameters
+
+| Type   | Variable         | Required | Description                                              |
+| ------ | ---------------- | -------- | -------------------------------------------------------- |
+| String | `contentType`    | required | The content type reference for the entry you want to set |
+| String | `entryReference` | required | The entry ID/reference for given content type to set     |
+| Object | `payload`        | required | Payload object to set at the given entry's reference     |
+
+### Return value
+
+A `Promise` that resolves when the payload is set or will reject with an error if the request fails.
+
+---
+
 ## .ref()
 
 > This is a more advanced API method, that for most use cases will not be necessary.

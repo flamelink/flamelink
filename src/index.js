@@ -570,10 +570,10 @@ function flamelink(conf = {}) {
      * @param {Function} cb
      * @returns {Promise} Resolves to snapshot of query
      */
-    onRaw(navRef, options = {}, cb) {
+    subscribeRaw(navRef, options = {}, cb) {
       if (!cb) {
-        cb = options;
-        options = {};
+        cb = options; // second param is then the callback
+        options = {}; // set default options
       }
 
       const ordered = applyOrderBy(this.ref(navRef), options);
@@ -590,15 +590,22 @@ function flamelink(conf = {}) {
      * @param {Function} cb
      * @returns {Promise} Resolves to value of query
      */
-    on(navRef, options = {}, cb) {
-      if (!cb) {
-        cb = options;
-        options = {};
-      }
+    subscribe(navRef, options = {}, cb) {
+      try {
+        if (!cb || typeof options === 'function') {
+          cb = options; // second param is then the callback
+          options = {}; // set default options
+        }
 
-      return this.onRaw(navRef, options, snapshot => {
-        cb(snapshot.val());
-      });
+        const pluckFields = pluckResultFields(options.fields);
+
+        return this.subscribeRaw(navRef, options, async snapshot => {
+          const result = await compose(pluckFields)(snapshot.val());
+          cb(null, result); // Error-first callback
+        });
+      } catch (err) {
+        return cb(err);
+      }
     },
 
     /**
@@ -608,11 +615,25 @@ function flamelink(conf = {}) {
      * @param {String} event
      * @returns {Promise}
      */
-    off(navRef, event) {
-      if (event) {
-        return this.ref(navRef).off(event);
+    unsubscribe(...args) {
+      if (args.length === 2) {
+        // Is second arg a valid firebase child event?
+        if (ALLOWED_CHILD_EVENTS.includes(args[1])) {
+          // args[0] = navRef
+          // args[1] = event
+          return this.ref(args[0]).off(args[1]);
+        }
+
+        throw error(`"${args[1]}" is not a valid child event`);
       }
-      return this.ref(navRef).off();
+
+      if (args.length === 1) {
+        return this.ref(args[0]).off();
+      }
+
+      throw error(
+        '"unsubscribe" method needs to be called with min 1 argument and max 2 arguments'
+      );
     },
 
     /**

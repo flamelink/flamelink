@@ -713,32 +713,137 @@ describe('Flamelink SDK', () => {
       );
     });
 
-    test('should expose a "onRaw" method', () => {
+    test('should expose a "subscribeRaw" method', () => {
       const cb = jest.fn();
-      flamelink(basicConfig).nav.onRaw('ref', {}, cb);
+      flamelink(basicConfig).nav.subscribeRaw('ref', {}, cb);
       expect(cb.mock.calls.length).toEqual(1);
       expect(cb.mock.calls[0][0].val()).toEqual('"on" called with event: "value"');
-      flamelink(basicConfig).nav.onRaw('ref', cb);
+      flamelink(basicConfig).nav.subscribeRaw('ref', cb);
       expect(cb.mock.calls.length).toEqual(2);
       expect(cb.mock.calls[0][0].val()).toEqual('"on" called with event: "value"');
     });
 
-    test('should expose an "on" method', () => {
-      const cb = jest.fn();
-      flamelink(basicConfig).nav.on('ref', {}, cb);
-      expect(cb.mock.calls.length).toEqual(1);
-      expect(cb.mock.calls[0][0]).toEqual('"on" called with event: "value"');
-      flamelink(basicConfig).nav.on('ref', cb);
-      expect(cb.mock.calls.length).toEqual(2);
-      expect(cb.mock.calls[0][0]).toEqual('"on" called with event: "value"');
+    describe('"subscribe" Method', () => {
+      test('should have a related "subscribeRaw" method', () => {
+        const tests = [
+          {
+            args: ['navRef', jest.fn()],
+            expect: '"on" called with event: "value"'
+          },
+          {
+            args: ['navRef', {}, jest.fn()],
+            expect: '"on" called with event: "value"'
+          },
+          {
+            args: ['navRef', { event: 'child_moved' }, jest.fn()],
+            expect: '"on" called with event: "child_moved"'
+          }
+        ];
+
+        tests.forEach(test => {
+          flamelink(basicConfig).nav.subscribeRaw(...test.args);
+          const cb = test.args.pop();
+          expect(cb.mock.calls.length).toEqual(1);
+          expect(cb.mock.calls[0][0].val()).toEqual(test.expect);
+        });
+      });
+
+      test('should handle arguments in any of the acceptable orders', done => {
+        // Callback automatically added as the last argument for each test
+        const tests = [
+          {
+            args: ['navRef'],
+            expect: '"on" called with event: "value"'
+          },
+          {
+            args: ['navRef', {}],
+            expect: '"on" called with event: "value"'
+          },
+          {
+            args: ['navRef', { event: 'child_moved' }],
+            expect: '"on" called with event: "child_moved"'
+          }
+        ];
+
+        tests.forEach((test, index) => {
+          flamelink(basicConfig).nav.subscribe(...test.args, result => {
+            expect(result).toEqual(null, test.expect);
+
+            if (tests.length === index + 1) {
+              done();
+            }
+          });
+        });
+      });
+
+      test('should respect the "fields" option', done => {
+        const navRef = 'subscribe-nav-entry-ref';
+        const options = { fields: ['brand', 'productCode', 'status', 'price'] };
+
+        flamelink(basicConfig).nav.subscribe(navRef, options, result => {
+          expect(result).toEqual(null, {
+            brand: [1491679616700],
+            price: '123.00',
+            productCode: 'HG31685003',
+            status: 'publish'
+          });
+          done();
+        });
+      });
     });
 
-    test('should expose an "off" method', () => {
-      const event = 'something';
-      expect(flamelink(basicConfig).nav.off('ref', event)).toEqual(
-        `"off" called with event: "${event}"`
-      );
-      expect(flamelink(basicConfig).nav.off('ref')).toEqual('"off" called with event: "undefined"');
+    describe('"unsubscribe" Method', () => {
+      test('should throw if called with incorrect number of arguments', () => {
+        let message;
+
+        try {
+          flamelink(basicConfig).nav.unsubscribe();
+        } catch (error) {
+          message = error.message;
+        }
+
+        expect(message).toMatch(
+          '[FLAMELINK] "unsubscribe" method needs to be called with min 1 argument and max 2 arguments'
+        );
+
+        message = '';
+
+        try {
+          flamelink(basicConfig).nav.unsubscribe('ref', 'value', 'some-3rd-arg');
+        } catch (error) {
+          message = error.message;
+        }
+
+        expect(message).toMatch(
+          '[FLAMELINK] "unsubscribe" method needs to be called with min 1 argument and max 2 arguments'
+        );
+      });
+
+      test('should throw if called with invalid child event', () => {
+        let message;
+        const event = 'invalid-event';
+
+        try {
+          flamelink(basicConfig).nav.unsubscribe('ref', event);
+        } catch (error) {
+          message = error.message;
+        }
+
+        expect(message).toMatch(`[FLAMELINK] "${event}" is not a valid child event`);
+      });
+
+      test('should unsubscribe all events for given nav ref', () => {
+        expect(flamelink(basicConfig).nav.unsubscribe('ref')).toEqual(
+          '"off" called with event: "undefined"'
+        );
+      });
+
+      test('should unsubscribe given event for given nav ref', () => {
+        const event = 'child_moved';
+        expect(flamelink(basicConfig).nav.unsubscribe('ref', event)).toEqual(
+          `"off" called with event: "${event}"`
+        );
+      });
     });
 
     test('should expose a "transaction" method', () => {

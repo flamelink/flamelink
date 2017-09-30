@@ -4,6 +4,8 @@ The Flamelink API is a Promise-based API that is intended to be very intuitive f
 
 All API methods are available on your Flamelink `app` instance that you created. It will either be directly available on the instance object for any general methods, like `app.getLocale()`, or it will be available on one of the namespaces, like `app.content.get('blog-posts')`. The details for each of these methods can be found under the relevant sub-headings in these docs.
 
+> All methods are subject to the [Firebase Realtime Database Rules](https://firebase.google.com/docs/database/security/). For instance, if you have database rules set up that only allows authenticated users access to read and write, you would need to authenticate with a user before trying to use this API. It is always a good idea to only allow as little access as possible. If certain content should only be available behind a login, set up the Firebase Realtime Database Rules to require authentication for the particular read or write actions and then authenticate against this (Flamelink) SDK using the Auth Service.
+
 ## Naming Conventions
 
 All API methods used to retrieve data **once** from the Firebase database start with `get`, like `app.content.get()` or `app.nav.getItems()`, etc. Think of this as the equivalent of the `firebaseApp.database().ref().once()` method with nice sugar on top.

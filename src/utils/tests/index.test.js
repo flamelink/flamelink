@@ -97,6 +97,30 @@ describe('Flamelink SDK > Utils', () => {
         }
       });
     });
+
+    describe('"getStorageRefPath"', () => {
+      test('should return the correct reference string for the given properties', () => {
+        const ref = 'image.jpg';
+        const size = '1024';
+        const type = 'images';
+
+        expect(utils.getStorageRefPath(ref, { size, type })).toBe(
+          `/flamelink/media/${type}/${size}/${ref}`
+        );
+
+        expect(utils.getStorageRefPath(ref, { size, type: 'files' })).toBe(
+          `/flamelink/media/files/${ref}`
+        );
+
+        expect(utils.getStorageRefPath(ref)).toBe(`/flamelink/media/images/${ref}`);
+
+        try {
+          utils.getStorageRefPath();
+        } catch (error) {
+          expect(error.message).toBe(missingRefError);
+        }
+      });
+    });
   });
 
   describe('"AVAILABLE_FILTER_OPTIONS"', () => {

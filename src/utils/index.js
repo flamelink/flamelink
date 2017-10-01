@@ -68,6 +68,13 @@ export const getSchemasRefPath = (
   locale = missingRefParam()
 ) => `/schemas/${ref}`;
 
+export const getStorageRefPath = (ref = missingRefParam(), { size, type = 'images' } = {}) => {
+  if (type === 'files') {
+    return `/flamelink/media/${type}/${ref}`;
+  }
+  return `/flamelink/media/${type}/${size ? `${size}/` : ''}${ref}`;
+};
+
 export const pluckResultFields = curry((fields, resultSet) => {
   if (!resultSet || !isArray(fields)) {
     return resultSet;

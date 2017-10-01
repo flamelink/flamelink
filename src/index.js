@@ -87,7 +87,7 @@ function flamelink(conf = {}) {
       const ordered = applyOrderBy(this.ref(''), options);
       const filtered = applyFilters(ordered, options);
 
-      return filtered.once('value');
+      return filtered.once(options.event || 'value');
     },
 
     /**
@@ -104,54 +104,54 @@ function flamelink(conf = {}) {
     /**
      * Read an individual schema from the db and return snapshot response
      *
-     * @param {String} ref
+     * @param {String} schemaRef
      * @param {Object} [options={}]
      * @returns {Promise} Resolves to snapshot of query
      */
-    getRaw(ref, options = {}) {
-      const ordered = applyOrderBy(this.ref(ref), options);
+    getRaw(schemaRef, options = {}) {
+      const ordered = applyOrderBy(this.ref(schemaRef), options);
       const filtered = applyFilters(ordered, options);
 
-      return filtered.once('value');
+      return filtered.once(options.event || 'value');
     },
 
     /**
      * Get individual schema object for the given reference
      *
-     * @param {String} ref
+     * @param {String} schemaRef
      * @param {Object} [options={}]
      * @returns {Promise} Resolves to value of query
      */
-    async get(ref, options = {}) {
+    async get(schemaRef = '', options = {}) {
       const pluckFields = pluckResultFields(options.fields);
-      const snapshot = await this.getRaw(ref, options);
-      const wrapValue = { [ref]: snapshot.val() }; // Wrapping value to create the correct structure for our filtering to work
-      return pluckFields(wrapValue)[ref];
+      const snapshot = await this.getRaw(schemaRef, options);
+      const wrapValue = { [schemaRef]: snapshot.val() }; // Wrapping value to create the correct structure for our filtering to work
+      return pluckFields(wrapValue)[schemaRef];
     },
 
     /**
      * Get an individual schema's fields and return snapshot response
      *
-     * @param {String} ref
+     * @param {String} schemaRef
      * @param {Object} [options={}]
      * @returns {Promise} Resolves to snapshot of query
      */
-    getFieldsRaw(ref, options = {}) {
-      const ordered = applyOrderBy(this.ref(`${ref}/fields`), options);
+    getFieldsRaw(schemaRef, options = {}) {
+      const ordered = applyOrderBy(this.ref(`${schemaRef}/fields`), options);
       const filtered = applyFilters(ordered, options);
 
-      return filtered.once('value');
+      return filtered.once(options.event || 'value');
     },
 
     /**
      * Get individual schema's fields array for the given reference
      *
-     * @param {String} ref
+     * @param {String} schemaRef
      * @param {Object} [options={}]
      * @returns {Promise} Resolves to value of query
      */
-    async getFields(ref, options = {}) {
-      const snapshot = await this.getFieldsRaw(ref, options);
+    async getFields(schemaRef, options = {}) {
+      const snapshot = await this.getFieldsRaw(schemaRef, options);
       return pluckResultFields(options.fields, snapshot.val());
     }
   };

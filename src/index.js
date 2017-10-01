@@ -8,6 +8,7 @@ import {
   getContentRefPath,
   getNavigationRefPath,
   getSchemasRefPath,
+  getStorageRefPath,
   pluckResultFields,
   populateEntry,
   formatNavigationStructure,
@@ -700,6 +701,17 @@ function flamelink(conf = {}) {
     }
   };
 
+  const storageAPI = {
+    /**
+     * @description Establish and return a reference to section in cloud storage
+     * @param {String} ref
+     * @returns {Object} Ref object
+     */
+    ref(ref, options = {}) {
+      return storageService_.ref(getStorageRefPath(ref, options));
+    }
+  };
+
   // Public API
   return {
     firebaseApp: firebaseApp_,
@@ -804,7 +816,9 @@ function flamelink(conf = {}) {
 
     nav: navigationAPI,
 
-    schemas: schemasAPI
+    schemas: schemasAPI,
+
+    storage: storageAPI
   };
 }
 

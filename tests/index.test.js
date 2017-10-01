@@ -979,4 +979,10 @@ describe('Flamelink SDK', () => {
       });
     });
   });
+
+  describe('Storage', () => {
+    test('should expose a "ref" method', () => {
+      expect(flamelink(basicConfig).storage.ref).toEqual(expect.any(Function));
+    });
+  });
 });

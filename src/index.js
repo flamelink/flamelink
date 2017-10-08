@@ -714,7 +714,7 @@ function flamelink(conf = {}) {
     },
 
     /**
-     * @description Establish and return a reference to a file in the realtime db
+     * @description Establish and return a reference to a file in the real-time db
      * @param {String} fileID
      */
     fileRef(fileID) {

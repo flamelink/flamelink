@@ -706,11 +706,11 @@ function flamelink(conf = {}) {
   const storageAPI = {
     /**
      * @description Establish and return a reference to section in cloud storage bucket
-     * @param {String} ref
+     * @param {String} filename
      * @returns {Object} Ref object
      */
-    ref(ref, options = {}) {
-      return storageService_.ref(getStorageRefPath(ref, options));
+    ref(filename, options = {}) {
+      return storageService_.ref(getStorageRefPath(filename, options));
     },
 
     /**

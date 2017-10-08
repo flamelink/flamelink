@@ -984,5 +984,13 @@ describe('Flamelink SDK', () => {
     test('should expose a "ref" method', () => {
       expect(flamelink(basicConfig).storage.ref).toEqual(expect.any(Function));
     });
+
+    test('should expose a "fileRef" method', () => {
+      expect(flamelink(basicConfig).storage.fileRef).toEqual(expect.any(Function));
+    });
+
+    test('should expose a "folderRef" method', () => {
+      expect(flamelink(basicConfig).storage.folderRef).toEqual(expect.any(Function));
+    });
   });
 });

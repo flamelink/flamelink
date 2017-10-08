@@ -9,6 +9,8 @@ import {
   getNavigationRefPath,
   getSchemasRefPath,
   getStorageRefPath,
+  getFileRefPath,
+  getFolderRefPath,
   pluckResultFields,
   populateEntry,
   formatNavigationStructure,
@@ -703,12 +705,28 @@ function flamelink(conf = {}) {
 
   const storageAPI = {
     /**
-     * @description Establish and return a reference to section in cloud storage
+     * @description Establish and return a reference to section in cloud storage bucket
      * @param {String} ref
      * @returns {Object} Ref object
      */
     ref(ref, options = {}) {
       return storageService_.ref(getStorageRefPath(ref, options));
+    },
+
+    /**
+     * @description Establish and return a reference to a file in the realtime db
+     * @param {String} fileID
+     */
+    fileRef(fileID) {
+      return databaseService_.ref(getFileRefPath(fileID));
+    },
+
+    /**
+     * @description Establish and return a reference to a folder in the realtime db
+     * @param {String} folderID
+     */
+    folderRef(folderID) {
+      return databaseService_.ref(getFolderRefPath(folderID));
     }
   };
 

@@ -62,11 +62,8 @@ export const getNavigationRefPath = (
   locale = missingRefParam()
 ) => `/environments/${env}/navigation/${ref}/${locale}`;
 
-export const getSchemasRefPath = (
-  ref = missingRefParam(),
-  env = missingRefParam(),
-  locale = missingRefParam()
-) => `/schemas/${ref}`;
+export const getSchemasRefPath = (ref = missingRefParam(), env = missingRefParam()) =>
+  `/environment/${env}/schemas/${ref}`;
 
 export const getStorageRefPath = (ref = missingRefParam(), { size, type = 'images' } = {}) => {
   if (type === 'files') {

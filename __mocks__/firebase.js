@@ -186,7 +186,7 @@ const mockedRef = jest.fn(ref => ({
           }))
         });
 
-      case '/schemas/':
+      case '/environment/production/schemas/':
         return Promise.resolve({
           val: jest.fn(() => ({
             'about-us': {
@@ -286,7 +286,7 @@ const mockedRef = jest.fn(ref => ({
           }))
         });
 
-      case '/schemas/get-schema':
+      case '/environment/production/schemas/get-schema':
         return Promise.resolve({
           val: jest.fn(() => ({
             description: 'Brands',
@@ -340,8 +340,8 @@ const mockedRef = jest.fn(ref => ({
           }))
         });
 
-      case '/schemas/get-entry-ref/fields':
-      case '/schemas/subscribe-content-entry-ref/fields':
+      case '/environment/production/schemas/get-entry-ref/fields':
+      case '/environment/production/schemas/subscribe-content-entry-ref/fields':
         return Promise.resolve({
           val: jest.fn(() => [
             {

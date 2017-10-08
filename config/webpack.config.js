@@ -2,14 +2,19 @@ const path = require('path');
 const webpack = require('webpack');
 const pkg = require('../package.json');
 
+const LIBRARY_NAME = 'flamelink';
+
 module.exports = {
+  devtool: 'source-map',
+
   entry: './src/index.js',
 
   output: {
     path: path.resolve(__dirname, '..', 'dist'),
-    filename: 'flamelink.js',
-    library: 'flamelink',
-    libraryTarget: 'umd'
+    filename: `${LIBRARY_NAME}.js`,
+    library: LIBRARY_NAME,
+    libraryTarget: 'umd',
+    umdNamedDefine: true
   },
 
   externals: {

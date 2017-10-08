@@ -6,7 +6,8 @@
   "scripts": {
     "build": "webpack --config ./config/webpack.config.js",
     "package": "webpack -p --config ./config/webpack.config.js",
-    "test": "jest --coverage --collectCoverageFrom=src/**/*.js --collectCoverageFrom=!src/polyfills.js",
+    "test":
+      "jest --coverage --collectCoverageFrom=src/**/*.js --collectCoverageFrom=!src/polyfills.js",
     "lint": "eslint ./src --cache",
     "serve-docs": "docsify serve ./docs -o true -p 4000"
   },
@@ -35,7 +36,7 @@
   ],
   "author": "Flamelink <info@flamelink.io>",
   "license": "ISC",
-  "homepage": "https://bitbucket.org/responsivestudio/flamelink-sdk#readme",
+  "homepage": "https://flamelink.github.io/flamelink/",
   "module": "src/index.js",
   "dependencies": {
     "firebase": "^4.3.1",
@@ -64,7 +65,7 @@
       "^.+\\.js$": "babel-jest"
     },
     "globals": {
-      "__PACKAGE_VERSION__": "0.3.0"
+      "__PACKAGE_VERSION__": "0.4.0"
     }
   },
   "babel": {
@@ -73,11 +74,7 @@
         "env",
         {
           "targets": {
-            "browsers": [
-              "last 2 versions",
-              "safari >= 8",
-              "ie >= 9"
-            ]
+            "browsers": ["last 2 versions", "safari >= 8", "ie >= 9"]
           },
           "modules": false,
           "loose": true
@@ -86,9 +83,7 @@
     ],
     "env": {
       "test": {
-        "plugins": [
-          "transform-es2015-modules-commonjs"
-        ]
+        "plugins": ["transform-es2015-modules-commonjs"]
       }
     }
   }

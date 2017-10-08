@@ -722,11 +722,38 @@ function flamelink(conf = {}) {
     },
 
     /**
-     * @description Establish and return a reference to a folder in the realtime db
+     * @description Establish and return a reference to a folder in the real-time db
      * @param {String} folderID
      */
     folderRef(folderID) {
       return databaseService_.ref(getFolderRefPath(folderID));
+    },
+
+    /**
+     * @description Upload a given file to the Cloud Storage Bucket as well as the real-time db
+     * @param {String|File|Blob|Uint8Array} fileData
+     * @param {Object} [options={}]
+     * @returns {Object} UploadTask instance, which is similar to a Promise and an Observable
+     */
+    upload(fileData, options = {}) {
+      const id = Date.now();
+      const metadata = Object.assign({}, options.metadata || {});
+      const filename = typeof metadata.name === 'string' ? `${id}_${metadata.name}` : id;
+      const storageRef = this.ref(filename, options);
+      const updateMethod = typeof fileData === 'string' ? 'putString' : 'put';
+      const args = [fileData];
+
+      if (options.metadata) {
+        args.push(options.metadata);
+      }
+
+      // TODO: Test and verify how the Firebase SDK handles string uploads with encoding and metadata
+      // Is it the second argument then or should it be passed along with the metadata object?
+      if (updateMethod === 'putString' && options.stringEncoding) {
+        args.splice(1, 0, options.stringEncoding);
+      }
+
+      return storageRef[updateMethod](...args);
     }
   };
 
@@ -842,4 +869,5 @@ function flamelink(conf = {}) {
 
 flamelink.VERSION = __PACKAGE_VERSION__;
 
-export default flamelink;
+// Need to use `module.exports` instead of `export default`, otherwise library is available as { default: flamelink }
+module.exports = flamelink;

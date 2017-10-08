@@ -1,3 +1,5 @@
+?> All storage functionality is only available when used inside a browser on the client side and not for server side use. Firebase Storage is not included in the server side module.
+
 > All the methods that you would need to work with the "Storage"/"Media" Flamelink data is available on the `app.storage` namespace.
 
 !> Note that in order to use the Storage functionality, you need to specify your `storageBucket` key when [instantiating the Flamelink app](/getting-started?id=creating-your-flamelink-app-instance) (or via the Firebase app if used to instantiate Flamelink)

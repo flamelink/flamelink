@@ -1,6 +1,6 @@
 {
   "name": "flamelink",
-  "version": "0.3.0",
+  "version": "0.4.0",
   "description": "Javascript SDK for integrating with Flamelink CMS",
   "main": "dist/flamelink.js",
   "scripts": {
@@ -35,7 +35,7 @@
   ],
   "author": "Flamelink <info@flamelink.io>",
   "license": "ISC",
-  "homepage": "https://bitbucket.org/responsivestudio/flamelink-sdk#readme",
+  "homepage": "https://flamelink.github.io/flamelink/",
   "module": "src/index.js",
   "dependencies": {
     "firebase": "^4.3.1",
@@ -64,7 +64,7 @@
       "^.+\\.js$": "babel-jest"
     },
     "globals": {
-      "__PACKAGE_VERSION__": "0.3.0"
+      "__PACKAGE_VERSION__": "0.4.0"
     }
   },
   "babel": {

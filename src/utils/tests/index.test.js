@@ -76,7 +76,9 @@ describe('Flamelink SDK > Utils', () => {
         const ref = 'my-reference';
         const env = 'my-environment';
         const locale = 'my-locale';
-        expect(utils.getSchemasRefPath(ref, env, locale)).toBe(`/schemas/${ref}`);
+        expect(utils.getSchemasRefPath(ref, env, locale)).toBe(
+          `/environment/${env}/schemas/${ref}`
+        );
 
         try {
           utils.getSchemasRefPath(ref, env);
@@ -95,6 +97,45 @@ describe('Flamelink SDK > Utils', () => {
         } catch (error) {
           expect(error.message).toBe(missingRefError);
         }
+      });
+    });
+
+    describe('"getStorageRefPath"', () => {
+      test('should return the correct reference string for the given properties', () => {
+        const filename = 'image.jpg';
+        const width = '1024';
+
+        expect(utils.getStorageRefPath(filename)).toBe(`/flamelink/media/${filename}`);
+
+        expect(utils.getStorageRefPath(filename, { width })).toBe(
+          `/flamelink/media/sized/${width}/${filename}`
+        );
+
+        try {
+          utils.getStorageRefPath();
+        } catch (error) {
+          expect(error.message).toBe(missingRefError);
+        }
+      });
+    });
+
+    describe('"getFileRefPath"', () => {
+      test('should return the correct reference string for the given properties', () => {
+        const fileID = '1506860602196';
+
+        expect(utils.getFileRefPath(fileID)).toBe(`/media/files/${fileID}`);
+
+        expect(utils.getFileRefPath()).toBe(`/media/files/`);
+      });
+    });
+
+    describe('"getFolderRefPath"', () => {
+      test('should return the correct reference string for the given properties', () => {
+        const folderID = '1505670341980';
+
+        expect(utils.getFolderRefPath(folderID)).toBe(`/media/folders/${folderID}`);
+
+        expect(utils.getFolderRefPath()).toBe(`/media/folders/`);
       });
     });
   });

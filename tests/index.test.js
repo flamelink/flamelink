@@ -979,4 +979,85 @@ describe('Flamelink SDK', () => {
       });
     });
   });
+
+  describe('Storage', () => {
+    test('should expose a "ref" method', () => {
+      expect(flamelink(basicConfig).storage.ref).toEqual(expect.any(Function));
+    });
+
+    test('should expose a "fileRef" method', () => {
+      expect(flamelink(basicConfig).storage.fileRef).toEqual(expect.any(Function));
+    });
+
+    test('should expose a "folderRef" method', () => {
+      expect(flamelink(basicConfig).storage.folderRef).toEqual(expect.any(Function));
+    });
+
+    describe('"upload" method', () => {
+      test('should be exposed on the "storage" public object', () => {
+        expect(flamelink(basicConfig).storage.upload).toEqual(expect.any(Function));
+      });
+
+      test('should call the Firebase `putString` method if the file data is a raw string', () => {
+        const string = 'This is a test string';
+        return expect(flamelink(basicConfig).storage.upload(string)).resolves.toEqual(
+          expect.objectContaining({
+            TESTING: expect.objectContaining({
+              string,
+              stringEncoding: undefined,
+              method: 'putString'
+            }),
+            val: expect.any(Function)
+          })
+        );
+      });
+
+      test('should call the Firebase `putString` method if the file data is a base64 encoded string', () => {
+        const string = '5b6p5Y+344GX44G+44GX44Gf77yB44GK44KB44Gn44Go44GG77yB';
+        const options = {
+          stringEncoding: 'base64'
+        };
+        return expect(flamelink(basicConfig).storage.upload(string, options)).resolves.toEqual(
+          expect.objectContaining({
+            TESTING: expect.objectContaining({
+              string,
+              stringEncoding: options.stringEncoding,
+              method: 'putString'
+            }),
+            val: expect.any(Function)
+          })
+        );
+      });
+
+      test('should call the Firebase `put` method if the file data is not a string', () => {
+        const bytes = new Uint8Array([
+          0x48,
+          0x65,
+          0x6c,
+          0x6c,
+          0x6f,
+          0x2c,
+          0x20,
+          0x77,
+          0x6f,
+          0x72,
+          0x6c,
+          0x64,
+          0x21
+        ]);
+        const metadata = { name: 'file-name.jpg' };
+
+        return expect(flamelink(basicConfig).storage.upload(bytes, { metadata })).resolves.toEqual(
+          expect.objectContaining({
+            TESTING: expect.objectContaining({
+              file: bytes,
+              options: metadata,
+              method: 'put'
+            }),
+            val: expect.any(Function)
+          })
+        );
+      });
+    });
+  });
 });

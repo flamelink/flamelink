@@ -58,3 +58,4 @@ current-db.json
 
 # Local testing files
 .shamefile.js
+test-index.html

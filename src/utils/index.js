@@ -62,11 +62,28 @@ export const getNavigationRefPath = (
   locale = missingRefParam()
 ) => `/environments/${env}/navigation/${ref}/${locale}`;
 
-export const getSchemasRefPath = (
-  ref = missingRefParam(),
-  env = missingRefParam(),
-  locale = missingRefParam()
-) => `/schemas/${ref}`;
+export const getSchemasRefPath = (ref = missingRefParam(), env = missingRefParam()) =>
+  `/environment/${env}/schemas/${ref}`;
+
+/**
+ * @description Return the reference path for the given file in the Cloud Storage Bucket
+ * @param {String} filename
+ * @param {Object} options
+ */
+export const getStorageRefPath = (filename = missingRefParam(), { width } = {}) =>
+  `/flamelink/media/${width ? `sized/${width}/` : ''}${filename}`;
+
+/**
+ * @description Return the reference path for the given file in the realtime db
+ * @param {String} fileID
+ */
+export const getFileRefPath = fileID => `/media/files/${fileID || ''}`;
+
+/**
+ * @description Return the reference path for the given folder in the realtime db
+ * @param {String} folderID
+ */
+export const getFolderRefPath = folderID => `/media/folders/${folderID || ''}`;
 
 export const pluckResultFields = curry((fields, resultSet) => {
   if (!resultSet || !isArray(fields)) {

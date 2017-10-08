@@ -1,6 +1,6 @@
 const firebase = jest.genMockFromModule('firebase');
 
-const mockedRef = jest.fn(ref => ({
+const mockedDatabaseRef = jest.fn(ref => ({
   child: jest.fn(child => ({
     once: event => {
       switch (ref) {
@@ -186,7 +186,7 @@ const mockedRef = jest.fn(ref => ({
           }))
         });
 
-      case '/schemas/':
+      case '/environment/production/schemas/':
         return Promise.resolve({
           val: jest.fn(() => ({
             'about-us': {
@@ -286,7 +286,7 @@ const mockedRef = jest.fn(ref => ({
           }))
         });
 
-      case '/schemas/get-schema':
+      case '/environment/production/schemas/get-schema':
         return Promise.resolve({
           val: jest.fn(() => ({
             description: 'Brands',
@@ -340,8 +340,8 @@ const mockedRef = jest.fn(ref => ({
           }))
         });
 
-      case '/schemas/get-entry-ref/fields':
-      case '/schemas/subscribe-content-entry-ref/fields':
+      case '/environment/production/schemas/get-entry-ref/fields':
+      case '/environment/production/schemas/subscribe-content-entry-ref/fields':
         return Promise.resolve({
           val: jest.fn(() => [
             {
@@ -403,21 +403,62 @@ const mockedRef = jest.fn(ref => ({
     if (updateFn) updateFn();
     if (cb) cb();
   }),
-  orderByKey: jest.fn(mockedRef),
-  orderByValue: jest.fn(mockedRef),
-  orderByChild: jest.fn(mockedRef),
-  limitToFirst: jest.fn(mockedRef),
-  limitToLast: jest.fn(mockedRef),
-  equalTo: jest.fn(mockedRef),
-  startAt: jest.fn(mockedRef),
-  endAt: jest.fn(mockedRef)
+  orderByKey: jest.fn(mockedDatabaseRef),
+  orderByValue: jest.fn(mockedDatabaseRef),
+  orderByChild: jest.fn(mockedDatabaseRef),
+  limitToFirst: jest.fn(mockedDatabaseRef),
+  limitToLast: jest.fn(mockedDatabaseRef),
+  equalTo: jest.fn(mockedDatabaseRef),
+  startAt: jest.fn(mockedDatabaseRef),
+  endAt: jest.fn(mockedDatabaseRef)
+}));
+
+const mockedStorageRef = jest.fn(ref => ({
+  put: jest.fn((file, options) => {
+    const promise = new Promise(resolve => {
+      resolve({
+        TESTING: {
+          file,
+          options,
+          method: 'put'
+        },
+        val: jest.fn(() => ({
+          metadata: {}
+        }))
+      });
+    });
+
+    promise.on = jest.fn();
+
+    return promise;
+  }),
+  putString: jest.fn((string, stringEncoding) => {
+    const promise = new Promise(resolve => {
+      resolve({
+        TESTING: {
+          string,
+          stringEncoding,
+          method: 'putString'
+        },
+        val: jest.fn(() => ({
+          metadata: {}
+        }))
+      });
+    });
+
+    promise.on = jest.fn();
+
+    return promise;
+  })
 }));
 
 firebase.initializeApp = jest.fn(payload => ({
   database: jest.fn(() => ({
-    ref: mockedRef
+    ref: mockedDatabaseRef
   })),
-  storage: jest.fn(),
+  storage: jest.fn(() => ({
+    ref: mockedStorageRef
+  })),
   auth: jest.fn()
 }));
 

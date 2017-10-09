@@ -4,7 +4,7 @@ On initialization of your flamelink app instance, you should specify the environ
 
 ```javascript
 import * as firebase from 'firebase';
-import flamelink from 'flamelink-sdk';
+import flamelink from 'flamelink';
 
 const app = flamelink({
   ... other config ...

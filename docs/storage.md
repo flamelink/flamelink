@@ -138,6 +138,48 @@ A `Promise` that resolves when the upload is complete or will reject with an err
 
 ---
 
+## .getFolders()
+
+To retrieve a list of all the media folders in the CMS.
+
+```javascript
+app.storage.getFolders()
+  .then(folders => console.log('Media folders:', folders))
+  .catch(error => console.error('Something went wrong while retrieving the folders. Details:', error));
+```
+
+### Input parameters
+
+This method only takes a single optional argument.
+
+| Type   | Variable  | Required | Description                         |
+| ------ | --------- | -------- | ----------------------------------- |
+| Object | `options` | optional | Order, filter and structure options |
+
+#### Available Options
+
+All the standard order, filter and fields options are available, but they are not particularly useful here.
+
+##### Structure
+
+- `structure` **{String}** - Should the folders be returned as a list or nested in a tree structure.
+
+*Example*
+
+To retrieve your folders in a nested structure, specify either `nested` or `tree` as the `structure` option
+
+```javascript
+app.storage.getFolders({ structure: 'nested' });
+```
+
+?> **Tip:** Setting the `structure` to anything other than `nested` or `tree` will return a plain array of folders
+
+### Return value
+
+A `Promise` that resolves to the `{Array}` of folder objects on success or will reject with an error if the request fails.
+
+---
+
 ## .ref()
 
 > This is a more advanced API method, that for most use cases will not be necessary.

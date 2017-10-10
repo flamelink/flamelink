@@ -1,5 +1,6 @@
 import 'regenerator-runtime/runtime';
 import * as firebase from 'firebase';
+import compose from 'compose-then';
 import './polyfills';
 import error from './utils/error';
 import {
@@ -13,8 +14,7 @@ import {
   getFolderRefPath,
   pluckResultFields,
   populateEntry,
-  formatNavigationStructure,
-  compose
+  formatNavigationStructure
 } from './utils';
 
 const DEFAULT_CONFIG = {

@@ -38,6 +38,7 @@
   "homepage": "https://flamelink.github.io/flamelink/",
   "module": "src/index.js",
   "dependencies": {
+    "compose-then": "^1.0.1",
     "firebase": "^4.3.1",
     "lodash": "^4.17.4",
     "regenerator-runtime": "^0.11.0"

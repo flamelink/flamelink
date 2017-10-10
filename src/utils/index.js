@@ -4,6 +4,7 @@ import cloneDeep from 'lodash/cloneDeep';
 import isArray from 'lodash/isArray';
 import isPlainObject from 'lodash/isPlainObject';
 import pick from 'lodash/fp/pick';
+import compose from 'compose-then';
 import error from './error';
 
 export const applyOrderBy = (ref, opt = {}) => {
@@ -109,17 +110,6 @@ export const pluckResultFields = curry((fields, resultSet) => {
 
   return resultSet;
 });
-
-/**
- * Our own `compose` function that works on both synchronous and asynchronous functions combined.
- *
- * @param {*} functions Array of functions to compose
- * @returns {Function} Returns a function that takes a single argument for the input data that will be
- * passed through the composed functions and then returns a promise that will resolve to the result of
- * the input being applied to all the methods in sequence.
- */
-export const compose = (...functions) => input =>
-  functions.reduceRight((chain, func) => chain.then(func), Promise.resolve(input));
 
 /**
  * Ensure that the passed in `populate` property is returning an array of objects

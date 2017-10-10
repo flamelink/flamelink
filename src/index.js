@@ -867,7 +867,8 @@ function flamelink(conf = {}) {
   };
 }
 
-flamelink.VERSION = __PACKAGE_VERSION__;
+// FIXME: Temporarily commented out for Coenraad to test from source
+// flamelink.VERSION = __PACKAGE_VERSION__;
 
 // Need to use `module.exports` instead of `export default`, otherwise library is available as { default: flamelink }
 module.exports = flamelink;

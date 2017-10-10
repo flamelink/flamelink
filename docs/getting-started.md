@@ -3,13 +3,13 @@
 Install through `npm`
 
 ```bash
-npm install --save flamelink-sdk
+npm install --save flamelink
 ```
 
 or through `yarn`
 
 ```bash
-yarn add flamelink-sdk
+yarn add flamelink
 ```
 
 ## Usage
@@ -20,7 +20,7 @@ You can either create your `flamelink` app instance by passing in all the requir
 
 ```javascript
 import * as firebase from 'firebase';
-import flamelink from 'flamelink-sdk';
+import flamelink from 'flamelink';
 
 const app = flamelink({
   apiKey: '<your-api-key>',                     // required
@@ -37,7 +37,7 @@ Or you can pass in an existing `firebaseApp` instance along with all the other `
 
 ```javascript
 import * as firebase from 'firebase';
-import flamelink from 'flamelink-sdk';
+import flamelink from 'flamelink';
 
 const firebaseConfig = {
   apiKey: '<your-api-key>',                     // required

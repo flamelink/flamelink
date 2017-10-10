@@ -6,7 +6,7 @@ Currently, the only supported locale is `"en-US"`.
 
 ```javascript
 import * as firebase from 'firebase';
-import flamelink from 'flamelink-sdk';
+import flamelink from 'flamelink';
 
 const app = flamelink({
   ... other config ...

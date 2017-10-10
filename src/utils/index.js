@@ -86,6 +86,23 @@ export const getFileRefPath = fileID => `/media/files/${fileID || ''}`;
  */
 export const getFolderRefPath = folderID => `/media/folders/${folderID || ''}`;
 
+export const filterByFolderId = curry((folderId, files) => {
+  if (!folderId) {
+    return files;
+  }
+
+  return reduce(
+    files,
+    (result, val, key) => {
+      if (val.folderId === folderId) {
+        return Object.assign({}, result, { [key]: val });
+      }
+      return result;
+    },
+    {}
+  );
+});
+
 export const pluckResultFields = curry((fields, resultSet) => {
   if (!resultSet || !isArray(fields)) {
     return resultSet;

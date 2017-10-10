@@ -16,6 +16,7 @@ import {
   getFolderRefPath,
   pluckResultFields,
   populateEntry,
+  filterByFolderId,
   formatStructure
 } from './utils';
 
@@ -746,13 +747,13 @@ function flamelink(conf = {}) {
      * @private
      */
     async _getFolderIdFromOptions(options = {}) {
-      const { folderId, folderName } = options;
+      const { folderId, folderName, folderFallback } = options;
 
       if (folderId) {
         return folderId;
       }
 
-      return this._getFolderId(folderName);
+      return this._getFolderId(folderName, folderFallback);
     },
 
     /**
@@ -798,14 +799,6 @@ function flamelink(conf = {}) {
     },
 
     /**
-     * @description Establish and return a reference to a file in the real-time db
-     * @param {String} fileID
-     */
-    fileRef(fileID) {
-      return databaseService_.ref(getFileRefPath(fileID));
-    },
-
-    /**
      * @description Establish and return a reference to a folder in the real-time db
      * @param {String} folderID
      */
@@ -840,6 +833,52 @@ function flamelink(conf = {}) {
       });
       const snapshot = await this.getFoldersRaw(options);
       return compose(pluckFields, structureItems, Object.values)(snapshot.val());
+    },
+
+    /**
+     * @description Establish and return a reference to a file in the real-time db
+     * @param {String} fileID
+     */
+    fileRef(fileID) {
+      return databaseService_.ref(getFileRefPath(fileID));
+    },
+
+    /**
+     * Read value once from db and return raw snapshot
+     *
+     * @param {Object} [options={}]
+     * @returns {Promise} Resolves to snapshot of query
+     */
+    getFilesRaw(options = {}) {
+      const ordered = applyOrderBy(this.fileRef(), options);
+      const filtered = applyFilters(ordered, options);
+
+      return filtered.once(options.event || 'value');
+    },
+
+    /**
+     * Read value once from db
+     *
+     * @param {Object} [options={}]
+     * @returns {Promise} Resolves to value of query
+     */
+    async getFiles(options = {}) {
+      const defaultOptions = { folderFallback: null };
+      const opts = Object.assign(
+        defaultOptions,
+        options,
+        options.mediaType
+          ? {
+              orderByChild: 'type',
+              equalTo: options.mediaType
+            }
+          : {}
+      );
+      const folderId = await this._getFolderIdFromOptions(opts);
+      const filterFolders = filterByFolderId(folderId);
+      const pluckFields = pluckResultFields(opts.fields);
+      const snapshot = await this.getFilesRaw(opts);
+      return compose(pluckFields, filterFolders)(snapshot.val());
     },
 
     /**

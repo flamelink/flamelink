@@ -1017,6 +1017,189 @@ describe('Flamelink SDK', () => {
       expect(flamelink(basicConfig).storage.folderRef).toEqual(expect.any(Function));
     });
 
+    describe('"getFiles" method', () => {
+      test('should be exposed on the `storage` object', () => {
+        expect(flamelink(basicConfig).storage.getFiles).toEqual(expect.any(Function));
+      });
+
+      test('should return all files if no arguments are given', () => {
+        return expect(flamelink(basicConfig).storage.getFiles()).resolves.toEqual({
+          '1507628932841': {
+            contentType: 'application/octet-stream',
+            file: '1507628932841',
+            folderId: 1506860565172,
+            id: 1507628932841,
+            type: 'files'
+          },
+          '1507630687950': {
+            contentType: 'application/pdf',
+            file: '1507630687950_Authorise Transfer - .pdf',
+            folderId: 1506860565172,
+            id: 1507630687950,
+            type: 'files'
+          },
+          '1507632454996': {
+            contentType: 'image/jpeg',
+            file: '1507632454996_image.jpg',
+            folderId: 1506860565172,
+            id: 1507632454996,
+            sizes: [
+              {
+                height: 9999,
+                width: 1024
+              },
+              {
+                height: 9999,
+                width: 240
+              }
+            ],
+            type: 'images'
+          },
+          '1507655509430': {
+            contentType: 'image/jpeg',
+            file: '1507655509430_image.jpg',
+            folderId: 1506860565172,
+            id: 1507655509430,
+            sizes: [
+              {
+                height: 9999,
+                width: 1024
+              },
+              {
+                height: 9999,
+                width: 240
+              }
+            ],
+            type: 'images'
+          }
+        });
+      });
+
+      test('should respect the "fields" option', () => {
+        const options = { fields: ['id', 'type'] };
+        return expect(flamelink(basicConfig).storage.getFiles(options)).resolves.toEqual({
+          '1507628932841': {
+            id: 1507628932841,
+            type: 'files'
+          },
+          '1507630687950': {
+            id: 1507630687950,
+            type: 'files'
+          },
+          '1507632454996': {
+            id: 1507632454996,
+            type: 'images'
+          },
+          '1507655509430': {
+            id: 1507655509430,
+            type: 'images'
+          }
+        });
+      });
+
+      test('should pass through custom events', () => {
+        return expect(
+          flamelink(basicConfig).storage.getFilesRaw({ event: 'child_added' })
+        ).resolves.toEqual(
+          expect.objectContaining({ TESTING: expect.objectContaining({ event: 'child_added' }) })
+        );
+      });
+
+      test('should be able to retrieve all files for given media type', () => {
+        const options = { mediaType: 'images' };
+        return expect(flamelink(basicConfig).storage.getFiles(options)).resolves.toEqual({
+          '1507632454996': {
+            contentType: 'image/jpeg',
+            file: '1507632454996_image.jpg',
+            folderId: 1506860565172,
+            id: 1507632454996,
+            sizes: [
+              {
+                height: 9999,
+                width: 1024
+              },
+              {
+                height: 9999,
+                width: 240
+              }
+            ],
+            type: 'images'
+          },
+          '1507655509430': {
+            contentType: 'image/jpeg',
+            file: '1507655509430_image.jpg',
+            folderId: 1506860565172,
+            id: 1507655509430,
+            sizes: [
+              {
+                height: 9999,
+                width: 1024
+              },
+              {
+                height: 9999,
+                width: 240
+              }
+            ],
+            type: 'images'
+          }
+        });
+      });
+
+      test('should be able to retrieve all files for folder', () => {
+        const options = { folderName: 'products' };
+        return expect(flamelink(basicConfig).storage.getFiles(options)).resolves.toEqual({
+          '1507628932841': {
+            contentType: 'application/octet-stream',
+            file: '1507628932841',
+            folderId: 1506860565172,
+            id: 1507628932841,
+            type: 'files'
+          },
+          '1507630687950': {
+            contentType: 'application/pdf',
+            file: '1507630687950_Authorise Transfer - .pdf',
+            folderId: 1506860565172,
+            id: 1507630687950,
+            type: 'files'
+          },
+          '1507632454996': {
+            contentType: 'image/jpeg',
+            file: '1507632454996_image.jpg',
+            folderId: 1506860565172,
+            id: 1507632454996,
+            sizes: [
+              {
+                height: 9999,
+                width: 1024
+              },
+              {
+                height: 9999,
+                width: 240
+              }
+            ],
+            type: 'images'
+          },
+          '1507655509430': {
+            contentType: 'image/jpeg',
+            file: '1507655509430_image.jpg',
+            folderId: 1506860565172,
+            id: 1507655509430,
+            sizes: [
+              {
+                height: 9999,
+                width: 1024
+              },
+              {
+                height: 9999,
+                width: 240
+              }
+            ],
+            type: 'images'
+          }
+        });
+      });
+    });
+
     describe('"getFolders" method', () => {
       test('should be exposed on the `storage` object', () => {
         expect(flamelink(basicConfig).storage.getFolders).toEqual(expect.any(Function));
@@ -1030,30 +1213,6 @@ describe('Flamelink SDK', () => {
               name: expect.any(String),
               order: expect.any(Number),
               parentId: expect.any(Number)
-            }
-          ])
-        );
-      });
-
-      test('should return all folders as a nested structure if the "nested" argument is given', () => {
-        const structure = 'nested';
-        return expect(flamelink(basicConfig).storage.getFolders({ structure })).resolves.toEqual(
-          expect.arrayContaining([
-            {
-              id: expect.any(Number),
-              name: expect.any(String),
-              order: expect.any(Number),
-              parentId: expect.any(Number),
-              children: expect.arrayContaining([
-                {
-                  id: expect.any(Number),
-                  name: expect.any(String),
-                  order: expect.any(Number),
-                  parentId: expect.any(Number),
-                  uuid: expect.any(Number),
-                  children: expect.any(Array)
-                }
-              ])
             }
           ])
         );

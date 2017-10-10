@@ -106,55 +106,35 @@ app.storage.upload(file, {
 });
 ```
 
-### Return value
+##### Folder ID
 
-This method returns what Firebase calls an `UploadTask` which you can use as a `Promise`, or additionally, you can use it to manage and monitor the status of the upload:
+- `folderId` **{String}** - When uploading a file, you can specify the folder to which the file should be uploaded within the Firebase real-time db. (By default files will be uploaded to the "Root" folder)
 
-```javascript
-const uploadTask = app.storage.upload(file);
-```
-
-Your file upload will start immediately when you call the `app.storage.upload()` method.
-
-#### Manage Uploads
-
-After the upload started, you can perform the following actions on it:
-
-*Pause the upload*
+*Example*
 
 ```javascript
-uploadTask.pause();
-```
-
-*Resume the upload*
-
-```javascript
-uploadTask.resume();
-```
-
-*Cancel the upload*
-
-```javascript
-uploadTask.cancel();
-```
-
-#### Monitor Upload Progress
-
-Apart from the different management methods you have on the `UploadTask` instance, you can also monitor the progress of your upload by subscribing to its `state_changed` event.
-
-With this functionality, you can easily implement a progress bar for your uploads.
-
-```javascript
-uploadTask.on('state_changed', function changeCallback(snapshot) {
-  // Called every time a state change occurs
-}, function errorCallback(error) {
-  // Called if the upload fails
-}, function successCallback() {
-  // Called when the upload succeeds
+app.storage.upload(file, {
+  folderId: '1505670341980'
 });
 ```
 
-Take a look at the [full example](https://firebase.google.com/docs/storage/web/upload-files#manage_uploads) in the Firebase documentation - keep in mind that instead of using the `put()` method to retrieve your `uploadTask` instance, with Flamelink this instance is returned by the `upload()` method.
+##### Folder Name
+
+- `folderName` **{String}** - When uploading a file, you can specify the folder to which the file should be uploaded within the Firebase real-time db. (By default files will be uploaded to the "Root" folder)
+
+This is a convenient alternative to the `folderId` option above, for when you know the folder's name, but not necessarily the ID it has in the database.
+
+*Example*
+
+```javascript
+app.storage.upload(file, {
+  folderName: 'Products'
+});
+```
+
+### Return value
+
+A `Promise` that resolves when the upload is complete or will reject with an error if the request fails.
 
 ---
 

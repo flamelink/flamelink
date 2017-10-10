@@ -746,6 +746,10 @@ function flamelink(conf = {}) {
      * @returns {Object} Ref object
      */
     ref(filename, options = {}) {
+      // Check if the filename is a URL (contains "://")
+      if (/:\/\//.test(filename)) {
+        return storageService_.refFromURL(filename);
+      }
       return storageService_.ref(getStorageRefPath(filename, options));
     },
 
@@ -798,22 +802,25 @@ function flamelink(conf = {}) {
 
       const mediaType = /^image\//.test(snapshot.metadata.contentType) ? 'images' : 'files';
       const folderId = await this._getFolderIdFromOptions(options);
+      const filePayload = {
+        id,
+        file: snapshot.metadata.name,
+        folderId,
+        type: mediaType,
+        contentType: snapshot.metadata.contentType
+      };
 
       // If mediaType === 'images', file is resizeable and sizes/widths are set, resize images here
       if (mediaType === 'images' && updateMethod === 'put' && Array.isArray(options.sizes)) {
+        filePayload.sizes = options.sizes;
+
         await Promise.all(
           options.sizes.map(size => this._createSizedImage(fileData, filename, size))
         );
       }
 
       // Write to real-time db
-      await this._setFile({
-        id,
-        file: snapshot.metadata.name,
-        folderId,
-        type: mediaType,
-        contentType: snapshot.metadata.contentType
-      });
+      await this._setFile(filePayload);
 
       return uploadTask;
     }

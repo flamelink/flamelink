@@ -981,8 +981,32 @@ describe('Flamelink SDK', () => {
   });
 
   describe('Storage', () => {
-    test('should expose a "ref" method', () => {
-      expect(flamelink(basicConfig).storage.ref).toEqual(expect.any(Function));
+    describe('"ref" Method', () => {
+      test('should be exposed on the `storage` object', () => {
+        expect(flamelink(basicConfig).storage.ref).toEqual(expect.any(Function));
+      });
+
+      test('should call the Storage service\'s "ref" method for files and "refFromURL" for URLs', () => {
+        const filename = 'filename.jpg';
+
+        expect(flamelink(basicConfig).storage.ref(filename)).toEqual(
+          expect.objectContaining({
+            TESTING: {
+              method: 'Storage.ref'
+            }
+          })
+        );
+
+        const fileURL = 'gs://some-test-path/filename.jpg';
+
+        expect(flamelink(basicConfig).storage.ref(fileURL)).toEqual(
+          expect.objectContaining({
+            TESTING: {
+              method: 'Storage.refFromURL'
+            }
+          })
+        );
+      });
     });
 
     test('should expose a "fileRef" method', () => {

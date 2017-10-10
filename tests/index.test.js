@@ -1007,7 +1007,7 @@ describe('Flamelink SDK', () => {
               stringEncoding: undefined,
               method: 'putString'
             }),
-            val: expect.any(Function)
+            metadata: expect.any(Object)
           })
         );
       });
@@ -1024,7 +1024,7 @@ describe('Flamelink SDK', () => {
               stringEncoding: options.stringEncoding,
               method: 'putString'
             }),
-            val: expect.any(Function)
+            metadata: expect.any(Object)
           })
         );
       });
@@ -1054,7 +1054,7 @@ describe('Flamelink SDK', () => {
               options: metadata,
               method: 'put'
             }),
-            val: expect.any(Function)
+            metadata: expect.any(Object)
           })
         );
       });

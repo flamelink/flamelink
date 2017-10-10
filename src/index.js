@@ -706,6 +706,14 @@ function flamelink(conf = {}) {
   };
 
   const storageAPI = {
+    /**
+     * @description Get the folder ID for a given folder name using an optional fallback folder name
+     *
+     * @param {string} [folderName='']
+     * @param {string} [fallback='Root']
+     * @returns {string} folderId
+     * @private
+     */
     async _getFolderId(folderName = '', fallback = 'Root') {
       const foldersSnapshot = await databaseService_.ref(getFolderRefPath()).once('value');
       const folders = foldersSnapshot.val();
@@ -719,6 +727,14 @@ function flamelink(conf = {}) {
       return folder.id;
     },
 
+    /**
+     * @description Get the folder ID for a given options object. If the ID is given it is simply returned, otherwise it
+     * try and deduce it from a given folder name or falling back to the ID for the "Root" directory
+     *
+     * @param {any} [options={}]
+     * @returns {promise} Resolves to the folder ID
+     * @private
+     */
     async _getFolderIdFromOptions(options = {}) {
       const { folderId, folderName } = options;
 
@@ -729,10 +745,28 @@ function flamelink(conf = {}) {
       return this._getFolderId(folderName);
     },
 
+    /**
+     * @description Writes the file meta to the Firebase real-time db. Not intended as a public method.
+     * Used internally by the `upload` method.
+     *
+     * @param {object} [payload={}]
+     * @returns {promise}
+     * @private
+     */
     _setFile(payload = {}) {
       return this.fileRef(payload.id).set(payload);
     },
 
+    /**
+     * @description Resizes a given file to the size provided in the options config. Not for public use.
+     * User internally by the `upload` method.
+     *
+     * @param {File} file
+     * @param {string} filename
+     * @param {object} options
+     * @returns {promise}
+     * @private
+     */
     async _createSizedImage(file, filename, options) {
       const resizedImage = await resizeImage(file, options);
       return this.ref(filename, { width: options.width || options.maxWidth || 'wrong_size' }).put(

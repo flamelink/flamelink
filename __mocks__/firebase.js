@@ -422,9 +422,7 @@ const mockedStorageRef = jest.fn(ref => ({
           options,
           method: 'put'
         },
-        val: jest.fn(() => ({
-          metadata: {}
-        }))
+        metadata: {}
       });
     });
 
@@ -440,9 +438,7 @@ const mockedStorageRef = jest.fn(ref => ({
           stringEncoding,
           method: 'putString'
         },
-        val: jest.fn(() => ({
-          metadata: {}
-        }))
+        metadata: {}
       });
     });
 

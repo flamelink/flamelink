@@ -1,5 +1,8 @@
 import 'regenerator-runtime/runtime';
 import * as firebase from 'firebase';
+import compose from 'compose-then';
+import find from 'lodash/find';
+import resizeImage from 'browser-image-resizer';
 import './polyfills';
 import error from './utils/error';
 import {
@@ -13,8 +16,7 @@ import {
   getFolderRefPath,
   pluckResultFields,
   populateEntry,
-  formatNavigationStructure,
-  compose
+  formatNavigationStructure
 } from './utils';
 
 const DEFAULT_CONFIG = {
@@ -704,6 +706,40 @@ function flamelink(conf = {}) {
   };
 
   const storageAPI = {
+    async _getFolderId(folderName = '', fallback = 'Root') {
+      const foldersSnapshot = await databaseService_.ref(getFolderRefPath()).once('value');
+      const folders = foldersSnapshot.val();
+      const folder = find(folders, { name: folderName });
+
+      if (!folder) {
+        const fallbackFolder = find(folders, { name: fallback }) || {};
+        return fallbackFolder.id;
+      }
+
+      return folder.id;
+    },
+
+    async _getFolderIdFromOptions(options = {}) {
+      const { folderId, folderName } = options;
+
+      if (folderId) {
+        return folderId;
+      }
+
+      return this._getFolderId(folderName);
+    },
+
+    _setFile(payload = {}) {
+      return this.fileRef(payload.id).set(payload);
+    },
+
+    async _createSizedImage(file, filename, options) {
+      const resizedImage = await resizeImage(file, options);
+      return this.ref(filename, { width: options.width || options.maxWidth || 'wrong_size' }).put(
+        resizedImage
+      );
+    },
+
     /**
      * @description Establish and return a reference to section in cloud storage bucket
      * @param {String} filename
@@ -735,10 +771,13 @@ function flamelink(conf = {}) {
      * @param {Object} [options={}]
      * @returns {Object} UploadTask instance, which is similar to a Promise and an Observable
      */
-    upload(fileData, options = {}) {
+    async upload(fileData, options = {}) {
       const id = Date.now();
-      const metadata = Object.assign({}, options.metadata || {});
-      const filename = typeof metadata.name === 'string' ? `${id}_${metadata.name}` : id;
+      const metadata = options.metadata || {};
+      const filename =
+        (typeof fileData === 'object' && fileData.name) || typeof metadata.name === 'string'
+          ? `${id}_${metadata.name || fileData.name}`
+          : id;
       const storageRef = this.ref(filename, options);
       const updateMethod = typeof fileData === 'string' ? 'putString' : 'put';
       const args = [fileData];
@@ -753,7 +792,30 @@ function flamelink(conf = {}) {
         args.splice(1, 0, options.stringEncoding);
       }
 
-      return storageRef[updateMethod](...args);
+      // Upload original file to storage bucket
+      const uploadTask = storageRef[updateMethod](...args);
+      const snapshot = await uploadTask;
+
+      const mediaType = /^image\//.test(snapshot.metadata.contentType) ? 'images' : 'files';
+      const folderId = await this._getFolderIdFromOptions(options);
+
+      // If mediaType === 'images', file is resizeable and sizes/widths are set, resize images here
+      if (mediaType === 'images' && updateMethod === 'put' && Array.isArray(options.sizes)) {
+        await Promise.all(
+          options.sizes.map(size => this._createSizedImage(fileData, filename, size))
+        );
+      }
+
+      // Write to real-time db
+      await this._setFile({
+        id,
+        file: snapshot.metadata.name,
+        folderId,
+        type: mediaType,
+        contentType: snapshot.metadata.contentType
+      });
+
+      return uploadTask;
     }
   };
 
@@ -867,8 +929,7 @@ function flamelink(conf = {}) {
   };
 }
 
-// FIXME: Temporarily commented out for Coenraad to test from source
-// flamelink.VERSION = __PACKAGE_VERSION__;
+flamelink.VERSION = __PACKAGE_VERSION__;
 
 // Need to use `module.exports` instead of `export default`, otherwise library is available as { default: flamelink }
 module.exports = flamelink;

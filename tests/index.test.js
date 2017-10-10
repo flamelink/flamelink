@@ -1017,6 +1017,49 @@ describe('Flamelink SDK', () => {
       expect(flamelink(basicConfig).storage.folderRef).toEqual(expect.any(Function));
     });
 
+    describe('"getFolders" method', () => {
+      test('should be exposed on the `storage` object', () => {
+        expect(flamelink(basicConfig).storage.getFolders).toEqual(expect.any(Function));
+      });
+
+      test('should return all folders as a plain list if no arguments are given', () => {
+        return expect(flamelink(basicConfig).storage.getFolders()).resolves.toEqual(
+          expect.arrayContaining([
+            {
+              id: expect.any(Number),
+              name: expect.any(String),
+              order: expect.any(Number),
+              parentId: expect.any(Number)
+            }
+          ])
+        );
+      });
+
+      test('should return all folders as a nested structure if the "nested" argument is given', () => {
+        const structure = 'nested';
+        return expect(flamelink(basicConfig).storage.getFolders({ structure })).resolves.toEqual(
+          expect.arrayContaining([
+            {
+              id: expect.any(Number),
+              name: expect.any(String),
+              order: expect.any(Number),
+              parentId: expect.any(Number),
+              children: expect.arrayContaining([
+                {
+                  id: expect.any(Number),
+                  name: expect.any(String),
+                  order: expect.any(Number),
+                  parentId: expect.any(Number),
+                  uuid: expect.any(Number),
+                  children: expect.any(Array)
+                }
+              ])
+            }
+          ])
+        );
+      });
+    });
+
     describe('"upload" method', () => {
       test('should be exposed on the "storage" public object', () => {
         expect(flamelink(basicConfig).storage.upload).toEqual(expect.any(Function));

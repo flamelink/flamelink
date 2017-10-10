@@ -814,6 +814,35 @@ function flamelink(conf = {}) {
     },
 
     /**
+     * Read value once from db and return raw snapshot
+     *
+     * @param {Object} [options={}]
+     * @returns {Promise} Resolves to snapshot of query
+     */
+    getFoldersRaw(options = {}) {
+      const ordered = applyOrderBy(this.folderRef(), options);
+      const filtered = applyFilters(ordered, options);
+
+      return filtered.once(options.event || 'value');
+    },
+
+    /**
+     * Read value once from db
+     *
+     * @param {Object} [options={}]
+     * @returns {Promise} Resolves to value of query
+     */
+    async getFolders(options = {}) {
+      const pluckFields = pluckResultFields(options.fields);
+      const structureItems = formatStructure(options.structure, {
+        idProperty: 'id',
+        parentProperty: 'parentId'
+      });
+      const snapshot = await this.getFoldersRaw(options);
+      return compose(pluckFields, structureItems, Object.values)(snapshot.val());
+    },
+
+    /**
      * @description Upload a given file to the Cloud Storage Bucket as well as the real-time db
      * @param {String|File|Blob|Uint8Array} fileData
      * @param {Object} [options={}]

@@ -157,3 +157,58 @@ uploadTask.on('state_changed', function changeCallback(snapshot) {
 Take a look at the [full example](https://firebase.google.com/docs/storage/web/upload-files#manage_uploads) in the Firebase documentation - keep in mind that instead of using the `put()` method to retrieve your `uploadTask` instance, with Flamelink this instance is returned by the `upload()` method.
 
 ---
+
+## .ref()
+
+> This is a more advanced API method, that for most use cases will not be necessary.
+
+To retrieve a context aware (folder structure) reference to any node/location within your Storage bucket.
+
+*Reference to given image within your bucket*
+
+```javascript
+app.storage.ref('image.jpg')
+  .then(reference => console.log('The reference:', reference)
+  .catch(error => console.error('Something went wrong while retrieving the reference. Details:', error);
+```
+
+*Reference to given URL within your bucket*
+
+```javascript
+app.storage.ref('gs://your-storage-bucket/flamelink/image.jpg')
+  .then(reference => console.log('The reference:', reference)
+  .catch(error => console.error('Something went wrong while retrieving the reference. Details:', error);
+```
+
+### Input parameters
+
+The `.ref()` method takes a two parameters
+
+| Type   | Variable                 | Required | Description                                                                                          |
+| ------ | ------------------------ | -------- | ---------------------------------------------------------------------------------------------------- |
+| String | `filename` or `filepath` | required | Either the filename for which you want to retrieve a reference or a full URL to your storage bucket. |
+| Object | `options`                | optional | Optional options. Currently only applies if you pass through a `filename` and not a `filepath`.      |
+
+#### Available Options
+
+The following optional options can be specified when getting a reference:
+
+##### Width
+
+- `width` **{String}** - The width of the image (if resized and not a reference to the original image)
+
+*Example*
+
+Retrieve a reference to the resized image with a width of 1024px.
+
+```javascript
+app.storage.ref('image.jpg', {
+  width: '1024'
+});
+```
+
+### Return value
+
+A `Promise` that resolves to the reference `{Object}` on success or will reject with an error if the request fails.
+
+---

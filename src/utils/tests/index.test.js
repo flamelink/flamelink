@@ -443,11 +443,11 @@ describe('Flamelink SDK > Utils', () => {
     });
   });
 
-  describe('"formatNavigationStructure"', () => {
+  describe('"formatStructure"', () => {
     test('should return the given items as-is if structure is "flat"', () => {
       const structure = 'flat';
       const items = [{ a: 1, b: 2 }];
-      expect(utils.formatNavigationStructure(structure, items)).toEqual(items);
+      expect(utils.formatStructure(structure, {}, items)).toEqual(items);
     });
 
     test('should return the given items in a nested structure if structure is "nested"', () => {
@@ -543,7 +543,13 @@ describe('Flamelink SDK > Utils', () => {
           children: []
         }
       ];
-      expect(utils.formatNavigationStructure(structure, items)).toEqual(expectedOutput);
+      expect(
+        utils.formatStructure(
+          structure,
+          { idProperty: 'uuid', parentProperty: 'parentIndex' },
+          items
+        )
+      ).toEqual(expectedOutput);
     });
   });
 });

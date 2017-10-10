@@ -380,6 +380,25 @@ const mockedDatabaseRef = jest.fn(ref => ({
           ])
         });
 
+      case '/media/folders/':
+        return Promise.resolve({
+          val: jest.fn(() => ({
+            '1505670341980': {
+              id: 1505670341980,
+              name: 'Root',
+              order: 0,
+              parentId: 0
+            },
+            '1506860565172': {
+              id: 1506860565172,
+              name: 'products',
+              order: 0,
+              parentId: 1505670341980,
+              uuid: 1506860565172
+            }
+          }))
+        });
+
       default:
         return Promise.resolve({
           val: jest.fn(() => ({ test: `"once" called with event: "${event}"` }))

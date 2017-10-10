@@ -233,9 +233,11 @@ export const populateEntry = curry(async (schemasAPI, contentAPI, contentType, p
   );
 });
 
-export const formatNavigationStructure = curry((structure, items) => {
+export const formatStructure = curry((structure, options, items) => {
+  const { idProperty = 'id', parentProperty = 'parentId' } = options || {};
+
   if (!isArray(items)) {
-    throw error('"formatNavigationStructure" should be called with an array of navigation items');
+    throw error('"formatStructure" should be called with an array of items');
   }
 
   if (structure === 'nested' || structure === 'tree') {
@@ -243,15 +245,17 @@ export const formatNavigationStructure = curry((structure, items) => {
       levelItems
         .map(item =>
           Object.assign({}, item, {
-            children: items.filter(innerItem => innerItem.parentIndex === item.uuid)
+            children: items.filter(innerItem => innerItem[parentProperty] === item[idProperty])
           })
         )
-        .filter(item => item.parentIndex === previousId)
+        .filter(item => item[parentProperty] === previousId)
         .map(item => {
           if (item.children.length === 0) {
             return item;
           }
-          return Object.assign({}, item, { children: mapChildren(item.children, item.uuid) });
+          return Object.assign({}, item, {
+            children: mapChildren(item.children, item[idProperty])
+          });
         });
 
     return mapChildren(items, 0);

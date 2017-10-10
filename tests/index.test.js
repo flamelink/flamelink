@@ -981,7 +981,7 @@ describe('Flamelink SDK', () => {
   });
 
   describe('Storage', () => {
-    describe('"ref" Method', () => {
+    describe('"ref" method', () => {
       test('should be exposed on the `storage` object', () => {
         expect(flamelink(basicConfig).storage.ref).toEqual(expect.any(Function));
       });

@@ -16,7 +16,7 @@ import {
   getFolderRefPath,
   pluckResultFields,
   populateEntry,
-  formatNavigationStructure
+  formatStructure
 } from './utils';
 
 const DEFAULT_CONFIG = {
@@ -524,7 +524,14 @@ function flamelink(conf = {}) {
       // Only try and structure items if items weren't plucked out
       if (nav && nav.hasOwnProperty('items')) {
         return Object.assign({}, nav, {
-          items: formatNavigationStructure(options.structure, nav.items)
+          items: formatStructure(
+            options.structure,
+            {
+              idProperty: 'uuid',
+              parentProperty: 'parentIndex'
+            },
+            nav.items
+          )
         });
       }
 
@@ -562,7 +569,10 @@ function flamelink(conf = {}) {
       }
 
       const pluckFields = pluckResultFields(options.fields);
-      const structureItems = formatNavigationStructure(options.structure);
+      const structureItems = formatStructure(options.structure, {
+        idProperty: 'uuid',
+        parentProperty: 'parentIndex'
+      });
       const snapshot = await this.getItemsRaw(navRef, options);
       return compose(pluckFields, structureItems)(snapshot.val());
     },

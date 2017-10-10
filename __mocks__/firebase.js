@@ -414,6 +414,9 @@ const mockedDatabaseRef = jest.fn(ref => ({
 }));
 
 const mockedStorageRef = jest.fn(ref => ({
+  TESTING: {
+    method: 'Storage.ref'
+  },
   put: jest.fn((file, options) => {
     const promise = new Promise(resolve => {
       resolve({
@@ -448,12 +451,19 @@ const mockedStorageRef = jest.fn(ref => ({
   })
 }));
 
+const mockedStorageRefFromURL = jest.fn(ref => ({
+  TESTING: {
+    method: 'Storage.refFromURL'
+  }
+}));
+
 firebase.initializeApp = jest.fn(payload => ({
   database: jest.fn(() => ({
     ref: mockedDatabaseRef
   })),
   storage: jest.fn(() => ({
-    ref: mockedStorageRef
+    ref: mockedStorageRef,
+    refFromURL: mockedStorageRefFromURL
   })),
   auth: jest.fn()
 }));

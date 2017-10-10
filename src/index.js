@@ -746,6 +746,10 @@ function flamelink(conf = {}) {
      * @returns {Object} Ref object
      */
     ref(filename, options = {}) {
+      // Check if the filename is a URL (contains "://")
+      if (/:\/\//.test(filename)) {
+        return storageService_.refFromURL(filename);
+      }
       return storageService_.ref(getStorageRefPath(filename, options));
     },
 

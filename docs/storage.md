@@ -330,7 +330,7 @@ app.storage.getURL('1505670341980', { size: '1024' })
 
 ### Return value
 
-A `Promise` that resolves to the file `{Object}` on success or will reject with an error if the request fails.
+A `Promise` that resolves to the download URL `{String}` on success or will reject with an error if the request fails.
 
 ---
 

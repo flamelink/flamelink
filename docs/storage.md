@@ -180,6 +180,74 @@ A `Promise` that resolves to the `{Array}` of folder objects on success or will 
 
 ---
 
+## .getFiles()
+
+Use to retrieve all the files in the CMS.
+
+```javascript
+app.storage.getFiles()
+  .then(files => console.log('Files:', files))
+  .catch(error => console.error('Something went wrong while retrieving the files. Details:', error));
+```
+
+### Input parameters
+
+This method only takes a single optional argument. Used without any parameters will return all your files.
+
+| Type   | Variable  | Required | Description                         |
+| ------ | --------- | -------- | ----------------------------------- |
+| Object | `options` | optional | Order, filter and structure options |
+
+#### Available Options
+
+All the standard order, filter and fields options are available, but they are not particularly useful here.
+
+Some of the more useful options are:
+
+##### Folder ID
+
+- `folderId` **{String}** - To retrieve all the files for a specific folder given the Folder ID. (By default all files will be returned)
+
+*Example*
+
+```javascript
+app.storage.getFiles({
+  folderId: '1505670341980'
+});
+```
+
+##### Folder Name
+
+- `folderName` **{String}** - To retrieve all the files for a specific folder given the Folder Name. (By default all files will be returned)
+
+This is a convenient alternative to the `folderId` option above, for when you know the folder's name, but not necessarily the ID it has in the database.
+
+*Example*
+
+```javascript
+app.storage.getFiles({
+  folderName: 'Products'
+});
+```
+
+##### Media Type
+
+- `mediaType` **{String}** - Can be either `"files"` or `"images"`.
+
+*Example*
+
+To retrieve all the files for a specific media type
+
+```javascript
+app.storage.getFiles({ mediaType: 'images' });
+```
+
+### Return value
+
+A `Promise` that resolves to the `{Array}` of folder objects on success or will reject with an error if the request fails.
+
+---
+
 ## .ref()
 
 > This is a more advanced API method, that for most use cases will not be necessary.

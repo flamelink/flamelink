@@ -1,5 +1,56 @@
 const firebase = jest.genMockFromModule('firebase');
 
+const getAllFiles = () => ({
+  '1507628932841': {
+    contentType: 'application/octet-stream',
+    file: '1507628932841',
+    folderId: 1506860565172,
+    id: 1507628932841,
+    type: 'files'
+  },
+  '1507630687950': {
+    contentType: 'application/pdf',
+    file: '1507630687950_Authorise Transfer - .pdf',
+    folderId: 1506860565172,
+    id: 1507630687950,
+    type: 'files'
+  },
+  '1507632454996': {
+    contentType: 'image/jpeg',
+    file: '1507632454996_image.jpg',
+    folderId: 1506860565172,
+    id: 1507632454996,
+    sizes: [
+      {
+        height: 9999,
+        width: 1024
+      },
+      {
+        height: 9999,
+        width: 240
+      }
+    ],
+    type: 'images'
+  },
+  '1507655509430': {
+    contentType: 'image/jpeg',
+    file: '1507655509430_image.jpg',
+    folderId: 1506860565172,
+    id: 1507655509430,
+    sizes: [
+      {
+        height: 9999,
+        width: 1024
+      },
+      {
+        height: 9999,
+        width: 240
+      }
+    ],
+    type: 'images'
+  }
+});
+
 const mockedDatabaseRef = jest.fn(ref => ({
   child: jest.fn(child => ({
     once: event => {
@@ -399,6 +450,64 @@ const mockedDatabaseRef = jest.fn(ref => ({
           }))
         });
 
+      case '/media/files/':
+        return Promise.resolve({
+          TESTING: {
+            event
+          },
+          val: jest.fn(() => getAllFiles())
+        });
+
+      case '/media/files/123456789':
+        return Promise.resolve({
+          TESTING: {
+            event
+          },
+          val: jest.fn(() => ({
+            '123456789': {
+              contentType: 'application/pdf',
+              file: '123456789_file.pdf',
+              folderId: 1506860565172,
+              id: 123456789,
+              type: 'files'
+            }
+          }))
+        });
+
+      case '/media/files/987654321':
+        return Promise.resolve({
+          TESTING: {
+            event
+          },
+          val: jest.fn(() => ({
+            '987654321': {
+              contentType: 'image/jpg',
+              file: '987654321_image.jpg',
+              folderId: 1506860565172,
+              id: 987654321,
+              type: 'images'
+            }
+          }))
+        });
+
+      case 'images':
+      case 'files':
+        return Promise.resolve({
+          TESTING: {
+            event
+          },
+          val: jest.fn(() => {
+            const files = getAllFiles();
+            return Object.keys(files).reduce((a, key) => {
+              const file = files[key];
+              if (file.type === ref) {
+                a[key] = file;
+              }
+              return a;
+            }, {});
+          })
+        });
+
       default:
         return Promise.resolve({
           val: jest.fn(() => ({ test: `"once" called with event: "${event}"` }))
@@ -467,7 +576,11 @@ const mockedStorageRef = jest.fn(ref => ({
     promise.on = jest.fn();
 
     return promise;
-  })
+  }),
+  getDownloadURL: jest.fn(
+    () =>
+      'https://firebasestorage.googleapis.com/v0/b/test-bucket.appspot.com/o/flamelink%2Fmedia%2Fsomething'
+  )
 }));
 
 const mockedStorageRefFromURL = jest.fn(ref => ({

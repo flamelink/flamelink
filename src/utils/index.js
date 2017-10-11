@@ -86,6 +86,23 @@ export const getFileRefPath = fileID => `/media/files/${fileID || ''}`;
  */
 export const getFolderRefPath = folderID => `/media/folders/${folderID || ''}`;
 
+export const filterByFolderId = curry((folderId, files) => {
+  if (!folderId) {
+    return files;
+  }
+
+  return reduce(
+    files,
+    (result, val, key) => {
+      if (val.folderId === folderId) {
+        return Object.assign({}, result, { [key]: val });
+      }
+      return result;
+    },
+    {}
+  );
+});
+
 export const pluckResultFields = curry((fields, resultSet) => {
   if (!resultSet || !isArray(fields)) {
     return resultSet;
@@ -263,3 +280,11 @@ export const formatStructure = curry((structure, options, items) => {
 
   return items;
 });
+
+/**
+ * @description Find the current device's screen resolution
+ */
+export const getScreenResolution = () => {
+  const pixelRatio = 'devicePixelRatio' in window ? window.devicePixelRatio : 1;
+  return Math.max(window.screen.width, window.screen.height) * pixelRatio;
+};

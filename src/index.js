@@ -16,7 +16,9 @@ import {
   getFolderRefPath,
   pluckResultFields,
   populateEntry,
-  formatStructure
+  filterByFolderId,
+  formatStructure,
+  getScreenResolution
 } from './utils';
 
 const DEFAULT_CONFIG = {
@@ -746,13 +748,13 @@ function flamelink(conf = {}) {
      * @private
      */
     async _getFolderIdFromOptions(options = {}) {
-      const { folderId, folderName } = options;
+      const { folderId, folderName, folderFallback } = options;
 
       if (folderId) {
         return folderId;
       }
 
-      return this._getFolderId(folderName);
+      return this._getFolderId(folderName, folderFallback);
     },
 
     /**
@@ -798,14 +800,6 @@ function flamelink(conf = {}) {
     },
 
     /**
-     * @description Establish and return a reference to a file in the real-time db
-     * @param {String} fileID
-     */
-    fileRef(fileID) {
-      return databaseService_.ref(getFileRefPath(fileID));
-    },
-
-    /**
      * @description Establish and return a reference to a folder in the real-time db
      * @param {String} folderID
      */
@@ -840,6 +834,121 @@ function flamelink(conf = {}) {
       });
       const snapshot = await this.getFoldersRaw(options);
       return compose(pluckFields, structureItems, Object.values)(snapshot.val());
+    },
+
+    /**
+     * @description Establish and return a reference to a file in the real-time db
+     * @param {String} fileID
+     */
+    fileRef(fileID) {
+      return databaseService_.ref(getFileRefPath(fileID));
+    },
+
+    /**
+     * Read value once from db and return raw snapshot
+     *
+     * @param {String} fileId
+     * @param {Object} [options={}]
+     * @returns {Promise} Resolves to snapshot of query
+     */
+    getFileRaw(fileId, options = {}) {
+      if (!fileId) {
+        throw error('"storage.getFileRaw()" should be called with at least the file ID');
+      }
+      const ordered = applyOrderBy(this.fileRef(fileId), options);
+      const filtered = applyFilters(ordered, options);
+
+      return filtered.once(options.event || 'value');
+    },
+
+    /**
+     * Read value once from db
+     *
+     * @param {String} fileId
+     * @param {Object} [options={}]
+     * @returns {Promise} Resolves to value of query
+     */
+    async getFile(fileId, options = {}) {
+      if (!fileId) {
+        throw error('"storage.getFile()" should be called with at least the file ID');
+      }
+      const pluckFields = pluckResultFields(options.fields);
+      const snapshot = await this.getFileRaw(fileId, options);
+      return compose(pluckFields)(snapshot.val());
+    },
+
+    /**
+     * Read value once from db and return raw snapshot
+     *
+     * @param {Object} [options={}]
+     * @returns {Promise} Resolves to snapshot of query
+     */
+    getFilesRaw(options = {}) {
+      const ordered = applyOrderBy(this.fileRef(), options);
+      const filtered = applyFilters(ordered, options);
+
+      return filtered.once(options.event || 'value');
+    },
+
+    /**
+     * Read value once from db
+     *
+     * @param {Object} [options={}]
+     * @returns {Promise} Resolves to value of query
+     */
+    async getFiles(options = {}) {
+      const defaultOptions = { folderFallback: null };
+      const opts = Object.assign(
+        defaultOptions,
+        options,
+        options.mediaType
+          ? {
+              orderByChild: 'type',
+              equalTo: options.mediaType
+            }
+          : {}
+      );
+      const folderId = await this._getFolderIdFromOptions(opts);
+      const filterFolders = filterByFolderId(folderId);
+      const pluckFields = pluckResultFields(opts.fields);
+      const snapshot = await this.getFilesRaw(opts);
+      return compose(pluckFields, filterFolders)(snapshot.val());
+    },
+
+    /**
+     * @description Given a fileId, return the download URL
+     * @param {String} fileId
+     * @param {Object} [options={}]
+     * @returns {Promise} Resolves to download URL string
+     */
+    async getURL(fileId, options = {}) {
+      if (!fileId) {
+        throw error('"storage.getURL()" should be called with at least the file ID');
+      }
+      const { size } = options;
+      const file = await this.getFile(fileId, options);
+      const { [fileId]: { file: filename, sizes } } = file;
+      const storageRefArgs = [filename];
+
+      if (size && sizes && sizes.length) {
+        const minSize = size === 'device' ? getScreenResolution() : size;
+        const smartWidth = sizes
+          .reduce((widths, s) => {
+            const width = s.maxWidth || s.width;
+            if (width) {
+              widths.push(parseInt(width, 10));
+            }
+            return widths;
+          }, [])
+          .sort((a, b) => a - b) // sort widths ascending
+          .find(width => width >= minSize);
+
+        if (smartWidth) {
+          storageRefArgs.push({ width: smartWidth });
+        }
+      }
+      const fileRef = await this.ref(...storageRefArgs);
+      return fileRef.getDownloadURL();
     },
 
     /**

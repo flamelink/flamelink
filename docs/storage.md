@@ -180,6 +180,160 @@ A `Promise` that resolves to the `{Array}` of folder objects on success or will 
 
 ---
 
+## .getFiles()
+
+Use to retrieve all the files in the CMS.
+
+```javascript
+app.storage.getFiles()
+  .then(files => console.log('Files:', files))
+  .catch(error => console.error('Something went wrong while retrieving the files. Details:', error));
+```
+
+### Input parameters
+
+This method only takes a single optional argument. Used without any parameters will return all your files.
+
+| Type   | Variable  | Required | Description                         |
+| ------ | --------- | -------- | ----------------------------------- |
+| Object | `options` | optional | Order, filter and structure options |
+
+#### Available Options
+
+All the standard order, filter and fields options are available, but they are not particularly useful here.
+
+Some of the more useful options are:
+
+##### Folder ID
+
+- `folderId` **{String}** - To retrieve all the files for a specific folder given the Folder ID. (By default all files will be returned)
+
+*Example*
+
+```javascript
+app.storage.getFiles({
+  folderId: '1505670341980'
+});
+```
+
+##### Folder Name
+
+- `folderName` **{String}** - To retrieve all the files for a specific folder given the Folder Name. (By default all files will be returned)
+
+This is a convenient alternative to the `folderId` option above, for when you know the folder's name, but not necessarily the ID it has in the database.
+
+*Example*
+
+```javascript
+app.storage.getFiles({
+  folderName: 'Products'
+});
+```
+
+##### Media Type
+
+- `mediaType` **{String}** - Can be either `"files"` or `"images"`.
+
+*Example*
+
+To retrieve all the files for a specific media type
+
+```javascript
+app.storage.getFiles({ mediaType: 'images' });
+```
+
+### Return value
+
+A `Promise` that resolves to the `{Array}` of folder objects on success or will reject with an error if the request fails.
+
+---
+
+## .getFile()
+
+Use to retrieve a single file from the CMS.
+
+```javascript
+app.storage.getFile('1505670341980')
+  .then(file => console.log('File:', file))
+  .catch(error => console.error('Something went wrong while retrieving the file. Details:', error));
+```
+
+### Input parameters
+
+This method has one required parameter, which is the file ID and also an optional options argument.
+
+| Type   | Variable  | Required | Description                                          |
+| ------ | --------- | -------- | ---------------------------------------------------- |
+| String | `fileId`  | required | The file ID you want to retrieve the file object for |
+| Object | `options` | optional | Optional options                                     |
+
+#### Available Options
+
+All the standard order, filter and fields options are available.
+
+The most useful option is probably the `fields` option:
+
+##### Fields
+
+- `fields` **{Array}** - A list of fields to be plucked from the file object.
+
+*Example*
+
+To retrieve only the `id`, `file` and `type` property for the file.
+
+```javascript
+app.storage.getFile('1505670341980', { fields: [ 'id', 'file', 'type' ] })
+```
+
+### Return value
+
+A `Promise` that resolves to the file `{Object}` on success or will reject with an error if the request fails.
+
+---
+
+## .getURL()
+
+A convenience method to quickly retrieve the URL of a single file.
+
+```javascript
+app.storage.getURL('1505670341980')
+  .then(url => console.log('File URL:', url))
+  .catch(error => console.error('Something went wrong while retrieving the file URL. Details:', error));
+```
+
+### Input parameters
+
+This method has one required parameter, which is the file ID and also an optional options argument.
+
+| Type   | Variable  | Required | Description                                  |
+| ------ | --------- | -------- | -------------------------------------------- |
+| String | `fileId`  | required | The file ID you want to retrieve the URL for |
+| Object | `options` | optional | Optional options                             |
+
+#### Available Options
+
+The only available option currently is:
+
+##### Size
+
+- `size` **{String}** - The size of the image you want to retrieve.
+
+*Example*
+
+To retrieve the `1024` sized image for the given file ID. If the `1024` size exists for the particular image, it will be returned, otherwise the first available size bigger than the given size, ultimately falling back to the original image if nothing exists.
+
+```javascript
+app.storage.getURL('1505670341980', { size: '1024' })
+```
+
+?> TIP: Use `size: 'device'` to find a size closest to your device's viewport
+
+### Return value
+
+A `Promise` that resolves to the download URL `{String}` on success or will reject with an error if the request fails.
+
+---
+
 ## .ref()
 
 > This is a more advanced API method, that for most use cases will not be necessary.

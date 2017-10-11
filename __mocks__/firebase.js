@@ -458,6 +458,22 @@ const mockedDatabaseRef = jest.fn(ref => ({
           val: jest.fn(() => getAllFiles())
         });
 
+      case '/media/files/123456789':
+        return Promise.resolve({
+          TESTING: {
+            event
+          },
+          val: jest.fn(() => ({
+            '123456789': {
+              contentType: 'application/pdf',
+              file: '123456789_file.pdf',
+              folderId: 1506860565172,
+              id: 123456789,
+              type: 'files'
+            }
+          }))
+        });
+
       case 'images':
       case 'files':
         return Promise.resolve({

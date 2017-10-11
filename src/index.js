@@ -846,6 +846,39 @@ function flamelink(conf = {}) {
     /**
      * Read value once from db and return raw snapshot
      *
+     * @param {String} fileId
+     * @param {Object} [options={}]
+     * @returns {Promise} Resolves to snapshot of query
+     */
+    getFileRaw(fileId, options = {}) {
+      if (!fileId) {
+        throw error('"storage.getFileRaw()" should be called with at least the file ID');
+      }
+      const ordered = applyOrderBy(this.fileRef(fileId), options);
+      const filtered = applyFilters(ordered, options);
+
+      return filtered.once(options.event || 'value');
+    },
+
+    /**
+     * Read value once from db
+     *
+     * @param {String} fileId
+     * @param {Object} [options={}]
+     * @returns {Promise} Resolves to value of query
+     */
+    async getFile(fileId, options = {}) {
+      if (!fileId) {
+        throw error('"storage.getFile()" should be called with at least the file ID');
+      }
+      const pluckFields = pluckResultFields(options.fields);
+      const snapshot = await this.getFileRaw(fileId, options);
+      return compose(pluckFields)(snapshot.val());
+    },
+
+    /**
+     * Read value once from db and return raw snapshot
+     *
      * @param {Object} [options={}]
      * @returns {Promise} Resolves to snapshot of query
      */

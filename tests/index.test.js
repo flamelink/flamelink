@@ -1017,6 +1017,47 @@ describe('Flamelink SDK', () => {
       expect(flamelink(basicConfig).storage.folderRef).toEqual(expect.any(Function));
     });
 
+    describe.only('"getFile" method', () => {
+      test('should be exposed on the `storage` object', () => {
+        expect(flamelink(basicConfig).storage.getFile).toEqual(expect.any(Function));
+      });
+
+      test('should throw an error if no arguments are given', async () => {
+        const app = flamelink(basicConfig);
+        let message;
+
+        try {
+          await app.storage.getFile();
+        } catch (error) {
+          message = error.message;
+        }
+
+        expect(message).toMatch(
+          `[FLAMELINK] "storage.getFile()" should be called with at least the file ID`
+        );
+      });
+
+      test('should respect the "fields" option', () => {
+        const fileId = 123456789;
+        const options = { fields: ['id', 'type'] };
+        return expect(flamelink(basicConfig).storage.getFile(fileId, options)).resolves.toEqual({
+          [fileId]: {
+            id: fileId,
+            type: 'files'
+          }
+        });
+      });
+
+      test('should pass through custom events', () => {
+        const fileId = 123456789;
+        return expect(
+          flamelink(basicConfig).storage.getFileRaw(fileId, { event: 'child_added' })
+        ).resolves.toEqual(
+          expect.objectContaining({ TESTING: expect.objectContaining({ event: 'child_added' }) })
+        );
+      });
+    });
+
     describe('"getFiles" method', () => {
       test('should be exposed on the `storage` object', () => {
         expect(flamelink(basicConfig).storage.getFiles).toEqual(expect.any(Function));

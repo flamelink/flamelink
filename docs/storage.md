@@ -248,6 +248,49 @@ A `Promise` that resolves to the `{Array}` of folder objects on success or will 
 
 ---
 
+## .getFile()
+
+Use to retrieve a single file from the CMS.
+
+```javascript
+app.storage.getFile('1505670341980')
+  .then(file => console.log('File:', file))
+  .catch(error => console.error('Something went wrong while retrieving the file. Details:', error));
+```
+
+### Input parameters
+
+This method has one required parameter, which is the file ID and also an optional options argument.
+
+| Type   | Variable  | Required | Description                                          |
+| ------ | --------- | -------- | ---------------------------------------------------- |
+| String | `fileId`  | required | The file ID you want to retrieve the file object for |
+| Object | `options` | optional | Optional options                                     |
+
+#### Available Options
+
+All the standard order, filter and fields options are available.
+
+The most useful option is probably the `fields` option:
+
+##### Fields
+
+- `fields` **{Array}** - A list of fields to be plucked from the file object.
+
+*Example*
+
+To retrieve only the `id`, `file` and `type` property for the file.
+
+```javascript
+app.storage.getFile('1505670341980', { fields: [ 'id', 'file', 'type' ] })
+```
+
+### Return value
+
+A `Promise` that resolves to the file `{Object}` on success or will reject with an error if the request fails.
+
+---
+
 ## .ref()
 
 > This is a more advanced API method, that for most use cases will not be necessary.

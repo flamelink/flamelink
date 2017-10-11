@@ -1017,7 +1017,7 @@ describe('Flamelink SDK', () => {
       expect(flamelink(basicConfig).storage.folderRef).toEqual(expect.any(Function));
     });
 
-    describe.only('"getFile" method', () => {
+    describe('"getFile" method', () => {
       test('should be exposed on the `storage` object', () => {
         expect(flamelink(basicConfig).storage.getFile).toEqual(expect.any(Function));
       });
@@ -1238,6 +1238,57 @@ describe('Flamelink SDK', () => {
             type: 'images'
           }
         });
+      });
+    });
+
+    describe('"getURL" method', () => {
+      test('should be exposed on the `storage` object', () => {
+        expect(flamelink(basicConfig).storage.getURL).toEqual(expect.any(Function));
+      });
+
+      test('should throw an error if no arguments are given', async () => {
+        const app = flamelink(basicConfig);
+        let message;
+
+        try {
+          await app.storage.getURL();
+        } catch (error) {
+          message = error.message;
+        }
+
+        expect(message).toMatch(
+          `[FLAMELINK] "storage.getURL()" should be called with at least the file ID`
+        );
+      });
+
+      test('should return the URL for a given file ID', () => {
+        const fileId = 987654321;
+        return expect(flamelink(basicConfig).storage.getURL(fileId)).resolves.toEqual(
+          'https://firebasestorage.googleapis.com/v0/b/test-bucket.appspot.com/o/flamelink%2Fmedia%2Fsomething'
+        );
+      });
+
+      // TODO: Figure out how to test this with a mocked out firebase library
+      test.skip('should respect the "size" option', () => {
+        const fileId = 987654321;
+        const options = { size: '1024' };
+        return expect(flamelink(basicConfig).storage.getURL(fileId, options)).resolves.toEqual(
+          'https://firebasestorage.googleapis.com/v0/b/test-bucket.appspot.com/o/flamelink%2Fmedia%2Fsomething'
+        );
+      });
+
+      // TODO: Figure out how to test this with a mocked out firebase library
+      test.skip('should respect the "smart" "size" option', () => {
+        global.devicePixelRatio = 2;
+        global.screen.width = 512;
+        global.screen.height = 480;
+
+        const size = 1024; // Device resolution should be 1024 (2 x 512)
+        const fileId = 987654321;
+        const options = { size: 'smart' };
+        return expect(flamelink(basicConfig).storage.getURL(fileId, options)).resolves.toEqual(
+          'https://firebasestorage.googleapis.com/v0/b/test-bucket.appspot.com/o/flamelink%2Fmedia%2Fsomething'
+        );
       });
     });
 

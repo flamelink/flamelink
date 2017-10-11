@@ -291,6 +291,49 @@ A `Promise` that resolves to the file `{Object}` on success or will reject with 
 
 ---
 
+## .getURL()
+
+A convenience method to quickly retrieve the URL of a single file.
+
+```javascript
+app.storage.getURL('1505670341980')
+  .then(url => console.log('File URL:', url))
+  .catch(error => console.error('Something went wrong while retrieving the file URL. Details:', error));
+```
+
+### Input parameters
+
+This method has one required parameter, which is the file ID and also an optional options argument.
+
+| Type   | Variable  | Required | Description                                  |
+| ------ | --------- | -------- | -------------------------------------------- |
+| String | `fileId`  | required | The file ID you want to retrieve the URL for |
+| Object | `options` | optional | Optional options                             |
+
+#### Available Options
+
+The only available option currently is:
+
+##### Size
+
+- `size` **{String}** - The size of the image you want to retrieve.
+
+*Example*
+
+To retrieve the `1024` sized image for the given file ID. If the `1024` size exists for the particular image, it will be returned, otherwise the first available size bigger than the given size, ultimately falling back to the original image if nothing exists.
+
+```javascript
+app.storage.getURL('1505670341980', { size: '1024' })
+```
+
+?> TIP: Use `size: 'device'` to find a size closest to your device's viewport
+
+### Return value
+
+A `Promise` that resolves to the file `{Object}` on success or will reject with an error if the request fails.
+
+---
+
 ## .ref()
 
 > This is a more advanced API method, that for most use cases will not be necessary.

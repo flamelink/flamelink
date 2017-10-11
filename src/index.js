@@ -17,7 +17,8 @@ import {
   pluckResultFields,
   populateEntry,
   filterByFolderId,
-  formatStructure
+  formatStructure,
+  getScreenResolution
 } from './utils';
 
 const DEFAULT_CONFIG = {
@@ -912,6 +913,42 @@ function flamelink(conf = {}) {
       const pluckFields = pluckResultFields(opts.fields);
       const snapshot = await this.getFilesRaw(opts);
       return compose(pluckFields, filterFolders)(snapshot.val());
+    },
+
+    /**
+     * @description Given a fileId, return the download URL
+     * @param {String} fileId
+     * @param {Object} [options={}]
+     * @returns {Promise} Resolves to download URL string
+     */
+    async getURL(fileId, options = {}) {
+      if (!fileId) {
+        throw error('"storage.getURL()" should be called with at least the file ID');
+      }
+      const { size } = options;
+      const file = await this.getFile(fileId, options);
+      const { [fileId]: { file: filename, sizes } } = file;
+      const storageRefArgs = [filename];
+
+      if (size && sizes && sizes.length) {
+        const minSize = size === 'device' ? getScreenResolution() : size;
+        const smartWidth = sizes
+          .reduce((widths, s) => {
+            const width = s.maxWidth || s.width;
+            if (width) {
+              widths.push(parseInt(width, 10));
+            }
+            return widths;
+          }, [])
+          .sort((a, b) => a - b) // sort widths ascending
+          .find(width => width >= minSize);
+
+        if (smartWidth) {
+          storageRefArgs.push({ width: smartWidth });
+        }
+      }
+      const fileRef = await this.ref(...storageRefArgs);
+      return fileRef.getDownloadURL();
     },
 
     /**

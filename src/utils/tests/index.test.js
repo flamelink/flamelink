@@ -552,4 +552,28 @@ describe('Flamelink SDK > Utils', () => {
       ).toEqual(expectedOutput);
     });
   });
+
+  describe('"getScreenResolution"', () => {
+    test('should should return the maximum between the width and the height', () => {
+      global.screen.width = 120;
+      global.screen.height = 160;
+      expect(utils.getScreenResolution()).toEqual(160);
+
+      global.screen.width = 1220;
+      global.screen.height = 160;
+      expect(utils.getScreenResolution()).toEqual(1220);
+    });
+
+    test("should take the device's pixel density into account", () => {
+      global.devicePixelRatio = 2;
+      global.screen.width = 1000;
+      global.screen.height = 500;
+      expect(utils.getScreenResolution()).toEqual(2000); // 2 x 1000
+
+      global.devicePixelRatio = 3.5;
+      global.screen.width = 1000;
+      global.screen.height = 5000;
+      expect(utils.getScreenResolution()).toEqual(17500); // 3.5 x 5000
+    });
+  });
 });

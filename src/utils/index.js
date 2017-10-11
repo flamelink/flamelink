@@ -280,3 +280,11 @@ export const formatStructure = curry((structure, options, items) => {
 
   return items;
 });
+
+/**
+ * @description Find the current device's screen resolution
+ */
+export const getScreenResolution = () => {
+  const pixelRatio = 'devicePixelRatio' in window ? window.devicePixelRatio : 1;
+  return Math.max(window.screen.width, window.screen.height) * pixelRatio;
+};

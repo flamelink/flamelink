@@ -39,6 +39,7 @@ function flamelink(conf = {}) {
   let databaseService_ = null;
   let storageService_ = null;
   let authService_ = null;
+  let firestoreService_ = null;
 
   const config = Object.assign({}, DEFAULT_CONFIG, conf);
 
@@ -50,7 +51,7 @@ function flamelink(conf = {}) {
   if (config.firebaseApp) {
     firebaseApp_ = config.firebaseApp;
   } else if (!firebaseApp_) {
-    const { apiKey, authDomain, databaseURL, storageBucket } = config;
+    const { apiKey, authDomain, databaseURL, storageBucket, appName } = config;
 
     if (!apiKey || !authDomain || !databaseURL) {
       throw error(
@@ -58,12 +59,20 @@ function flamelink(conf = {}) {
       );
     }
 
-    firebaseApp_ = firebase.initializeApp({
-      apiKey,
-      authDomain,
-      databaseURL,
-      storageBucket
-    });
+    const initArgs = [
+      {
+        apiKey,
+        authDomain,
+        databaseURL,
+        storageBucket
+      }
+    ];
+
+    if (appName) {
+      initArgs.push(appName);
+    }
+
+    firebaseApp_ = firebase.initializeApp(...initArgs);
   }
 
   const getService = (service, serviceName) =>
@@ -72,6 +81,7 @@ function flamelink(conf = {}) {
   databaseService_ = getService(databaseService_, 'database');
   storageService_ = getService(storageService_, 'storage');
   authService_ = getService(authService_, 'auth');
+  firestoreService_ = getService(firestoreService_, 'firestore');
 
   const schemasAPI = {
     /**
@@ -1096,6 +1106,8 @@ function flamelink(conf = {}) {
 
   // Public API
   return {
+    name: firebaseApp_.name,
+
     firebaseApp: firebaseApp_,
 
     databaseService: databaseService_,
@@ -1103,6 +1115,8 @@ function flamelink(conf = {}) {
     storageService: storageService_,
 
     authService: authService_,
+
+    firestoreService: firestoreService_,
 
     /**
      * Sets the locale to be used for the flamelink app

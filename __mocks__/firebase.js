@@ -464,13 +464,11 @@ const mockedDatabaseRef = jest.fn(ref => ({
             event
           },
           val: jest.fn(() => ({
-            '123456789': {
-              contentType: 'application/pdf',
-              file: '123456789_file.pdf',
-              folderId: 1506860565172,
-              id: 123456789,
-              type: 'files'
-            }
+            contentType: 'application/pdf',
+            file: '123456789_file.pdf',
+            folderId: 1506860565172,
+            id: 123456789,
+            type: 'files'
           }))
         });
 
@@ -575,6 +573,13 @@ const mockedStorageRef = jest.fn(ref => ({
 
     return promise;
   }),
+  delete: jest.fn(() =>
+    Promise.resolve({
+      TESTING: {
+        method: 'delete'
+      }
+    })
+  ),
   getDownloadURL: jest.fn(
     () =>
       'https://firebasestorage.googleapis.com/v0/b/test-bucket.appspot.com/o/flamelink%2Fmedia%2Fsomething'

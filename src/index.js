@@ -874,7 +874,9 @@ function flamelink(conf = {}) {
       }
       const pluckFields = pluckResultFields(options.fields);
       const snapshot = await this.getFileRaw(fileId, options);
-      return compose(pluckFields)(snapshot.val());
+      const wrapValue = { [fileId]: snapshot.val() }; // Wrapping value to create the correct structure for our filtering to work
+      const file = await compose(pluckFields)(wrapValue);
+      return file[fileId];
     },
 
     /**
@@ -949,6 +951,47 @@ function flamelink(conf = {}) {
       }
       const fileRef = await this.ref(...storageRefArgs);
       return fileRef.getDownloadURL();
+    },
+
+    /**
+     * @description Delete a given file from the Cloud Storage Bucket as well as the real-time db
+     * @param {String|Number} fileId
+     * @returns {Promise}
+     */
+    async deleteFile(fileId, options = {}) {
+      if (!fileId) {
+        throw error('"storage.deleteFile()" should be called with at least the file ID');
+      }
+
+      const file = await this.getFile(fileId, options);
+
+      if (!file) {
+        return;
+      }
+
+      const { file: filename, sizes } = file;
+      const storageRef = this.ref(filename);
+
+      // Delete original file from storage bucket
+      await storageRef.delete();
+
+      // If sizes are set, delete all the resized images here
+      if (Array.isArray(sizes)) {
+        await Promise.all(
+          sizes.map(async size => {
+            const width = size.width || size.maxWidth;
+
+            if (!width) {
+              return Promise.resolve();
+            }
+
+            return this.ref(filename, { width }).delete();
+          })
+        );
+      }
+
+      // Delete file entry from the real-time db
+      return this.fileRef(fileId).remove();
     },
 
     /**

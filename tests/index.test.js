@@ -1041,10 +1041,8 @@ describe('Flamelink SDK', () => {
         const fileId = 123456789;
         const options = { fields: ['id', 'type'] };
         return expect(flamelink(basicConfig).storage.getFile(fileId, options)).resolves.toEqual({
-          [fileId]: {
-            id: fileId,
-            type: 'files'
-          }
+          id: fileId,
+          type: 'files'
         });
       });
 
@@ -1374,6 +1372,34 @@ describe('Flamelink SDK', () => {
             }),
             metadata: expect.any(Object)
           })
+        );
+      });
+    });
+
+    describe('"deleteFile" method', () => {
+      test('should be exposed on the `storage` object', () => {
+        expect(flamelink(basicConfig).storage.deleteFile).toEqual(expect.any(Function));
+      });
+
+      test('should throw an error if no arguments are given', async () => {
+        const app = flamelink(basicConfig);
+        let message;
+
+        try {
+          await app.storage.deleteFile();
+        } catch (error) {
+          message = error.message;
+        }
+
+        expect(message).toMatch(
+          `[FLAMELINK] "storage.deleteFile()" should be called with at least the file ID`
+        );
+      });
+
+      test('should call the Firebase "delete" method', () => {
+        const fileId = 123456789;
+        return expect(flamelink(basicConfig).storage.deleteFile(fileId)).resolves.toEqual(
+          `"remove" called for "/media/files/${fileId}"`
         );
       });
     });

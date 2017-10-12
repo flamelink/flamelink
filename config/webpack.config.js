@@ -1,11 +1,12 @@
 const path = require('path');
 const webpack = require('webpack');
 const pkg = require('../package.json');
+const CompressionPlugin = require('compression-webpack-plugin');
 
 const LIBRARY_NAME = 'flamelink';
 
 module.exports = {
-  devtool: 'source-map',
+  devtool: 'cheap-module-source-map',
 
   entry: './src/index.js',
 
@@ -44,6 +45,11 @@ module.exports = {
   plugins: [
     new webpack.DefinePlugin({
       __PACKAGE_VERSION__: JSON.stringify(pkg.version)
+    }),
+    new CompressionPlugin({
+      asset: '[path].gz[query]',
+      algorithm: 'gzip',
+      test: /\.js$/
     })
   ]
 };

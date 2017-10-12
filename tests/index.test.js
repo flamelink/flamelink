@@ -1403,5 +1403,61 @@ describe('Flamelink SDK', () => {
         );
       });
     });
+
+    describe('"getMetadata" method', () => {
+      test('should be exposed on the `storage` object', () => {
+        expect(flamelink(basicConfig).storage.getMetadata).toEqual(expect.any(Function));
+      });
+
+      test('should throw an error if no arguments are given', async () => {
+        const app = flamelink(basicConfig);
+        let message;
+
+        try {
+          await app.storage.getMetadata();
+        } catch (error) {
+          message = error.message;
+        }
+
+        expect(message).toMatch(
+          `[FLAMELINK] "storage.getMetadata()" should be called with at least the file ID`
+        );
+      });
+
+      test('should call the Firebase "getMetadata" method', () => {
+        const fileId = 123456789;
+        return expect(flamelink(basicConfig).storage.getMetadata(fileId)).resolves.toEqual(
+          expect.any(Object)
+        );
+      });
+    });
+
+    describe('"updateMetadata" method', () => {
+      test('should be exposed on the `storage` object', () => {
+        expect(flamelink(basicConfig).storage.updateMetadata).toEqual(expect.any(Function));
+      });
+
+      test('should throw an error if no arguments are given', async () => {
+        const app = flamelink(basicConfig);
+        let message;
+
+        try {
+          await app.storage.updateMetadata();
+        } catch (error) {
+          message = error.message;
+        }
+
+        expect(message).toMatch(
+          `[FLAMELINK] "storage.updateMetadata()" should be called with at least the file ID`
+        );
+      });
+
+      test('should call the Firebase "updateMetadata" method', () => {
+        const fileId = 123456789;
+        return expect(flamelink(basicConfig).storage.updateMetadata(fileId)).resolves.toEqual(
+          expect.any(Object)
+        );
+      });
+    });
   });
 });

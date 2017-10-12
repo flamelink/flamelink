@@ -326,7 +326,7 @@ To retrieve the `1024` sized image for the given file ID. If the `1024` size exi
 app.storage.getURL('1505670341980', { size: '1024' })
 ```
 
-?> TIP: Use `size: 'device'` to find a size closest to your device's viewport
+?> **TIP:** Use `size: 'device'` to find a size closest to your device's viewport
 
 ### Return value
 

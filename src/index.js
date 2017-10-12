@@ -874,7 +874,9 @@ function flamelink(conf = {}) {
       }
       const pluckFields = pluckResultFields(options.fields);
       const snapshot = await this.getFileRaw(fileId, options);
-      return compose(pluckFields)(snapshot.val());
+      const wrapValue = { [fileId]: snapshot.val() }; // Wrapping value to create the correct structure for our filtering to work
+      const file = await compose(pluckFields)(wrapValue);
+      return file[fileId];
     },
 
     /**

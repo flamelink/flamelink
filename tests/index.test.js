@@ -1041,10 +1041,8 @@ describe('Flamelink SDK', () => {
         const fileId = 123456789;
         const options = { fields: ['id', 'type'] };
         return expect(flamelink(basicConfig).storage.getFile(fileId, options)).resolves.toEqual({
-          [fileId]: {
-            id: fileId,
-            type: 'files'
-          }
+          id: fileId,
+          type: 'files'
         });
       });
 

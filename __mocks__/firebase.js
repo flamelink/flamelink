@@ -464,13 +464,11 @@ const mockedDatabaseRef = jest.fn(ref => ({
             event
           },
           val: jest.fn(() => ({
-            '123456789': {
-              contentType: 'application/pdf',
-              file: '123456789_file.pdf',
-              folderId: 1506860565172,
-              id: 123456789,
-              type: 'files'
-            }
+            contentType: 'application/pdf',
+            file: '123456789_file.pdf',
+            folderId: 1506860565172,
+            id: 123456789,
+            type: 'files'
           }))
         });
 

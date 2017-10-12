@@ -51,7 +51,7 @@ function flamelink(conf = {}) {
   if (config.firebaseApp) {
     firebaseApp_ = config.firebaseApp;
   } else if (!firebaseApp_) {
-    const { apiKey, authDomain, databaseURL, storageBucket } = config;
+    const { apiKey, authDomain, databaseURL, storageBucket, appName } = config;
 
     if (!apiKey || !authDomain || !databaseURL) {
       throw error(
@@ -59,12 +59,20 @@ function flamelink(conf = {}) {
       );
     }
 
-    firebaseApp_ = firebase.initializeApp({
-      apiKey,
-      authDomain,
-      databaseURL,
-      storageBucket
-    });
+    const initArgs = [
+      {
+        apiKey,
+        authDomain,
+        databaseURL,
+        storageBucket
+      }
+    ];
+
+    if (appName) {
+      initArgs.push(appName);
+    }
+
+    firebaseApp_ = firebase.initializeApp(...initArgs);
   }
 
   const getService = (service, serviceName) =>
@@ -1098,6 +1106,8 @@ function flamelink(conf = {}) {
 
   // Public API
   return {
+    name: firebaseApp_.name,
+
     firebaseApp: firebaseApp_,
 
     databaseService: databaseService_,

@@ -964,6 +964,11 @@ function flamelink(conf = {}) {
       }
 
       const file = await this.getFile(fileId, options);
+
+      if (!file) {
+        return;
+      }
+
       const { file: filename, sizes } = file;
       const storageRef = this.ref(filename);
 

@@ -217,7 +217,7 @@ function flamelink(conf = {}) {
       }
 
       // Query all entries for given content type
-      const opts = entryRef; // second param is then the options
+      const opts = entryRef || {}; // second param is then the options
 
       const pluckFields = pluckResultFields(opts.fields);
       const populateFields = populateEntry(schemasAPI, contentAPI, contentRef, opts.populate);
@@ -927,7 +927,7 @@ function flamelink(conf = {}) {
       }
       const { size } = options;
       const file = await this.getFile(fileId, options);
-      const { [fileId]: { file: filename, sizes } } = file;
+      const { file: filename, sizes } = file;
       const storageRefArgs = [filename];
 
       if (size && sizes && sizes.length) {

@@ -838,10 +838,10 @@ function flamelink(conf = {}) {
 
     /**
      * @description Establish and return a reference to a file in the real-time db
-     * @param {String} fileID
+     * @param {String} fileId
      */
-    fileRef(fileID) {
-      return databaseService_.ref(getFileRefPath(fileID));
+    fileRef(fileId) {
+      return databaseService_.ref(getFileRefPath(fileId));
     },
 
     /**

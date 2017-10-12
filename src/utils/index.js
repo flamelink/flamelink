@@ -61,7 +61,7 @@ export const getNavigationRefPath = (
   ref = missingRefParam(),
   env = missingRefParam(),
   locale = missingRefParam()
-) => `/environments/${env}/navigation/${ref}/${locale}`;
+) => `/environments/${env}/navigation/${ref ? `${ref}/${locale}` : ''}`;
 
 export const getSchemasRefPath = (ref = missingRefParam(), env = missingRefParam()) =>
   `/environment/${env}/schemas/${ref}`;

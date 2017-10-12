@@ -602,7 +602,7 @@ describe('Flamelink SDK', () => {
     });
 
     describe('"get" Method', () => {
-      test('should be exposed on the "nav" object', () => {
+      test('should get an individual navigation menu', () => {
         const navRef = 'get-ref';
         return expect(flamelink(basicConfig).nav.get(navRef, {})).resolves.toEqual({
           id: 'main',
@@ -633,6 +633,132 @@ describe('Flamelink SDK', () => {
             }
           ],
           title: 'main'
+        });
+      });
+
+      test('should get all navigation menus', () => {
+        return expect(flamelink(basicConfig).nav.get({})).resolves.toEqual({
+          main: {
+            id: 'main',
+            items: [
+              {
+                attachment: 0,
+                component: 'Template',
+                cssClass: '',
+                id: 1491798664087,
+                newWindow: '',
+                order: 0,
+                parentIndex: 0,
+                title: 'Homes',
+                url: '/',
+                uuid: 1491798664087
+              },
+              {
+                attachment: 0,
+                component: 'About',
+                cssClass: '',
+                id: 1491799269435,
+                newWindow: '',
+                order: 1,
+                parentIndex: 0,
+                title: 'About',
+                url: '/about-us',
+                uuid: 1491799269435
+              }
+            ],
+            title: 'main'
+          },
+          footer: {
+            id: 'footer',
+            items: [
+              {
+                attachment: 0,
+                component: 'Template',
+                cssClass: '',
+                id: 1491798664087,
+                newWindow: '',
+                order: 0,
+                parentIndex: 0,
+                title: 'Homes',
+                url: '/',
+                uuid: 1491798664087
+              },
+              {
+                attachment: 0,
+                component: 'About',
+                cssClass: '',
+                id: 1491799269435,
+                newWindow: '',
+                order: 1,
+                parentIndex: 0,
+                title: 'About',
+                url: '/about-us',
+                uuid: 1491799269435
+              }
+            ],
+            title: 'footer'
+          }
+        });
+      });
+
+      test('should respect `fields` option when getting all navigation menus', () => {
+        return expect(flamelink(basicConfig).nav.get({ fields: ['items'] })).resolves.toEqual({
+          main: {
+            items: [
+              {
+                attachment: 0,
+                component: 'Template',
+                cssClass: '',
+                id: 1491798664087,
+                newWindow: '',
+                order: 0,
+                parentIndex: 0,
+                title: 'Homes',
+                url: '/',
+                uuid: 1491798664087
+              },
+              {
+                attachment: 0,
+                component: 'About',
+                cssClass: '',
+                id: 1491799269435,
+                newWindow: '',
+                order: 1,
+                parentIndex: 0,
+                title: 'About',
+                url: '/about-us',
+                uuid: 1491799269435
+              }
+            ]
+          },
+          footer: {
+            items: [
+              {
+                attachment: 0,
+                component: 'Template',
+                cssClass: '',
+                id: 1491798664087,
+                newWindow: '',
+                order: 0,
+                parentIndex: 0,
+                title: 'Homes',
+                url: '/',
+                uuid: 1491798664087
+              },
+              {
+                attachment: 0,
+                component: 'About',
+                cssClass: '',
+                id: 1491799269435,
+                newWindow: '',
+                order: 1,
+                parentIndex: 0,
+                title: 'About',
+                url: '/about-us',
+                uuid: 1491799269435
+              }
+            ]
+          }
         });
       });
     });

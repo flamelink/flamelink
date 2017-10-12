@@ -334,6 +334,36 @@ A `Promise` that resolves to the download URL `{String}` on success or will reje
 
 ---
 
+## .deleteFile()
+
+Delete a file from the Cloud Storage Bucket as well as from the Firebase real-time database.
+
+> If different sizes were generated when the image was first uploaded, those will also be deleted for you.
+
+```javascript
+app.storage.deleteFile('1505670341980')
+  .then(() => console.log('File successfully deleted!'))
+  .catch(error => console.error('Something went wrong while deleting the file. Details:', error));
+```
+
+### Input parameters
+
+This method takes only one required parameter, the `fileId` for the file you want to delete.
+
+| Type   | Variable  | Required | Description                                 |
+| ------ | --------- | -------- | ------------------------------------------- |
+| String | `fileId`  | required | The file ID for the file you want to delete |
+
+#### Available Options
+
+There are currently no options.
+
+### Return value
+
+A `Promise` that resolves on success or will reject with an error if the request fails.
+
+---
+
 ## .ref()
 
 > This is a more advanced API method, that for most use cases will not be necessary.

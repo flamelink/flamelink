@@ -4,11 +4,11 @@
 
 ## .get()
 
-To retrieve a single navigation entry or menu once, ie. Give me the "Main Menu".
+To retrieve all or a single navigation entry or menu once, ie. Give me the "Main Menu".
 
 This method does not *watch* for real-time db changes, but is intended to retrieve your menu once. If you are looking for real-time methods, take a look at the [`app.nav.subscribe()`](/navigation?id=subscribe) method below.
 
-*To get a navigation entry:*
+*To get a single navigation entry:*
 
 ```javascript
 app.nav.get('main-menu')
@@ -16,12 +16,20 @@ app.nav.get('main-menu')
   .catch(error => console.error('Something went wrong while retrieving the menu. Details:', error));
 ```
 
+*To get all navigation entries:*
+
+```javascript
+app.nav.get()
+  .then(menus => console.log('Menus:', menus))
+  .catch(error => console.error('Something went wrong while retrieving the menus. Details:', error));
+```
+
 ### Input parameters
 
-| Type   | Variable       | Required | Description                               |
-| ------ | -------------- | -------- | ----------------------------------------- |
-| String | `navReference` | required | The navigation entry you want to retrieve |
-| Object | `options`      | optional | Additional options                        |
+| Type   | Variable       | Required | Description                                                               |
+| ------ | -------------- | -------- | ------------------------------------------------------------------------- |
+| String | `navReference` | optional | The navigation entry you want to retrieve (don't specify to retrieve all) |
+| Object | `options`      | optional | Additional options                                                        |
 
 #### Available Options
 
@@ -41,7 +49,7 @@ app.nav.get('main-menu', { fields: [ 'items' ] })
 
 ##### Structure
 
-- `structure` **{String}** - Should the menu items be returned as a list or nested in a tree structure.
+- `structure` **{String}** - Should the menu items be returned as a *list* or *nested* in a tree structure.
 
 *Example*
 
@@ -69,7 +77,7 @@ app.nav.get('main-menu', { event: 'child_changed' })
 
 ### Return value
 
-A `Promise` that resolves to the reference `{Object}` on success or will reject with an error if the request fails.
+A `Promise` that resolves to the navigation `{Object}` on success or will reject with an error if the request fails.
 
 ---
 

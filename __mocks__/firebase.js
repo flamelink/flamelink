@@ -55,6 +55,7 @@ const mockedDatabaseRef = jest.fn(ref => ({
   child: jest.fn(child => ({
     once: event => {
       switch (ref) {
+        // NAVIGATION
         case '/environments/production/navigation/get-items-ref/en-US':
           return Promise.resolve({
             val: jest.fn().mockImplementation(() => [
@@ -85,6 +86,7 @@ const mockedDatabaseRef = jest.fn(ref => ({
             ])
           });
 
+        // CONTENT
         case '/environments/production/content/get-entry-ref/en-US':
           return Promise.resolve({
             val: jest.fn(() => ({
@@ -130,6 +132,7 @@ const mockedDatabaseRef = jest.fn(ref => ({
     on: jest.fn((event, cb) => {
       if (cb) {
         switch (ref) {
+          // CONTENT
           case '/environments/production/content/subscribe-content-entry-ref/en-US':
             cb({
               val: () => ({
@@ -178,16 +181,19 @@ const mockedDatabaseRef = jest.fn(ref => ({
   })),
   once: event => {
     switch (ref) {
+      // LOCALES
       case '/settings/locales':
         return Promise.resolve({
           val: jest.fn().mockImplementation(() => ['en-US'])
         });
 
+      // ENVIRONMENTS
       case '/settings/environments':
         return Promise.resolve({
           val: jest.fn().mockImplementation(() => ['production'])
         });
 
+      // NAVIGATION
       case '/environments/production/navigation/get-ref/en-US':
         return Promise.resolve({
           val: jest.fn().mockImplementation(() => ({
@@ -222,6 +228,77 @@ const mockedDatabaseRef = jest.fn(ref => ({
           }))
         });
 
+      case '/environments/production/navigation/':
+        return Promise.resolve({
+          val: jest.fn().mockImplementation(() => ({
+            main: {
+              'en-US': {
+                id: 'main',
+                items: [
+                  {
+                    attachment: 0,
+                    component: 'Template',
+                    cssClass: '',
+                    id: 1491798664087,
+                    newWindow: '',
+                    order: 0,
+                    parentIndex: 0,
+                    title: 'Homes',
+                    url: '/',
+                    uuid: 1491798664087
+                  },
+                  {
+                    attachment: 0,
+                    component: 'About',
+                    cssClass: '',
+                    id: 1491799269435,
+                    newWindow: '',
+                    order: 1,
+                    parentIndex: 0,
+                    title: 'About',
+                    url: '/about-us',
+                    uuid: 1491799269435
+                  }
+                ],
+                title: 'main'
+              }
+            },
+            footer: {
+              'en-US': {
+                id: 'footer',
+                items: [
+                  {
+                    attachment: 0,
+                    component: 'Template',
+                    cssClass: '',
+                    id: 1491798664087,
+                    newWindow: '',
+                    order: 0,
+                    parentIndex: 0,
+                    title: 'Homes',
+                    url: '/',
+                    uuid: 1491798664087
+                  },
+                  {
+                    attachment: 0,
+                    component: 'About',
+                    cssClass: '',
+                    id: 1491799269435,
+                    newWindow: '',
+                    order: 1,
+                    parentIndex: 0,
+                    title: 'About',
+                    url: '/about-us',
+                    uuid: 1491799269435
+                  }
+                ],
+                title: 'footer'
+              }
+            }
+          }))
+        });
+
+      // CONTENT
       case '/environments/production/content/get-ref/en-US':
       case '/environments/production/content/raw-get-ref/en-US':
         return Promise.resolve({
@@ -237,6 +314,7 @@ const mockedDatabaseRef = jest.fn(ref => ({
           }))
         });
 
+      // SCHEMAS
       case '/environment/production/schemas/':
         return Promise.resolve({
           val: jest.fn(() => ({
@@ -431,6 +509,7 @@ const mockedDatabaseRef = jest.fn(ref => ({
           ])
         });
 
+      // MEDIA (FOLDERS)
       case '/media/folders/':
         return Promise.resolve({
           val: jest.fn(() => ({
@@ -450,6 +529,7 @@ const mockedDatabaseRef = jest.fn(ref => ({
           }))
         });
 
+      // MEDIA (FILES)
       case '/media/files/':
         return Promise.resolve({
           TESTING: {

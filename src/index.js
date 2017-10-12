@@ -508,46 +508,79 @@ function flamelink(conf = {}) {
      * @returns {Promise} Resolves to snapshot of query
      */
     getRaw(navRef, options = {}) {
-      if (!navRef) {
-        throw error('"getRaw" method requires a navigation reference');
-      }
+      const ref = typeof navRef === 'string' ? navRef : null;
+      const opts = typeof navRef === 'string' ? options : navRef || {};
+      const ordered = applyOrderBy(this.ref(ref), opts);
+      const filtered = applyFilters(ordered, opts);
 
-      const ordered = applyOrderBy(this.ref(navRef), options);
-      const filtered = applyFilters(ordered, options);
-
-      return filtered.once(options.event || 'value');
+      return filtered.once(opts.event || 'value');
     },
 
     /**
      * @description Get navigation object for given navigation ID/reference
-     * @param {String} navRef
+     * @param {String} [navRef]
      * @param {Object} [options={}]
      * @returns {Promise} Resolves to value of query
      */
     async get(navRef, options = {}) {
-      if (!navRef) {
-        throw error('"get" method requires a navigation reference');
+      if (typeof navRef === 'string') {
+        // Single menu
+        const snapshot = await this.getRaw(navRef, options);
+        const wrappedNav = await pluckResultFields(options.fields, { [navRef]: snapshot.val() });
+        const nav = wrappedNav[navRef];
+
+        // Only try and structure items if items weren't plucked out
+        if (nav && nav.hasOwnProperty('items')) {
+          return Object.assign({}, nav, {
+            items: formatStructure(
+              options.structure,
+              {
+                idProperty: 'uuid',
+                parentProperty: 'parentIndex'
+              },
+              nav.items
+            )
+          });
+        }
+
+        return nav;
       }
 
-      const snapshot = await this.getRaw(navRef, options);
-      const wrappedNav = await pluckResultFields(options.fields, { [navRef]: snapshot.val() });
-      const nav = wrappedNav[navRef];
+      // All menus
+      const opts = navRef || {};
+      const snapshot = await this.getRaw(opts);
 
-      // Only try and structure items if items weren't plucked out
-      if (nav && nav.hasOwnProperty('items')) {
-        return Object.assign({}, nav, {
-          items: formatStructure(
-            options.structure,
-            {
-              idProperty: 'uuid',
-              parentProperty: 'parentIndex'
-            },
-            nav.items
-          )
-        });
-      }
+      const withLocales = snapshot.val();
+      const currentLocale = locale_; // TODO: Look at getting from API method
 
-      return nav;
+      const withoutLocales = Object.keys(withLocales).reduce(
+        (menus, key) => Object.assign({}, menus, { [key]: withLocales[key][currentLocale] }),
+        {}
+      );
+
+      const pluckedMenus = await pluckResultFields(opts.fields, withoutLocales);
+
+      return Object.keys(pluckedMenus).reduce((menus, key) => {
+        const nav = pluckedMenus[key];
+
+        // Only try and structure items if items weren't plucked out
+        if (nav && nav.hasOwnProperty('items')) {
+          const structuredNav = Object.assign({}, nav, {
+            items: formatStructure(
+              opts.structure,
+              {
+                idProperty: 'uuid',
+                parentProperty: 'parentIndex'
+              },
+              nav.items
+            )
+          });
+
+          return Object.assign({}, menus, { [key]: structuredNav });
+        }
+
+        return Object.assign({}, menus, { [key]: nav });
+      }, {});
     },
 
     /**

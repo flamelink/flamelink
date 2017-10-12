@@ -20,7 +20,7 @@ In the odd chance that you run into any situation where you need to perform an a
 
 ## Firebase Services
 
-For convenience sake, the [`database`](https://firebase.google.com/docs/database/), [`storage`](https://firebase.google.com/docs/storage/) and [`auth`](https://firebase.google.com/docs/auth/) Firebase services are exposed on the Flamelink app instance as `databaseService`, `storageService` and `authService` respectively.
+For convenience sake, the [`database`](https://firebase.google.com/docs/database/), [`storage`](https://firebase.google.com/docs/storage/), [`auth`](https://firebase.google.com/docs/auth/), and [`firestore`](https://firebase.google.com/docs/firestore/) Firebase services are exposed on the Flamelink app instance as `databaseService`, `storageService`, `authService` and `firestoreService` respectively.
 
 Most users don't need this and can simply use all the provided API methods you get with the Flamelink SDK.
 

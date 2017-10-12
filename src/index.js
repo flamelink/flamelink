@@ -39,6 +39,7 @@ function flamelink(conf = {}) {
   let databaseService_ = null;
   let storageService_ = null;
   let authService_ = null;
+  let firestoreService_ = null;
 
   const config = Object.assign({}, DEFAULT_CONFIG, conf);
 
@@ -72,6 +73,7 @@ function flamelink(conf = {}) {
   databaseService_ = getService(databaseService_, 'database');
   storageService_ = getService(storageService_, 'storage');
   authService_ = getService(authService_, 'auth');
+  firestoreService_ = getService(firestoreService_, 'firestore');
 
   const schemasAPI = {
     /**
@@ -1103,6 +1105,8 @@ function flamelink(conf = {}) {
     storageService: storageService_,
 
     authService: authService_,
+
+    firestoreService: firestoreService_,
 
     /**
      * Sets the locale to be used for the flamelink app

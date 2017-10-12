@@ -186,6 +186,12 @@ app.content.subscribe('blog-posts', '1502966447501', { fields: [ 'title', 'descr
 });
 ```
 
+?> **Pro Tip:** If you are using [RxJS Observables](http://reactivex.io/rxjs/) and you don't like callbacks, turn this `subscribe` method into an **Observable** like this:
+```javascript
+const getContentObservable = Rx.Observable.bindCallback(app.content.subscribe);
+getContentObservable('blog-posts').subscribe()
+```
+
 ### Input parameters
 
 Parameters should be passed in the order of the following table. If an optional parameter, like the `options` are left out, the following parameter just moves in its place.
@@ -275,7 +281,7 @@ app.content.unsubscribe('blog-posts', '1502966447501');
 app.content.unsubscribe('blog-posts', 'child_removed');
 ```
 
-*To unsubscirbe from the `child_moved` event for an individual entry for that type:*
+*To unsubscribe from the `child_moved` event for an individual entry for that type:*
 
 ```javascript
 app.content.unsubscribe('blog-posts', '1502966447501', 'child_moved');

@@ -1376,7 +1376,7 @@ describe('Flamelink SDK', () => {
       });
     });
 
-    describe.only('"deleteFile" method', () => {
+    describe('"deleteFile" method', () => {
       test('should be exposed on the `storage` object', () => {
         expect(flamelink(basicConfig).storage.deleteFile).toEqual(expect.any(Function));
       });
@@ -1399,7 +1399,7 @@ describe('Flamelink SDK', () => {
       test('should call the Firebase "delete" method', () => {
         const fileId = 123456789;
         return expect(flamelink(basicConfig).storage.deleteFile(fileId)).resolves.toEqual(
-          expect.objectContaining({ TESTING: expect.objectContaining({ method: 'delete' }) })
+          `"remove" called for "/media/files/${fileId}"`
         );
       });
     });

@@ -573,6 +573,13 @@ const mockedStorageRef = jest.fn(ref => ({
 
     return promise;
   }),
+  delete: jest.fn(() =>
+    Promise.resolve({
+      TESTING: {
+        method: 'delete'
+      }
+    })
+  ),
   getDownloadURL: jest.fn(
     () =>
       'https://firebasestorage.googleapis.com/v0/b/test-bucket.appspot.com/o/flamelink%2Fmedia%2Fsomething'

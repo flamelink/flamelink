@@ -954,6 +954,49 @@ function flamelink(conf = {}) {
     },
 
     /**
+     * @description Get the Google Cloud Storage Bucket metadata for a given file
+     * @param {String|Number} fileId
+     * @returns {Promise}
+     */
+    async getMetadata(fileId, options = {}) {
+      if (!fileId) {
+        throw error('"storage.getMetadata()" should be called with at least the file ID');
+      }
+
+      const file = await this.getFile(fileId, options);
+
+      if (!file) {
+        throw error(`There is no file for File ID: "${fileId}"`);
+      }
+
+      const { file: filename } = file;
+
+      return this.ref(filename).getMetadata();
+    },
+
+    /**
+     * @description Update the Google Cloud Storage Bucket metadata for a given file
+     * @param {String|Number} fileId
+     * @param {Object|Null} payload
+     * @returns {Promise}
+     */
+    async updateMetadata(fileId, payload = {}) {
+      if (!fileId) {
+        throw error('"storage.updateMetadata()" should be called with at least the file ID');
+      }
+
+      const file = await this.getFile(fileId);
+
+      if (!file) {
+        throw error(`There is no file for File ID: "${fileId}"`);
+      }
+
+      const { file: filename } = file;
+
+      return this.ref(filename).updateMetadata(payload);
+    },
+
+    /**
      * @description Delete a given file from the Cloud Storage Bucket as well as the real-time db
      * @param {String|Number} fileId
      * @returns {Promise}

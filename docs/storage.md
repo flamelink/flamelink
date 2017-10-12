@@ -364,6 +364,63 @@ A `Promise` that resolves on success or will reject with an error if the request
 
 ---
 
+## .getMetadata()
+
+To retrieve the metadata for a file in the Cloud Storage Bucket.
+
+```javascript
+app.storage.getMetadata('1505670341980')
+  .then((metadata) => console.log('File metadata:', metadata))
+  .catch(error => console.error('Something went wrong while retrieving the file metadata. Details:', error));
+```
+
+### Input parameters
+
+This method takes only one required parameter, the `fileId` for the file you want to retrieve the metadata.
+
+| Type   | Variable  | Required | Description                                                |
+| ------ | --------- | -------- | ---------------------------------------------------------- |
+| String | `fileId`  | required | The file ID for the file you want to retrieve the metadata |
+
+#### Available Options
+
+There are currently no options.
+
+### Return value
+
+A `Promise` that resolves to the metadata `{Object}` on success or will reject with an error if the request fails.
+
+---
+
+## .updateMetadata()
+
+To update the metadata for a file in the Cloud Storage Bucket.
+
+```javascript
+app.storage.updateMetadata('1505670341980', { contentLanguage: 'en' })
+  .then((metadata) => console.log('Updated file metadata:', metadata))
+  .catch(error => console.error('Something went wrong while updating the file metadata. Details:', error));
+```
+
+> For a full list of all the available metadata properties that can be set, see [here](https://firebase.google.com/docs/storage/web/file-metadata#file_metadata_properties)
+
+### Input parameters
+
+This method takes two required parameters:
+
+| Type   | Variable  | Required | Description                                              |
+| ------ | --------- | -------- | -------------------------------------------------------- |
+| String | `fileId`  | required | The file ID for the file you want to update the metadata |
+| Object | `payload` | required | The metadata properties you want to update               |
+
+?> **Pro Tip:** To delete the metadata for a specific property, set it's value to `null`
+
+### Return value
+
+A `Promise` that resolves to the updated metadata `{Object}` on success or will reject with an error if the request fails.
+
+---
+
 ## .ref()
 
 > This is a more advanced API method, that for most use cases will not be necessary.

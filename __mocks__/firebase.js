@@ -580,6 +580,20 @@ const mockedStorageRef = jest.fn(ref => ({
       }
     })
   ),
+  getMetadata: jest.fn(() =>
+    Promise.resolve({
+      TESTING: {
+        method: 'getMetadata'
+      }
+    })
+  ),
+  updateMetadata: jest.fn(() =>
+    Promise.resolve({
+      TESTING: {
+        method: 'updateMetadata'
+      }
+    })
+  ),
   getDownloadURL: jest.fn(
     () =>
       'https://firebasestorage.googleapis.com/v0/b/test-bucket.appspot.com/o/flamelink%2Fmedia%2Fsomething'

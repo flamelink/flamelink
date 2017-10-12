@@ -123,7 +123,7 @@ describe('Flamelink SDK', () => {
       describe('for all entries of a given content type', () => {
         test('should be exposed on the "content" object', () => {
           const ref = 'get-ref';
-          return expect(flamelink(basicConfig).content.get(ref, {})).resolves.toEqual({
+          return expect(flamelink(basicConfig).content.get(ref)).resolves.toEqual({
             'content-type-1': {
               id: 1491679616674,
               name: 'ASP'

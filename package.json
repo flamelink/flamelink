@@ -1,8 +1,12 @@
 {
   "name": "flamelink",
-  "version": "0.4.0",
+  "version": "0.4.3",
   "description": "Javascript SDK for integrating with Flamelink CMS",
   "main": "dist/flamelink.js",
+  "module": "src/index.js",
+  "files": [
+    "dist"
+  ],
   "scripts": {
     "build": "webpack --config ./config/webpack.config.js",
     "package": "webpack -p --config ./config/webpack.config.js",
@@ -36,7 +40,6 @@
   "author": "Flamelink <info@flamelink.io>",
   "license": "ISC",
   "homepage": "https://flamelink.github.io/flamelink/",
-  "module": "src/index.js",
   "dependencies": {
     "browser-image-resizer": "^1.1.2",
     "compose-then": "^1.0.1",
@@ -50,6 +53,7 @@
     "babel-loader": "^7.1.1",
     "babel-plugin-transform-es2015-modules-commonjs": "^6.24.1",
     "babel-preset-env": "^1.6.0",
+    "compression-webpack-plugin": "^1.0.1",
     "docsify-cli": "^4.1.10",
     "eslint": "^4.6.1",
     "eslint-config-airbnb-base": "^12.0.0",
@@ -66,7 +70,7 @@
       "^.+\\.js$": "babel-jest"
     },
     "globals": {
-      "__PACKAGE_VERSION__": "0.4.0"
+      "__PACKAGE_VERSION__": "0.4.3"
     }
   },
   "babel": {

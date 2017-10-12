@@ -952,6 +952,43 @@ function flamelink(conf = {}) {
     },
 
     /**
+     * @description Delete a given file from the Cloud Storage Bucket as well as the real-time db
+     * @param {String|Number} fileId
+     * @returns {Promise}
+     */
+    async deleteFile(fileId, options = {}) {
+      if (!fileId) {
+        throw error('"storage.deleteFile()" should be called with at least the file ID');
+      }
+
+      const file = await this.getFile(fileId, options);
+      console.log({ file });
+      const { file: filename, sizes } = file;
+      const storageRef = this.ref(filename);
+
+      // Delete original file from storage bucket
+      await storageRef.delete();
+
+      // If sizes are set, delete all the resized images here
+      if (Array.isArray(sizes)) {
+        await Promise.all(
+          sizes.map(async size => {
+            const width = size.width || size.maxWidth;
+
+            if (!width) {
+              return Promise.resolve();
+            }
+
+            return this.ref(filename, { width }).delete();
+          })
+        );
+      }
+
+      // Delete file entry from the real-time db
+      return this.fileRef(fileId).remove();
+    },
+
+    /**
      * @description Upload a given file to the Cloud Storage Bucket as well as the real-time db
      * @param {String|File|Blob|Uint8Array} fileData
      * @param {Object} [options={}]

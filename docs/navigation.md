@@ -143,6 +143,17 @@ app.nav.subscribe('main-menu', function(error, menu) {
 });
 ```
 
+*To subscribe to all navigation entries:*
+
+```javascript
+app.nav.subscribe(function(error, menus) {
+  if (error) {
+    return console.error('Something went wrong while retrieving the entries. Details:', error);
+  }
+  console.log('Menus:', menus);
+});
+```
+
 *To subscribe to the `child_changed` child event for a specific navigation entry/menu:*
 
 ```javascript
@@ -156,13 +167,13 @@ app.nav.subscribe('main-menu', { event: 'child_changed' }, function(error, menu)
 
 ### Input parameters
 
-Parameters should be passed in the order of the following table. If an optional parameter, like the `options` are left out, the following parameter just moves in its place.
+Parameters should be passed in the order of the following table. If an optional parameter, like the `options` are left out, the following parameter just moves left in its place.
 
-| Type     | Variable       | Required | Description                                                           |
-| -------- | -------------- | -------- | --------------------------------------------------------------------- |
-| String   | `navReference` | required | The navigation entry/menu reference you want to retrieve              |
-| Object   | `options`      | optional | Additional options                                                    |
-| Function | `callback`     | required | Function called once when subscribed and when subscribed data changes |
+| Type     | Variable       | Required | Description                                                              |
+| -------- | -------------- | -------- | ------------------------------------------------------------------------ |
+| String   | `navReference` | optional | The navigation entry/menu reference you want to retrieve (otherwise all) |
+| Object   | `options`      | optional | Additional options                                                       |
+| Function | `callback`     | required | Function called once when subscribed and when subscribed data changes    |
 
 #### Available Options
 

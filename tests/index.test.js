@@ -636,8 +636,8 @@ describe('Flamelink SDK', () => {
         });
       });
 
-      test('should get all navigation menus', () => {
-        return expect(flamelink(basicConfig).nav.get({})).resolves.toEqual({
+      test('should get all navigation menus', () =>
+        expect(flamelink(basicConfig).nav.get({})).resolves.toEqual({
           main: {
             id: 'main',
             items: [
@@ -698,11 +698,10 @@ describe('Flamelink SDK', () => {
             ],
             title: 'footer'
           }
-        });
-      });
+        }));
 
-      test('should respect `fields` option when getting all navigation menus', () => {
-        return expect(flamelink(basicConfig).nav.get({ fields: ['items'] })).resolves.toEqual({
+      test('should respect `fields` option when getting all navigation menus', () =>
+        expect(flamelink(basicConfig).nav.get({ fields: ['items'] })).resolves.toEqual({
           main: {
             items: [
               {
@@ -759,8 +758,7 @@ describe('Flamelink SDK', () => {
               }
             ]
           }
-        });
-      });
+        }));
     });
 
     describe('"getItems" Method', () => {
@@ -829,6 +827,14 @@ describe('Flamelink SDK', () => {
       test('should have a related "subscribeRaw" method', () => {
         const tests = [
           {
+            args: [jest.fn()],
+            expect: '"on" called with event: "value"'
+          },
+          {
+            args: [{}, jest.fn()],
+            expect: '"on" called with event: "value"'
+          },
+          {
             args: ['navRef', jest.fn()],
             expect: '"on" called with event: "value"'
           },
@@ -854,6 +860,14 @@ describe('Flamelink SDK', () => {
         // Callback automatically added as the last argument for each test
         const tests = [
           {
+            args: [],
+            expect: '"on" called with event: "value"'
+          },
+          {
+            args: [{}],
+            expect: '"on" called with event: "value"'
+          },
+          {
             args: ['navRef'],
             expect: '"on" called with event: "value"'
           },
@@ -878,11 +892,25 @@ describe('Flamelink SDK', () => {
         });
       });
 
-      test('should respect the "fields" option', done => {
+      test('should respect the "fields" option for a single menu', done => {
         const navRef = 'subscribe-nav-entry-ref';
         const options = { fields: ['brand', 'productCode', 'status', 'price'] };
 
         flamelink(basicConfig).nav.subscribe(navRef, options, result => {
+          expect(result).toEqual(null, {
+            brand: [1491679616700],
+            price: '123.00',
+            productCode: 'HG31685003',
+            status: 'publish'
+          });
+          done();
+        });
+      });
+
+      test('should respect the "fields" option for all menus', done => {
+        const options = { fields: ['brand', 'productCode', 'status', 'price'] };
+
+        flamelink(basicConfig).nav.subscribe(options, result => {
           expect(result).toEqual(null, {
             brand: [1491679616700],
             price: '123.00',
@@ -1187,8 +1215,8 @@ describe('Flamelink SDK', () => {
         expect(flamelink(basicConfig).storage.getFiles).toEqual(expect.any(Function));
       });
 
-      test('should return all files if no arguments are given', () => {
-        return expect(flamelink(basicConfig).storage.getFiles()).resolves.toEqual({
+      test('should return all files if no arguments are given', () =>
+        expect(flamelink(basicConfig).storage.getFiles()).resolves.toEqual({
           '1507628932841': {
             contentType: 'application/octet-stream',
             file: '1507628932841',
@@ -1237,8 +1265,7 @@ describe('Flamelink SDK', () => {
             ],
             type: 'images'
           }
-        });
-      });
+        }));
 
       test('should respect the "fields" option', () => {
         const options = { fields: ['id', 'type'] };
@@ -1262,13 +1289,12 @@ describe('Flamelink SDK', () => {
         });
       });
 
-      test('should pass through custom events', () => {
-        return expect(
+      test('should pass through custom events', () =>
+        expect(
           flamelink(basicConfig).storage.getFilesRaw({ event: 'child_added' })
         ).resolves.toEqual(
           expect.objectContaining({ TESTING: expect.objectContaining({ event: 'child_added' }) })
-        );
-      });
+        ));
 
       test('should be able to retrieve all files for given media type', () => {
         const options = { mediaType: 'images' };
@@ -1421,8 +1447,8 @@ describe('Flamelink SDK', () => {
         expect(flamelink(basicConfig).storage.getFolders).toEqual(expect.any(Function));
       });
 
-      test('should return all folders as a plain list if no arguments are given', () => {
-        return expect(flamelink(basicConfig).storage.getFolders()).resolves.toEqual(
+      test('should return all folders as a plain list if no arguments are given', () =>
+        expect(flamelink(basicConfig).storage.getFolders()).resolves.toEqual(
           expect.arrayContaining([
             {
               id: expect.any(Number),
@@ -1431,8 +1457,7 @@ describe('Flamelink SDK', () => {
               parentId: expect.any(Number)
             }
           ])
-        );
-      });
+        ));
     });
 
     describe('"upload" method', () => {

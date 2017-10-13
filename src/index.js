@@ -625,18 +625,35 @@ function flamelink(conf = {}) {
     /**
      * Establish stream to read value consistently from db, returning the raw snapshot
      *
-     * @param {String} navRef
+     * @param {String} [navRef]
      * @param {Object} [options={}]
      * @param {Function} cb
      * @returns {Promise} Resolves to snapshot of query
      */
     subscribeRaw(navRef, options = {}, cb) {
-      if (!cb) {
-        cb = options; // second param is then the callback
+      // Single menu
+      if (typeof navRef === 'string') {
+        if (!cb) {
+          cb = options; // second param is then the callback
+          options = {}; // set default options
+        }
+
+        const ordered = applyOrderBy(this.ref(navRef), options);
+        const filtered = applyFilters(ordered, options);
+
+        return filtered.on(options.event || 'value', cb);
+      }
+
+      // All menus
+      cb = options;
+      options = navRef;
+
+      if (typeof cb === 'object') {
+        cb = navRef; // first param is then the callback
         options = {}; // set default options
       }
 
-      const ordered = applyOrderBy(this.ref(navRef), options);
+      const ordered = applyOrderBy(this.ref(null), options);
       const filtered = applyFilters(ordered, options);
 
       return filtered.on(options.event || 'value', cb);
@@ -652,15 +669,79 @@ function flamelink(conf = {}) {
      */
     subscribe(navRef, options = {}, cb) {
       try {
-        if (!cb || typeof options === 'function') {
-          cb = options; // second param is then the callback
+        // Single Menu
+        if (typeof navRef === 'string') {
+          if (!cb || typeof options === 'function') {
+            cb = options; // second param is then the callback
+            options = {}; // set default options
+          }
+
+          const pluckFields = pluckResultFields(options.fields);
+
+          return this.subscribeRaw(navRef, options, async snapshot => {
+            const wrappedNav = await compose(pluckFields)({ [navRef]: snapshot.val() });
+            const nav = wrappedNav[navRef];
+
+            // Only try and structure items if items weren't plucked out
+            if (nav && nav.hasOwnProperty('items')) {
+              nav.items = formatStructure(
+                options.structure,
+                {
+                  idProperty: 'uuid',
+                  parentProperty: 'parentIndex'
+                },
+                nav.items
+              );
+            }
+
+            return cb(null, nav); // Error-first callback
+          });
+        }
+
+        // All menus
+        cb = options;
+        options = navRef;
+
+        if (typeof cb === 'object') {
+          cb = navRef; // first param is then the callback
           options = {}; // set default options
         }
 
         const pluckFields = pluckResultFields(options.fields);
 
-        return this.subscribeRaw(navRef, options, async snapshot => {
-          const result = await compose(pluckFields)(snapshot.val());
+        return this.subscribeRaw(options, async snapshot => {
+          const withLocales = snapshot.val();
+          const currentLocale = locale_; // TODO: Look at getting from API method
+
+          const withoutLocales = Object.keys(withLocales).reduce(
+            (menus, key) => Object.assign({}, menus, { [key]: withLocales[key][currentLocale] }),
+            {}
+          );
+
+          const pluckedMenus = await compose(pluckFields)(withoutLocales);
+
+          const result = Object.keys(pluckedMenus).reduce((menus, key) => {
+            const nav = pluckedMenus[key];
+
+            // Only try and structure items if items weren't plucked out
+            if (nav && nav.hasOwnProperty('items')) {
+              const structuredNav = Object.assign({}, nav, {
+                items: formatStructure(
+                  options.structure,
+                  {
+                    idProperty: 'uuid',
+                    parentProperty: 'parentIndex'
+                  },
+                  nav.items
+                )
+              });
+
+              return Object.assign({}, menus, { [key]: structuredNav });
+            }
+
+            return Object.assign({}, menus, { [key]: nav });
+          }, {});
+
           cb(null, result); // Error-first callback
         });
       } catch (err) {

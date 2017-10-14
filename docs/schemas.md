@@ -279,4 +279,39 @@ app.schemas.remove('product-categories')
 
 A `Promise` that resolves when the schema is removed or will reject with an error if the request fails.
 
+---
+
+## .transaction()
+
+> This is a more advanced API method, that for most use cases will not be necessary. Only use it if you know what you are doing. If you mess this up, you might break your CMS. It is strongly advised to use backups.
+
+If you need to update a schema whose data could be corrupted by concurrent changes, Firebase allows us to perform a "transaction" update that updates data based on the existing data/state.
+
+> Read more about transactions in the [Firebase docs](https://firebase.google.com/docs/reference/js/firebase.database.Reference#transaction).
+
+```javascript
+app.schemas.transaction(
+  'product-categories',
+  function updateFn(schema) {
+    // Take in the existing state (schema) and return the new state
+    return schema;
+  },
+  function callback() {
+    // Transaction finished
+  }
+);
+```
+
+### Input parameters
+
+| Type     | Variable    | Required | Description                                                            |
+| -------- | ----------- | -------- | ---------------------------------------------------------------------- |
+| String   | `schemaKey` | required | The schema key or reference for the schema you want to update          |
+| Function | `updateFn`  | required | The update function that will be called with the existing schema state |
+| Function | `callback`  | optional | The callback function that will be called when transaction finishes    |
+
+### Return value
+
+This method has no return value. Use the optional `callback` function to determine when the transaction succeeded.
+
 Next up: [Storage/Media](/storage)

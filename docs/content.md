@@ -84,7 +84,7 @@ app.content.get('blog-posts', {
 
 The allowed child event options are: `value`, `child_added`, `child_changed`, `child_removed` and `child_moved`.
 
-To read more about these events, see the [Firebase docs](https://firebase.google.com/docs/database/web/lists-of-data#listen_for_child_events).
+> To read more about these events, see the [Firebase docs](https://firebase.google.com/docs/database/web/lists-of-data#listen_for_child_events).
 
 ```javascript
 app.content.get('blog-posts', { event: 'child_changed' })
@@ -189,7 +189,7 @@ app.content.subscribe('blog-posts', '1502966447501', { fields: [ 'title', 'descr
 ?> **Pro Tip:** If you are using [RxJS Observables](http://reactivex.io/rxjs/) and you don't like callbacks, turn this `subscribe` method into an **Observable** like this:
 ```javascript
 const getContentObservable = Rx.Observable.bindCallback(app.content.subscribe);
-getContentObservable('blog-posts').subscribe()
+getContentObservable('blog-posts', '1502966447501', { fields: [ 'title', 'description' ] }).subscribe()
 ```
 
 ### Input parameters
@@ -245,7 +245,7 @@ The alternative `populate` option, as described [above](/content?id=populate-exa
 
 The allowed child event options are: `value`, `child_added`, `child_changed`, `child_removed` and `child_moved`.
 
-To read more about these events, see the [Firebase docs](https://firebase.google.com/docs/database/web/lists-of-data#listen_for_child_events).
+> To read more about these events, see the [Firebase docs](https://firebase.google.com/docs/database/web/lists-of-data#listen_for_child_events).
 
 ```javascript
 app.content.subscribe('blog-posts', { event: 'child_changed' }, function(error, blogPosts) {
@@ -386,7 +386,7 @@ A `Promise` that resolves when the entry is removed or will reject with an error
 
 If you need to update an entry whose data could be corrupted by concurrent changes, Firebase allows us to perform a "transaction" update that updates data based on the existing data/state.
 
-Read more about transactions in the [Firebase docs](https://firebase.google.com/docs/reference/js/firebase.database.Reference#transaction).
+> Read more about transactions in the [Firebase docs](https://firebase.google.com/docs/reference/js/firebase.database.Reference#transaction).
 
 ```javascript
 app.content.transaction(

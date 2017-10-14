@@ -64,7 +64,7 @@ export const getNavigationRefPath = (
 ) => `/environments/${env}/navigation/${ref ? `${ref}/${locale}` : ''}`;
 
 export const getSchemasRefPath = (ref = missingRefParam(), env = missingRefParam()) =>
-  `/environment/${env}/schemas/${ref}`;
+  `/environments/${env}/schemas/${ref || ''}`;
 
 /**
  * @description Return the reference path for the given file in the Cloud Storage Bucket

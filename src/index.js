@@ -91,85 +91,258 @@ function flamelink(conf = {}) {
      * @returns {Object} Ref object
      */
     ref(ref) {
-      return databaseService_.ref(getSchemasRefPath(ref, env_, locale_));
+      return databaseService_.ref(getSchemasRefPath(ref || null, env_, locale_));
     },
 
     /**
-     * Read all schemas from the db and return snapshot response
+     * Read all or an individual schema from the db and return snapshot response
      *
-     * @param {Object} [options={}]
-     * @returns {Promise} Resolves to snapshot of query
-     */
-    getAllRaw(options = {}) {
-      const ordered = applyOrderBy(this.ref(''), options);
-      const filtered = applyFilters(ordered, options);
-
-      return filtered.once(options.event || 'value');
-    },
-
-    /**
-     * Get all schemas and return the processed value
-     *
-     * @param {Object} [options={}]
-     * @returns {Promise} Resolves to value of query
-     */
-    async getAll(options = {}) {
-      const snapshot = await this.getAllRaw(options);
-      return pluckResultFields(options.fields, snapshot.val());
-    },
-
-    /**
-     * Read an individual schema from the db and return snapshot response
-     *
-     * @param {String} schemaRef
+     * @param {String} [schemaRef] The schema's key in the db
      * @param {Object} [options={}]
      * @returns {Promise} Resolves to snapshot of query
      */
     getRaw(schemaRef, options = {}) {
-      const ordered = applyOrderBy(this.ref(schemaRef), options);
-      const filtered = applyFilters(ordered, options);
+      const ref = typeof schemaRef === 'string' ? schemaRef : null;
+      const opts = typeof schemaRef === 'string' ? options : schemaRef || {};
+      const ordered = applyOrderBy(this.ref(ref), opts);
+      const filtered = applyFilters(ordered, opts);
 
-      return filtered.once(options.event || 'value');
+      return filtered.once(opts.event || 'value');
     },
 
     /**
-     * Get individual schema object for the given reference
+     * Get all schemas or an individual schema object for the given reference
      *
-     * @param {String} schemaRef
+     * @param {String} schemaRef The schema's key in the db
      * @param {Object} [options={}]
      * @returns {Promise} Resolves to value of query
      */
-    async get(schemaRef = '', options = {}) {
+    async get(schemaRef, options = {}) {
+      if (typeof schemaRef === 'string') {
+        // Single Schema
+        const pluckFields = pluckResultFields(options.fields);
+        const snapshot = await this.getRaw(schemaRef, options);
+        const wrapValue = { [schemaRef]: snapshot.val() }; // Wrapping value to create the correct structure for our filtering to work
+        return pluckFields(wrapValue)[schemaRef];
+      }
+
+      options = schemaRef || {};
+
+      // All Schemas
       const pluckFields = pluckResultFields(options.fields);
-      const snapshot = await this.getRaw(schemaRef, options);
-      const wrapValue = { [schemaRef]: snapshot.val() }; // Wrapping value to create the correct structure for our filtering to work
-      return pluckFields(wrapValue)[schemaRef];
+      const snapshot = await this.getRaw(null, options);
+      return pluckFields(snapshot.val());
     },
 
     /**
-     * Get an individual schema's fields and return snapshot response
+     * Get all schemas' or an individual schema's fields and return snapshot response
      *
      * @param {String} schemaRef
      * @param {Object} [options={}]
      * @returns {Promise} Resolves to snapshot of query
      */
     getFieldsRaw(schemaRef, options = {}) {
-      const ordered = applyOrderBy(this.ref(`${schemaRef}/fields`), options);
-      const filtered = applyFilters(ordered, options);
+      const ref = typeof schemaRef === 'string' ? `${schemaRef}/fields` : null;
+      const opts = typeof schemaRef === 'string' ? options : schemaRef || {};
+      const ordered = applyOrderBy(this.ref(ref), opts);
+      const filtered = applyFilters(ordered, opts);
 
-      return filtered.once(options.event || 'value');
+      return filtered.once(opts.event || 'value');
     },
 
     /**
-     * Get individual schema's fields array for the given reference
+     * Get all schemas' or an individual schema's fields array for the given reference
      *
      * @param {String} schemaRef
      * @param {Object} [options={}]
      * @returns {Promise} Resolves to value of query
      */
     async getFields(schemaRef, options = {}) {
-      const snapshot = await this.getFieldsRaw(schemaRef, options);
-      return pluckResultFields(options.fields, snapshot.val());
+      if (typeof schemaRef === 'string') {
+        // Single schema
+        const snapshot = await this.getFieldsRaw(schemaRef, options);
+        return pluckResultFields(options.fields, snapshot.val());
+      }
+
+      // All schemas
+      const opts = schemaRef || {};
+      const snapshot = await this.getFieldsRaw(opts);
+      const schemas = snapshot.val();
+      return Object.keys(schemas).reduce(
+        (result, key) =>
+          Object.assign({}, result, {
+            [key]: pluckResultFields(opts.fields, schemas[key].fields)
+          }),
+        {}
+      );
+    },
+
+    /**
+     * @description Establish stream to read value consistently from db, returning the raw snapshot
+     * @param {String} [schemaKey]
+     * @param {Object} [options={}]
+     * @param {Function} cb
+     * @returns {Promise} Resolves to snapshot of query
+     */
+    subscribeRaw(schemaKey, options = {}, cb) {
+      // Single schema
+      if (typeof schemaKey === 'string') {
+        if (!cb) {
+          cb = options; // second param is then the callback
+          options = {}; // set default options
+        }
+
+        const ordered = applyOrderBy(this.ref(schemaKey), options);
+        const filtered = applyFilters(ordered, options);
+
+        return filtered.on(options.event || 'value', cb);
+      }
+
+      // All schemas
+      cb = options;
+      options = schemaKey;
+
+      if (typeof cb === 'object') {
+        cb = schemaKey; // first param is then the callback
+        options = {}; // set default options
+      }
+
+      const ordered = applyOrderBy(this.ref(null), options);
+      const filtered = applyFilters(ordered, options);
+
+      return filtered.on(options.event || 'value', cb);
+    },
+
+    /**
+     * @description Establish stream to read value consistently from db, returning the processed value
+     * @param {String} [schemaKey]
+     * @param {Object} [options={}]
+     * @param {Function} cb
+     * @returns {Promise} Resolves to value of query
+     */
+    subscribe(schemaKey, options = {}, cb) {
+      try {
+        // Single schema
+        if (typeof schemaKey === 'string') {
+          if (!cb || typeof options === 'function') {
+            cb = options; // second param is then the callback
+            options = {}; // set default options
+          }
+
+          const pluckFields = pluckResultFields(options.fields);
+
+          return this.subscribeRaw(schemaKey, options, async snapshot => {
+            const wrappedSchema = await compose(pluckFields)({ [schemaKey]: snapshot.val() });
+            const schema = wrappedSchema[schemaKey];
+            return cb(null, schema); // Error-first callback
+          });
+        }
+
+        // All schemas
+        cb = options;
+        options = schemaKey;
+
+        if (typeof cb === 'object') {
+          cb = schemaKey; // first param is then the callback
+          options = {}; // set default options
+        }
+
+        const pluckFields = pluckResultFields(options.fields);
+
+        return this.subscribeRaw(options, async snapshot => {
+          const pluckedSchemas = await compose(pluckFields)(snapshot.val());
+
+          cb(null, pluckedSchemas); // Error-first callback
+        });
+      } catch (err) {
+        return cb(err);
+      }
+    },
+
+    /**
+     * @description Detach listeners from given reference.
+     * @param {String} schemaKey
+     * @param {String} event
+     * @returns {Promise}
+     */
+    unsubscribe(...args) {
+      if (args.length === 2) {
+        // Is second arg a valid firebase child event?
+        if (ALLOWED_CHILD_EVENTS.includes(args[1])) {
+          // args[0] = schemaKey
+          // args[1] = event
+          return this.ref(args[0]).off(args[1]);
+        }
+
+        throw error(`"${args[1]}" is not a valid child event`);
+      }
+
+      if (args.length === 1) {
+        return this.ref(args[0]).off();
+      }
+
+      throw error(
+        '"unsubscribe" method needs to be called with min 1 argument and max 2 arguments'
+      );
+    },
+
+    /**
+     * @description Save data for a specific schema.
+     * This overwrites data at the specified location, including any child nodes.
+     * @param {String} schemaKey
+     * @param {Object} payload
+     * @returns {Promise}
+     */
+    set(schemaKey, payload) {
+      if (typeof schemaKey !== 'string' || (typeof payload !== 'object' && payload !== null)) {
+        throw error('"set" called with the incorrect arguments. Check the docs for details.');
+      }
+
+      return this.ref(schemaKey).set(payload);
+    },
+
+    /**
+     * @description Simultaneously write to specific children of a node without overwriting other child nodes.
+     * @param {String} schemaKey
+     * @param {Object} payload
+     * @returns {Promise}
+     */
+    update(schemaKey, payload) {
+      if (typeof schemaKey !== 'string' || (typeof payload !== 'object' && payload !== null)) {
+        throw error('"update" called with the incorrect arguments. Check the docs for details.');
+      }
+
+      return this.ref(schemaKey).update(payload);
+    },
+
+    /**
+     * @description The simplest way to delete a schema.
+     * @param {String} schemaKey
+     * @returns {Promise}
+     */
+    remove(schemaKey) {
+      if (typeof schemaKey !== 'string') {
+        throw error('"remove" called with the incorrect arguments. Check the docs for details.');
+      }
+      return this.ref(schemaKey).remove();
+    },
+
+    /**
+     * @description Transactional operation
+     * https://firebase.google.com/docs/reference/js/firebase.database.Reference#transaction
+     * @param {String} schemaKey
+     * @param {Function} updateFn
+     * @param {Function} [cb=() => {}]
+     * @returns
+     */
+    transaction(schemaKey, updateFn, cb = () => {}) {
+      if (typeof schemaKey !== 'string' || typeof updateFn !== 'function') {
+        throw error(
+          '"transaction" called with the incorrect arguments. Check the docs for details.'
+        );
+      }
+
+      return this.ref(schemaKey).transaction(updateFn, cb);
     }
   };
 
@@ -623,8 +796,7 @@ function flamelink(conf = {}) {
     },
 
     /**
-     * Establish stream to read value consistently from db, returning the raw snapshot
-     *
+     * @description Establish stream to read value consistently from db, returning the raw snapshot
      * @param {String} [navRef]
      * @param {Object} [options={}]
      * @param {Function} cb
@@ -660,9 +832,8 @@ function flamelink(conf = {}) {
     },
 
     /**
-     * Establish stream to read value consistently from db, returning the processed value
-     *
-     * @param {String} navRef
+     * @description Establish stream to read value consistently from db, returning the processed value
+     * @param {String} [navRef]
      * @param {Object} [options={}]
      * @param {Function} cb
      * @returns {Promise} Resolves to value of query
@@ -750,8 +921,7 @@ function flamelink(conf = {}) {
     },
 
     /**
-     * Detach listeners from given reference.
-     *
+     * @description Detach listeners from given reference.
      * @param {String} navRef
      * @param {String} event
      * @returns {Promise}

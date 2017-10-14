@@ -1016,13 +1016,30 @@ describe('Flamelink SDK', () => {
       expect(flamelink(basicConfig).schemas.ref).toEqual(expect.any(Function));
     });
 
-    test('should expose a "getAllRaw" method', () => {
-      expect(flamelink(basicConfig).schemas.getAllRaw).toEqual(expect.any(Function));
+    test('should expose a "getRaw" method', () => {
+      expect(flamelink(basicConfig).schemas.getRaw).toEqual(expect.any(Function));
     });
 
-    describe('"getAll" method', () => {
-      test('should return all schemas', () =>
-        expect(flamelink(basicConfig).schemas.getAll()).resolves.toEqual(
+    describe('"get" method', () => {
+      test('should be able to return a single schema', () => {
+        const ref = 'get-schema';
+        return expect(flamelink(basicConfig).schemas.get(ref)).resolves.toEqual(
+          expect.objectContaining({
+            description: expect.any(String),
+            display: expect.any(Boolean),
+            fields: expect.any(Array),
+            group: expect.any(String),
+            icon: expect.any(String),
+            id: expect.any(String),
+            menuIndex: expect.any(Number),
+            title: expect.any(String),
+            type: expect.any(String)
+          })
+        );
+      });
+
+      test('should be able to return all schemas', () =>
+        expect(flamelink(basicConfig).schemas.get()).resolves.toEqual(
           expect.objectContaining({
             'about-us': expect.objectContaining({
               description: expect.any(String),
@@ -1049,9 +1066,22 @@ describe('Flamelink SDK', () => {
           })
         ));
 
-      test('should respect the "fields" option', () =>
+      test('should respect the "fields" option for single schemas', () => {
+        const ref = 'get-schema';
+        return expect(
+          flamelink(basicConfig).schemas.get(ref, {
+            fields: ['description', 'id', 'title']
+          })
+        ).resolves.toEqual({
+          description: expect.any(String),
+          id: expect.any(String),
+          title: expect.any(String)
+        });
+      });
+
+      test('should respect the "fields" option for all schemas', () =>
         expect(
-          flamelink(basicConfig).schemas.getAll({
+          flamelink(basicConfig).schemas.get({
             fields: ['description', 'id', 'title']
           })
         ).resolves.toEqual({
@@ -1068,55 +1098,48 @@ describe('Flamelink SDK', () => {
         }));
     });
 
-    test('should expose a "getRaw" method', () => {
-      expect(flamelink(basicConfig).schemas.getRaw).toEqual(expect.any(Function));
-    });
-
-    describe('"get" method', () => {
-      test('should return a single schema', () => {
-        const ref = 'get-schema';
-        return expect(flamelink(basicConfig).schemas.get(ref)).resolves.toEqual(
-          expect.objectContaining({
-            description: expect.any(String),
-            display: expect.any(Boolean),
-            fields: expect.any(Array),
-            group: expect.any(String),
-            icon: expect.any(String),
-            id: expect.any(String),
-            menuIndex: expect.any(Number),
-            title: expect.any(String),
-            type: expect.any(String)
-          })
-        );
-      });
-
-      test('should respect the "fields" option', () => {
-        const ref = 'get-schema';
-        return expect(
-          flamelink(basicConfig).schemas.get(ref, {
-            fields: ['description', 'id', 'title']
-          })
-        ).resolves.toEqual({
-          description: expect.any(String),
-          id: expect.any(String),
-          title: expect.any(String)
-        });
-      });
-    });
-
     test('should expose a "getFieldsRaw" method', () => {
       expect(flamelink(basicConfig).schemas.getFieldsRaw).toEqual(expect.any(Function));
     });
 
     describe('"getFields" method', () => {
-      test('should return a single schema', () => {
+      test('should return the fields for a single schema', () => {
         const ref = 'get-entry-ref';
         return expect(flamelink(basicConfig).schemas.getFields(ref)).resolves.toEqual(
-          expect.any(Array)
+          expect.arrayContaining([
+            expect.objectContaining({
+              description: expect.any(String),
+              key: expect.any(String),
+              title: expect.any(String),
+              type: expect.any(String)
+            })
+          ])
         );
       });
 
-      test('should respect the "fields" option', () => {
+      test('should return the fields for all schemas', () =>
+        expect(flamelink(basicConfig).schemas.getFields()).resolves.toEqual(
+          expect.objectContaining({
+            'about-us': expect.arrayContaining([
+              expect.objectContaining({
+                description: expect.any(String),
+                key: expect.any(String),
+                title: expect.any(String),
+                type: expect.any(String)
+              })
+            ]),
+            brands: expect.arrayContaining([
+              expect.objectContaining({
+                description: expect.any(String),
+                key: expect.any(String),
+                title: expect.any(String),
+                type: expect.any(String)
+              })
+            ])
+          })
+        ));
+
+      test('should respect the "fields" option for single schemas', () => {
         const ref = 'get-entry-ref';
         return expect(
           flamelink(basicConfig).schemas.getFields(ref, {
@@ -1131,6 +1154,230 @@ describe('Flamelink SDK', () => {
           ])
         );
       });
+
+      test('should respect the "fields" option for all schemas', () =>
+        expect(
+          flamelink(basicConfig).schemas.getFields({
+            fields: ['description', 'title']
+          })
+        ).resolves.toEqual(
+          expect.objectContaining({
+            'about-us': expect.arrayContaining([
+              {
+                description: expect.any(String),
+                title: expect.any(String)
+              }
+            ]),
+            brands: expect.arrayContaining([
+              {
+                description: expect.any(String),
+                title: expect.any(String)
+              }
+            ])
+          })
+        ));
+    });
+
+    test('should expose a "subscribeRaw" method', () => {
+      const cb = jest.fn();
+      flamelink(basicConfig).schemas.subscribeRaw('ref', {}, cb);
+      expect(cb.mock.calls.length).toEqual(1);
+      expect(cb.mock.calls[0][0].val()).toEqual('"on" called with event: "value"');
+      flamelink(basicConfig).schemas.subscribeRaw('ref', cb);
+      expect(cb.mock.calls.length).toEqual(2);
+      expect(cb.mock.calls[0][0].val()).toEqual('"on" called with event: "value"');
+    });
+
+    describe('"subscribe" Method', () => {
+      test('should have a related "subscribeRaw" method', () => {
+        const tests = [
+          {
+            args: [jest.fn()],
+            expect: '"on" called with event: "value"'
+          },
+          {
+            args: [{}, jest.fn()],
+            expect: '"on" called with event: "value"'
+          },
+          {
+            args: ['schemaKey', jest.fn()],
+            expect: '"on" called with event: "value"'
+          },
+          {
+            args: ['schemaKey', {}, jest.fn()],
+            expect: '"on" called with event: "value"'
+          },
+          {
+            args: ['schemaKey', { event: 'child_moved' }, jest.fn()],
+            expect: '"on" called with event: "child_moved"'
+          }
+        ];
+
+        tests.forEach(test => {
+          flamelink(basicConfig).schemas.subscribeRaw(...test.args);
+          const cb = test.args.pop();
+          expect(cb.mock.calls.length).toEqual(1);
+          expect(cb.mock.calls[0][0].val()).toEqual(test.expect);
+        });
+      });
+
+      test('should handle arguments in any of the acceptable orders', done => {
+        // Callback automatically added as the last argument for each test
+        const tests = [
+          {
+            args: [],
+            expect: '"on" called with event: "value"'
+          },
+          {
+            args: [{}],
+            expect: '"on" called with event: "value"'
+          },
+          {
+            args: ['schemaKey'],
+            expect: '"on" called with event: "value"'
+          },
+          {
+            args: ['schemaKey', {}],
+            expect: '"on" called with event: "value"'
+          },
+          {
+            args: ['schemaKey', { event: 'child_moved' }],
+            expect: '"on" called with event: "child_moved"'
+          }
+        ];
+
+        tests.forEach((test, index) => {
+          flamelink(basicConfig).schemas.subscribe(...test.args, result => {
+            expect(result).toEqual(null, test.expect);
+
+            if (tests.length === index + 1) {
+              done();
+            }
+          });
+        });
+      });
+
+      test('should respect the "fields" option for a single schema', done => {
+        const schemaKey = 'get-schema';
+        const options = { fields: ['description', 'id', 'title'] };
+
+        flamelink(basicConfig).schemas.subscribe(schemaKey, options, result => {
+          expect(result).toEqual(null, {
+            description: expect.any(String),
+            id: expect.any(String),
+            title: expect.any(String)
+          });
+          done();
+        });
+      });
+
+      test('should respect the "fields" option for all schemas', done => {
+        const options = { fields: ['description', 'id', 'title'] };
+
+        flamelink(basicConfig).schemas.subscribe(options, result => {
+          expect(result).toEqual(null, {
+            'about-us': {
+              description: expect.any(String),
+              id: expect.any(String),
+              title: expect.any(String)
+            },
+            brands: {
+              description: expect.any(String),
+              id: expect.any(String),
+              title: expect.any(String)
+            }
+          });
+          done();
+        });
+      });
+    });
+
+    describe.only('"unsubscribe" Method', () => {
+      test('should throw if called with incorrect number of arguments', () => {
+        let message;
+
+        try {
+          flamelink(basicConfig).schemas.unsubscribe();
+        } catch (error) {
+          message = error.message;
+        }
+
+        expect(message).toMatch(
+          '[FLAMELINK] "unsubscribe" method needs to be called with min 1 argument and max 2 arguments'
+        );
+
+        message = '';
+
+        try {
+          flamelink(basicConfig).schemas.unsubscribe('ref', 'value', 'some-3rd-arg');
+        } catch (error) {
+          message = error.message;
+        }
+
+        expect(message).toMatch(
+          '[FLAMELINK] "unsubscribe" method needs to be called with min 1 argument and max 2 arguments'
+        );
+      });
+
+      test('should throw if called with invalid child event', () => {
+        let message;
+        const event = 'invalid-event';
+
+        try {
+          flamelink(basicConfig).schemas.unsubscribe('ref', event);
+        } catch (error) {
+          message = error.message;
+        }
+
+        expect(message).toMatch(`[FLAMELINK] "${event}" is not a valid child event`);
+      });
+
+      test('should unsubscribe all events for given schema ref', () => {
+        expect(flamelink(basicConfig).schemas.unsubscribe('ref')).toEqual(
+          '"off" called with event: "undefined"'
+        );
+      });
+
+      test('should unsubscribe given event for given schema ref', () => {
+        const event = 'child_moved';
+        expect(flamelink(basicConfig).schemas.unsubscribe('ref', event)).toEqual(
+          `"off" called with event: "${event}"`
+        );
+      });
+    });
+
+    test('should expose a "set" method', () => {
+      const payload = { key: 'value' };
+
+      return expect(flamelink(basicConfig).schemas.set('ref', payload)).resolves.toEqual(
+        `"set" called with payload: "${JSON.stringify(payload)}"`
+      );
+    });
+
+    test('should expose an "update" method', () => {
+      const payload = { key: 'value' };
+
+      return expect(flamelink(basicConfig).schemas.update('ref', payload)).resolves.toEqual(
+        `"update" called with payload: "${JSON.stringify(payload)}"`
+      );
+    });
+
+    test('should expose a "remove" method', () => {
+      const ref = 'choccie';
+      return expect(flamelink(basicConfig).schemas.remove(ref)).resolves.toEqual(
+        `"remove" called for "/environments/production/schemas/${ref}"`
+      );
+    });
+
+    test('should expose a "transaction" method', () => {
+      const updateFn = jest.fn();
+      const completeFn = jest.fn();
+      flamelink(basicConfig).schemas.transaction('ref', updateFn, completeFn);
+      expect(updateFn.mock.calls.length).toEqual(1);
+      expect(completeFn.mock.calls.length).toEqual(1);
+      flamelink(basicConfig).schemas.transaction('ref', updateFn);
+      expect(updateFn.mock.calls.length).toEqual(2);
+      expect(completeFn.mock.calls.length).toEqual(1);
     });
   });
 

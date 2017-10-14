@@ -2,7 +2,7 @@
 
 Welcome to the Flamelink Software Development Kit (SDK) docs. If you're reading this, you are most likely already using Flamelink (the CMS) or are considering it for your next project. What you are reading here is the documentation for the JavaScript SDK that will make your life as a developer so much easier by helping you seamlessly integrate with your Flamelink CMS data.
 
-This SDK is intended to be used in a browser or on a NodeJS server environment. Note that it does not support any of the Firebase NodeJS Admin SDK features that you would require to access a privileged environment. For such use cases, you should use their [official Admin SDK](https://firebase.google.com/docs/admin/setup).
+This SDK is intended to be used in a browser or on a NodeJS server environment (Some functionality like the storage functionality is not supported from NodeJS). Note that it does not support any of the Firebase NodeJS Admin SDK features that you would require to access a privileged environment. For such use cases, you should use their [official Admin SDK](https://firebase.google.com/docs/admin/setup).
 
 ## What is Flamelink?
 

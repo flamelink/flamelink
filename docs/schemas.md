@@ -199,4 +199,31 @@ All parameters are optional and calling this method without options will unsubsc
 
 This method has no return value.
 
+---
+
+## .set()
+
+> This is a more advanced API method, that for most use cases will not be necessary. Only use it if you know what you are doing. If you mess this up, you might break your CMS. It is strongly advised to use backups.
+
+This method can be used to save data and overwrite the whole object for a given schema.
+
+!> **Caution!!** Using `set()` overwrites all the data for the specified schema(s), including any child nodes. For this reason, this method can only be used to update an individual schema and not all schemas at once. It is generally safer to use the `app.schemas.update()` method to patch only the specified properties. **With great power comes great responsibility, Peter.**
+
+```javascript
+app.schemas.set('product-categories', { id: 'product-categories', title: 'Product Categories', ...All other properties... })
+  .then(() => console.log('Setting the schema data succeeded'))
+  .catch(() => console.error('Something went wrong while setting the schema data.'));
+```
+
+### Input parameters
+
+| Type   | Variable    | Required | Description                                                |
+| ------ | ----------- | -------- | ---------------------------------------------------------- |
+| String | `schemaKey` | required | The schema key or reference for the schema you want to set |
+| Object | `payload`   | required | Payload object to set at the given schema reference        |
+
+### Return value
+
+A `Promise` that resolves when the payload is set or will reject with an error if the request fails.
+
 Next up: [Storage/Media](/storage)

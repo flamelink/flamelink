@@ -69,7 +69,7 @@ app.nav.get('main-menu', { structure: 'nested' });
 
 The allowed child event options are: `value`, `child_added`, `child_changed`, `child_removed` and `child_moved`.
 
-To read more about these events, see the [Firebase docs](https://firebase.google.com/docs/database/web/lists-of-data#listen_for_child_events).
+> To read more about these events, see the [Firebase docs](https://firebase.google.com/docs/database/web/lists-of-data#listen_for_child_events).
 
 ```javascript
 app.nav.get('main-menu', { event: 'child_changed' })
@@ -201,7 +201,7 @@ app.nav.subscribe('main-menu', { fields: [ 'items' ] }, function(error, menu) {
 
 The allowed child event options are: `value`, `child_added`, `child_changed`, `child_removed` and `child_moved`.
 
-To read more about these events, see the [Firebase docs](https://firebase.google.com/docs/database/web/lists-of-data#listen_for_child_events).
+> To read more about these events, see the [Firebase docs](https://firebase.google.com/docs/database/web/lists-of-data#listen_for_child_events).
 
 ```javascript
 app.nav.subscribe('main-menu', { event: 'child_changed' }, function(error, menu) {
@@ -324,7 +324,7 @@ A `Promise` that resolves when the entry is removed or will reject with an error
 
 If you need to update a navigation entry whose data could be corrupted by concurrent changes, Firebase allows us to perform a "transaction" update that updates data based on the existing data/state.
 
-Read more about transactions in the [Firebase docs](https://firebase.google.com/docs/reference/js/firebase.database.Reference#transaction).
+> Read more about transactions in the [Firebase docs](https://firebase.google.com/docs/reference/js/firebase.database.Reference#transaction).
 
 ```javascript
 app.nav.transaction(

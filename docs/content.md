@@ -189,7 +189,7 @@ app.content.subscribe('blog-posts', '1502966447501', { fields: [ 'title', 'descr
 ?> **Pro Tip:** If you are using [RxJS Observables](http://reactivex.io/rxjs/) and you don't like callbacks, turn this `subscribe` method into an **Observable** like this:
 ```javascript
 const getContentObservable = Rx.Observable.bindCallback(app.content.subscribe);
-getContentObservable('blog-posts').subscribe()
+getContentObservable('blog-posts', '1502966447501', { fields: [ 'title', 'description' ] }).subscribe()
 ```
 
 ### Input parameters

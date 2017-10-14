@@ -253,4 +253,30 @@ app.schemas.update('product-categories', { id: 'product-categories', title: 'Pro
 
 A `Promise` that resolves when the payload is update or will reject with an error if the request fails.
 
+---
+
+## .remove()
+
+> This is a more advanced API method, that for most use cases will not be necessary. Only use it if you know what you are doing. If you mess this up, you might break your CMS. It is strongly advised to use backups.
+
+This method can only be used to remove an individual schema.
+
+```javascript
+app.schemas.remove('product-categories')
+  .then(() => console.log('Removing the schema succeeded'))
+  .catch(() => console.error('Something went wrong while removing the schema.'));
+```
+
+?> **Tip:** A schema can also be removed by passing `null` as the payload to the `app.schemas.set()` or `app.schemas.update()` methods. Be careful!
+
+### Input parameters
+
+| Type   | Variable    | Required | Description                           |
+| ------ | ----------- | -------- | ------------------------------------- |
+| String | `schemaKey` | required | The schema key or reference to remove |
+
+### Return value
+
+A `Promise` that resolves when the schema is removed or will reject with an error if the request fails.
+
 Next up: [Storage/Media](/storage)

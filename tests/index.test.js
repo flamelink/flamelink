@@ -7,6 +7,7 @@ const basicConfig = {
   apiKey: 'AIzaSyAxlh-gBxcRkQWbxC0L10S5Qo3Su6xRs8E',
   authDomain: 'fir-editor.firebaseapp.com',
   databaseURL: 'https://fir-editor.firebaseio.com',
+  projectId: 'fir-editor',
   storageBucket: 'fir-editor.appspot.com'
 };
 
@@ -35,7 +36,7 @@ describe('Flamelink SDK', () => {
 
   test('should throw an error if initialized without the mandatory properties', () => {
     expect(flamelink).toThrow(
-      '[FLAMELINK] The following config properties are mandatory: "apiKey", "authDomain", "databaseURL"'
+      '[FLAMELINK] The following config properties are mandatory: "apiKey", "authDomain", "databaseURL", "projectId"'
     );
   });
 
@@ -1292,7 +1293,7 @@ describe('Flamelink SDK', () => {
       });
     });
 
-    describe.only('"unsubscribe" Method', () => {
+    describe('"unsubscribe" Method', () => {
       test('should throw if called with incorrect number of arguments', () => {
         let message;
 

@@ -226,4 +226,31 @@ app.schemas.set('product-categories', { id: 'product-categories', title: 'Produc
 
 A `Promise` that resolves when the payload is set or will reject with an error if the request fails.
 
+---
+
+## .update()
+
+> This is a more advanced API method, that for most use cases will not be necessary. Only use it if you know what you are doing. If you mess this up, you might break your CMS. It is strongly advised to use backups.
+
+This method can be used to save data for a single given schema without overwriting other child properties.
+
+!> This method can only be used to update the data for an individual schema at a time and not to update all the schemas.
+
+```javascript
+app.schemas.update('product-categories', { id: 'product-categories', title: 'Product Categories', ...Optional other properties... })
+  .then(() => console.log('Updating the schema succeeded'))
+  .catch(() => console.error('Something went wrong while updating the schema.'));
+```
+
+### Input parameters
+
+| Type   | Variable    | Required | Description                                                   |
+| ------ | ----------- | -------- | ------------------------------------------------------------- |
+| String | `schemaKey` | required | The schema key or reference for the schema you want to update |
+| Object | `updates`   | required | Payload object to update at the given schema's reference      |
+
+### Return value
+
+A `Promise` that resolves when the payload is update or will reject with an error if the request fails.
+
 Next up: [Storage/Media](/storage)

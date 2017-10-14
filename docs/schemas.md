@@ -69,4 +69,97 @@ A `Promise` that resolves to the reference `{Object}` on success or will reject 
 
 ---
 
+## .subscribe()
+
+This method is similar to the `app.schemas.get()` method except that where the `.get()` method returns a `Promise` resolving to the once-off value, this method subscribes to either a single schema entry or all the schemas for real-time updates. A callback method should be passed as the last argument which will be called each time the data changes in your Firebase db.
+
+If you are looking for retrieving data once, take a look at the [`app.schemas.get()`](/schemas?id=get) method above.
+
+*To subscribe to a specific individual schema:*
+
+```javascript
+app.schemas.subscribe('product-categories', function(error, schema) {
+  if (error) {
+    return console.error('Something went wrong while retrieving all the schema. Details:', error);
+  }
+  console.log('The product categories schema:', schema);
+});
+```
+
+*To subscribe to the `child_added` child event for a specific schema:*
+
+```javascript
+app.schemas.subscribe('product-categories', { event: 'child_added' }, function(error, schema) {
+  if (error) {
+    return console.error('Something went wrong while retrieving the schema property that got added. Details:', error);
+  }
+  console.log('The product categories schema that got added:', schema);
+});
+```
+
+*To subscribe to all schemas (with options):*
+
+```javascript
+app.schemas.subscribe({ fields: [ 'title', 'description', 'fields' ] }, function(error, schemas) {
+  if (error) {
+    return console.error('Something went wrong while retrieving the schemas. Details:', error);
+  }
+  console.log('All schemas with options applied:', schemas);
+});
+```
+
+?> **Pro Tip:** If you are using [RxJS Observables](http://reactivex.io/rxjs/) and you don't like callbacks, turn this `subscribe` method into an **Observable** like this:
+```javascript
+const getSchemaObservable = Rx.Observable.bindCallback(app.schemas.subscribe);
+getSchemaObservable('product-categories').subscribe()
+```
+
+### Input parameters
+
+Parameters should be passed in the order of the following table. If an optional parameter, like the `options` are left out, the following parameter just moves in its place.
+
+| Type     | Variable    | Required | Description                                                           |
+| -------- | ----------- | -------- | --------------------------------------------------------------------- |
+| String   | `schemaKey` | optional | The schema database key or reference you want to retrieve             |
+| Object   | `options`   | optional | Additional options                                                    |
+| Function | `callback`  | required | Function called once when subscribed and when subscribed data changes |
+
+#### Available Options
+
+The following optional options can be specified when retrieving your schema data:
+
+##### Fields
+
+- `fields` **{Array}** - A list of fields to be plucked from schemas.
+
+*Example*
+
+To retrieve your product categories schema, but only the `title`, `description` and `fields` property.
+
+```javascript
+app.schemas.subscribe('product-categories', { fields: [ 'title', 'description', 'fields' ] }, function(error, schema) {
+  // Handle callback
+});
+```
+
+##### Event
+
+- `event` **{String}** - The Firebase child event to retrieve data for. By default, the event is `value`, which is used for retrieving the entire schema object at the given reference(s) path.
+
+*Example*
+
+The allowed child event options are: `value`, `child_added`, `child_changed`, `child_removed` and `child_moved`.
+
+> To read more about these events, see the [Firebase docs](https://firebase.google.com/docs/database/web/lists-of-data#listen_for_child_events).
+
+```javascript
+app.schemas.subscribe({ event: 'child_changed' }, function(error, schemas) {
+  // Handle callback
+})
+```
+
+### Return value
+
+This method has no return value, but makes use of an [error-first callback](https://www.google.com/search?q=error-first+callback&oq=javascript+error-first+callback) function that should be passed as the last argument.
+
 Next up: [Storage/Media](/storage)

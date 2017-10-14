@@ -135,29 +135,46 @@ function flamelink(conf = {}) {
     },
 
     /**
-     * Get an individual schema's fields and return snapshot response
+     * Get all schemas' or an individual schema's fields and return snapshot response
      *
      * @param {String} schemaRef
      * @param {Object} [options={}]
      * @returns {Promise} Resolves to snapshot of query
      */
     getFieldsRaw(schemaRef, options = {}) {
-      const ordered = applyOrderBy(this.ref(`${schemaRef}/fields`), options);
-      const filtered = applyFilters(ordered, options);
+      const ref = typeof schemaRef === 'string' ? `${schemaRef}/fields` : null;
+      const opts = typeof schemaRef === 'string' ? options : schemaRef || {};
+      const ordered = applyOrderBy(this.ref(ref), opts);
+      const filtered = applyFilters(ordered, opts);
 
-      return filtered.once(options.event || 'value');
+      return filtered.once(opts.event || 'value');
     },
 
     /**
-     * Get individual schema's fields array for the given reference
+     * Get all schemas' or an individual schema's fields array for the given reference
      *
      * @param {String} schemaRef
      * @param {Object} [options={}]
      * @returns {Promise} Resolves to value of query
      */
     async getFields(schemaRef, options = {}) {
-      const snapshot = await this.getFieldsRaw(schemaRef, options);
-      return pluckResultFields(options.fields, snapshot.val());
+      if (typeof schemaRef === 'string') {
+        // Single schema
+        const snapshot = await this.getFieldsRaw(schemaRef, options);
+        return pluckResultFields(options.fields, snapshot.val());
+      }
+
+      // All schemas
+      const opts = schemaRef || {};
+      const snapshot = await this.getFieldsRaw(opts);
+      const schemas = snapshot.val();
+      return Object.keys(schemas).reduce(
+        (result, key) =>
+          Object.assign({}, result, {
+            [key]: pluckResultFields(opts.fields, schemas[key].fields)
+          }),
+        {}
+      );
     }
   };
 

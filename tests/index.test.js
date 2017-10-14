@@ -1103,14 +1103,43 @@ describe('Flamelink SDK', () => {
     });
 
     describe('"getFields" method', () => {
-      test('should return a single schema', () => {
+      test('should return the fields for a single schema', () => {
         const ref = 'get-entry-ref';
         return expect(flamelink(basicConfig).schemas.getFields(ref)).resolves.toEqual(
-          expect.any(Array)
+          expect.arrayContaining([
+            expect.objectContaining({
+              description: expect.any(String),
+              key: expect.any(String),
+              title: expect.any(String),
+              type: expect.any(String)
+            })
+          ])
         );
       });
 
-      test('should respect the "fields" option', () => {
+      test('should return the fields for all schemas', () =>
+        expect(flamelink(basicConfig).schemas.getFields()).resolves.toEqual(
+          expect.objectContaining({
+            'about-us': expect.arrayContaining([
+              expect.objectContaining({
+                description: expect.any(String),
+                key: expect.any(String),
+                title: expect.any(String),
+                type: expect.any(String)
+              })
+            ]),
+            brands: expect.arrayContaining([
+              expect.objectContaining({
+                description: expect.any(String),
+                key: expect.any(String),
+                title: expect.any(String),
+                type: expect.any(String)
+              })
+            ])
+          })
+        ));
+
+      test('should respect the "fields" option for single schemas', () => {
         const ref = 'get-entry-ref';
         return expect(
           flamelink(basicConfig).schemas.getFields(ref, {
@@ -1125,6 +1154,28 @@ describe('Flamelink SDK', () => {
           ])
         );
       });
+
+      test('should respect the "fields" option for all schemas', () =>
+        expect(
+          flamelink(basicConfig).schemas.getFields({
+            fields: ['description', 'title']
+          })
+        ).resolves.toEqual(
+          expect.objectContaining({
+            'about-us': expect.arrayContaining([
+              {
+                description: expect.any(String),
+                title: expect.any(String)
+              }
+            ]),
+            brands: expect.arrayContaining([
+              {
+                description: expect.any(String),
+                title: expect.any(String)
+              }
+            ])
+          })
+        ));
     });
   });
 

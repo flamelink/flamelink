@@ -315,7 +315,7 @@ const mockedDatabaseRef = jest.fn(ref => ({
         });
 
       // SCHEMAS
-      case '/environment/production/schemas/':
+      case '/environments/production/schemas/':
         return Promise.resolve({
           val: jest.fn(() => ({
             'about-us': {
@@ -415,7 +415,7 @@ const mockedDatabaseRef = jest.fn(ref => ({
           }))
         });
 
-      case '/environment/production/schemas/get-schema':
+      case '/environments/production/schemas/get-schema':
         return Promise.resolve({
           val: jest.fn(() => ({
             description: 'Brands',
@@ -469,8 +469,8 @@ const mockedDatabaseRef = jest.fn(ref => ({
           }))
         });
 
-      case '/environment/production/schemas/get-entry-ref/fields':
-      case '/environment/production/schemas/subscribe-content-entry-ref/fields':
+      case '/environments/production/schemas/get-entry-ref/fields':
+      case '/environments/production/schemas/subscribe-content-entry-ref/fields':
         return Promise.resolve({
           val: jest.fn(() => [
             {

@@ -51,28 +51,24 @@ function flamelink(conf = {}) {
   if (config.firebaseApp) {
     firebaseApp_ = config.firebaseApp;
   } else if (!firebaseApp_) {
-    const { apiKey, authDomain, databaseURL, storageBucket, appName } = config;
+    const { apiKey, authDomain, databaseURL, storageBucket, projectId } = config;
 
-    if (!apiKey || !authDomain || !databaseURL) {
+    if (!apiKey || !authDomain || !databaseURL || !projectId) {
       throw error(
-        'The following config properties are mandatory: "apiKey", "authDomain", "databaseURL"'
+        'The following config properties are mandatory: "apiKey", "authDomain", "databaseURL", "projectId"'
       );
     }
 
-    const initArgs = [
+    firebaseApp_ = firebase.initializeApp(
       {
         apiKey,
         authDomain,
         databaseURL,
-        storageBucket
-      }
-    ];
-
-    if (appName) {
-      initArgs.push(appName);
-    }
-
-    firebaseApp_ = firebase.initializeApp(...initArgs);
+        storageBucket,
+        projectId
+      },
+      projectId
+    );
   }
 
   const getService = (service, serviceName) =>

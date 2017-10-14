@@ -77,7 +77,7 @@ describe('Flamelink SDK > Utils', () => {
         const env = 'my-environment';
         const locale = 'my-locale';
         expect(utils.getSchemasRefPath(ref, env, locale)).toBe(
-          `/environment/${env}/schemas/${ref}`
+          `/environments/${env}/schemas/${ref}`
         );
 
         try {

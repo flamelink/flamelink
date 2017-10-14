@@ -91,59 +91,47 @@ function flamelink(conf = {}) {
      * @returns {Object} Ref object
      */
     ref(ref) {
-      return databaseService_.ref(getSchemasRefPath(ref, env_, locale_));
+      return databaseService_.ref(getSchemasRefPath(ref || null, env_, locale_));
     },
 
     /**
-     * Read all schemas from the db and return snapshot response
+     * Read all or an individual schema from the db and return snapshot response
      *
-     * @param {Object} [options={}]
-     * @returns {Promise} Resolves to snapshot of query
-     */
-    getAllRaw(options = {}) {
-      const ordered = applyOrderBy(this.ref(''), options);
-      const filtered = applyFilters(ordered, options);
-
-      return filtered.once(options.event || 'value');
-    },
-
-    /**
-     * Get all schemas and return the processed value
-     *
-     * @param {Object} [options={}]
-     * @returns {Promise} Resolves to value of query
-     */
-    async getAll(options = {}) {
-      const snapshot = await this.getAllRaw(options);
-      return pluckResultFields(options.fields, snapshot.val());
-    },
-
-    /**
-     * Read an individual schema from the db and return snapshot response
-     *
-     * @param {String} schemaRef
+     * @param {String} [schemaRef] The schema's key in the db
      * @param {Object} [options={}]
      * @returns {Promise} Resolves to snapshot of query
      */
     getRaw(schemaRef, options = {}) {
-      const ordered = applyOrderBy(this.ref(schemaRef), options);
-      const filtered = applyFilters(ordered, options);
+      const ref = typeof schemaRef === 'string' ? schemaRef : null;
+      const opts = typeof schemaRef === 'string' ? options : schemaRef || {};
+      const ordered = applyOrderBy(this.ref(ref), opts);
+      const filtered = applyFilters(ordered, opts);
 
-      return filtered.once(options.event || 'value');
+      return filtered.once(opts.event || 'value');
     },
 
     /**
-     * Get individual schema object for the given reference
+     * Get all schemas or an individual schema object for the given reference
      *
-     * @param {String} schemaRef
+     * @param {String} schemaRef The schema's key in the db
      * @param {Object} [options={}]
      * @returns {Promise} Resolves to value of query
      */
-    async get(schemaRef = '', options = {}) {
+    async get(schemaRef, options = {}) {
+      if (typeof schemaRef === 'string') {
+        // Single Schema
+        const pluckFields = pluckResultFields(options.fields);
+        const snapshot = await this.getRaw(schemaRef, options);
+        const wrapValue = { [schemaRef]: snapshot.val() }; // Wrapping value to create the correct structure for our filtering to work
+        return pluckFields(wrapValue)[schemaRef];
+      }
+
+      options = schemaRef || {};
+
+      // All Schemas
       const pluckFields = pluckResultFields(options.fields);
-      const snapshot = await this.getRaw(schemaRef, options);
-      const wrapValue = { [schemaRef]: snapshot.val() }; // Wrapping value to create the correct structure for our filtering to work
-      return pluckFields(wrapValue)[schemaRef];
+      const snapshot = await this.getRaw(null, options);
+      return pluckFields(snapshot.val());
     },
 
     /**

@@ -1016,13 +1016,30 @@ describe('Flamelink SDK', () => {
       expect(flamelink(basicConfig).schemas.ref).toEqual(expect.any(Function));
     });
 
-    test('should expose a "getAllRaw" method', () => {
-      expect(flamelink(basicConfig).schemas.getAllRaw).toEqual(expect.any(Function));
+    test('should expose a "getRaw" method', () => {
+      expect(flamelink(basicConfig).schemas.getRaw).toEqual(expect.any(Function));
     });
 
-    describe('"getAll" method', () => {
-      test('should return all schemas', () =>
-        expect(flamelink(basicConfig).schemas.getAll()).resolves.toEqual(
+    describe('"get" method', () => {
+      test('should be able to return a single schema', () => {
+        const ref = 'get-schema';
+        return expect(flamelink(basicConfig).schemas.get(ref)).resolves.toEqual(
+          expect.objectContaining({
+            description: expect.any(String),
+            display: expect.any(Boolean),
+            fields: expect.any(Array),
+            group: expect.any(String),
+            icon: expect.any(String),
+            id: expect.any(String),
+            menuIndex: expect.any(Number),
+            title: expect.any(String),
+            type: expect.any(String)
+          })
+        );
+      });
+
+      test('should be able to return all schemas', () =>
+        expect(flamelink(basicConfig).schemas.get()).resolves.toEqual(
           expect.objectContaining({
             'about-us': expect.objectContaining({
               description: expect.any(String),
@@ -1049,9 +1066,22 @@ describe('Flamelink SDK', () => {
           })
         ));
 
-      test('should respect the "fields" option', () =>
+      test('should respect the "fields" option for single schemas', () => {
+        const ref = 'get-schema';
+        return expect(
+          flamelink(basicConfig).schemas.get(ref, {
+            fields: ['description', 'id', 'title']
+          })
+        ).resolves.toEqual({
+          description: expect.any(String),
+          id: expect.any(String),
+          title: expect.any(String)
+        });
+      });
+
+      test('should respect the "fields" option for all schemas', () =>
         expect(
-          flamelink(basicConfig).schemas.getAll({
+          flamelink(basicConfig).schemas.get({
             fields: ['description', 'id', 'title']
           })
         ).resolves.toEqual({
@@ -1066,42 +1096,6 @@ describe('Flamelink SDK', () => {
             title: expect.any(String)
           }
         }));
-    });
-
-    test('should expose a "getRaw" method', () => {
-      expect(flamelink(basicConfig).schemas.getRaw).toEqual(expect.any(Function));
-    });
-
-    describe('"get" method', () => {
-      test('should return a single schema', () => {
-        const ref = 'get-schema';
-        return expect(flamelink(basicConfig).schemas.get(ref)).resolves.toEqual(
-          expect.objectContaining({
-            description: expect.any(String),
-            display: expect.any(Boolean),
-            fields: expect.any(Array),
-            group: expect.any(String),
-            icon: expect.any(String),
-            id: expect.any(String),
-            menuIndex: expect.any(Number),
-            title: expect.any(String),
-            type: expect.any(String)
-          })
-        );
-      });
-
-      test('should respect the "fields" option', () => {
-        const ref = 'get-schema';
-        return expect(
-          flamelink(basicConfig).schemas.get(ref, {
-            fields: ['description', 'id', 'title']
-          })
-        ).resolves.toEqual({
-          description: expect.any(String),
-          id: expect.any(String),
-          title: expect.any(String)
-        });
-      });
     });
 
     test('should expose a "getFieldsRaw" method', () => {

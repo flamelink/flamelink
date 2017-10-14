@@ -432,13 +432,16 @@ describe('Flamelink SDK > Utils', () => {
 
   describe('"populateEntry"', () => {
     test('should return the entry if no "populate" attributes are passed in', () => {
-      const schemasAPI = {};
+      const schemasAPI = {
+        getFields: jest.fn()
+      };
       const contentAPI = {};
+      const storageAPI = {};
       const contentType = {};
       const populate = {};
       const entry = { key: 'value' };
       return expect(
-        utils.populateEntry(schemasAPI, contentAPI, contentType, populate, entry)
+        utils.populateEntry(schemasAPI, contentAPI, storageAPI, contentType, populate, entry)
       ).resolves.toEqual(entry);
     });
   });

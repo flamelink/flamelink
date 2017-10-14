@@ -342,6 +342,378 @@ function flamelink(conf = {}) {
     }
   };
 
+  const storageAPI = {
+    /**
+     * @description Get the folder ID for a given folder name using an optional fallback folder name
+     * @param {string} [folderName='']
+     * @param {string} [fallback='Root']
+     * @returns {string} folderId
+     * @private
+     */
+    async _getFolderId(folderName = '', fallback = 'Root') {
+      const foldersSnapshot = await databaseService_.ref(getFolderRefPath()).once('value');
+      const folders = foldersSnapshot.val();
+      const folder = find(folders, { name: folderName });
+
+      if (!folder) {
+        const fallbackFolder = find(folders, { name: fallback }) || {};
+        return fallbackFolder.id;
+      }
+
+      return folder.id;
+    },
+
+    /**
+     * @description Get the folder ID for a given options object. If the ID is given it is simply returned, otherwise it
+     * try and deduce it from a given folder name or falling back to the ID for the "Root" directory
+     * @param {any} [options={}]
+     * @returns {promise} Resolves to the folder ID
+     * @private
+     */
+    async _getFolderIdFromOptions(options = {}) {
+      const { folderId, folderName, folderFallback } = options;
+
+      if (folderId) {
+        return folderId;
+      }
+
+      return this._getFolderId(folderName, folderFallback);
+    },
+
+    /**
+     * @description Writes the file meta to the Firebase real-time db. Not intended as a public method.
+     * Used internally by the `upload` method.
+     * @param {object} [payload={}]
+     * @returns {promise}
+     * @private
+     */
+    _setFile(payload = {}) {
+      return this.fileRef(payload.id).set(payload);
+    },
+
+    /**
+     * @description Resizes a given file to the size provided in the options config. Not for public use.
+     * User internally by the `upload` method.
+     * @param {File} file
+     * @param {string} filename
+     * @param {object} options
+     * @returns {promise}
+     * @private
+     */
+    async _createSizedImage(file, filename, options) {
+      const resizedImage = await resizeImage(file, options);
+      return this.ref(filename, { width: options.width || options.maxWidth || 'wrong_size' }).put(
+        resizedImage
+      );
+    },
+
+    /**
+     * @description Establish and return a reference to section in cloud storage bucket
+     * @param {String} filename
+     * @returns {Object} Ref object
+     */
+    ref(filename, options = {}) {
+      // Check if the filename is a URL (contains "://")
+      if (/:\/\//.test(filename)) {
+        return storageService_.refFromURL(filename);
+      }
+      return storageService_.ref(getStorageRefPath(filename, options));
+    },
+
+    /**
+     * @description Establish and return a reference to a folder in the real-time db
+     * @param {String} folderID
+     */
+    folderRef(folderID) {
+      return databaseService_.ref(getFolderRefPath(folderID));
+    },
+
+    /**
+     * @description Establish and return a reference to a file in the real-time db
+     * @param {String} fileId
+     */
+    fileRef(fileId) {
+      return databaseService_.ref(getFileRefPath(fileId));
+    },
+
+    /**
+     * Read value once from db and return raw snapshot
+     *
+     * @param {Object} [options={}]
+     * @returns {Promise} Resolves to snapshot of query
+     */
+    getFoldersRaw(options = {}) {
+      const ordered = applyOrderBy(this.folderRef(), options);
+      const filtered = applyFilters(ordered, options);
+
+      return filtered.once(options.event || 'value');
+    },
+
+    /**
+     * Read value once from db
+     *
+     * @param {Object} [options={}]
+     * @returns {Promise} Resolves to value of query
+     */
+    async getFolders(options = {}) {
+      const pluckFields = pluckResultFields(options.fields);
+      const structureItems = formatStructure(options.structure, {
+        idProperty: 'id',
+        parentProperty: 'parentId'
+      });
+      const snapshot = await this.getFoldersRaw(options);
+      return compose(pluckFields, structureItems, Object.values)(snapshot.val());
+    },
+
+    /**
+     * Read value once from db and return raw snapshot
+     *
+     * @param {String} fileId
+     * @param {Object} [options={}]
+     * @returns {Promise} Resolves to snapshot of query
+     */
+    getFileRaw(fileId, options = {}) {
+      if (!fileId) {
+        throw error('"storage.getFileRaw()" should be called with at least the file ID');
+      }
+      const ordered = applyOrderBy(this.fileRef(fileId), options);
+      const filtered = applyFilters(ordered, options);
+
+      return filtered.once(options.event || 'value');
+    },
+
+    /**
+     * @description Read the file object from the database
+     * @param {String} fileId
+     * @param {Object} [options={}]
+     * @returns {Promise} Resolves to value of query
+     */
+    async getFile(fileId, options = {}) {
+      if (!fileId) {
+        throw error('"storage.getFile()" should be called with at least the file ID');
+      }
+      const pluckFields = pluckResultFields(options.fields);
+      const snapshot = await this.getFileRaw(fileId, options);
+      const wrapValue = { [fileId]: snapshot.val() }; // Wrapping value to create the correct structure for our filtering to work
+      const file = await compose(pluckFields)(wrapValue);
+      return file[fileId];
+    },
+
+    /**
+     * Read value once from db and return raw snapshot
+     *
+     * @param {Object} [options={}]
+     * @returns {Promise} Resolves to snapshot of query
+     */
+    getFilesRaw(options = {}) {
+      const ordered = applyOrderBy(this.fileRef(), options);
+      const filtered = applyFilters(ordered, options);
+
+      return filtered.once(options.event || 'value');
+    },
+
+    /**
+     * Read value once from db
+     *
+     * @param {Object} [options={}]
+     * @returns {Promise} Resolves to value of query
+     */
+    async getFiles(options = {}) {
+      const defaultOptions = { folderFallback: null };
+      const opts = Object.assign(
+        defaultOptions,
+        options,
+        options.mediaType
+          ? {
+              orderByChild: 'type',
+              equalTo: options.mediaType
+            }
+          : {}
+      );
+      const folderId = await this._getFolderIdFromOptions(opts);
+      const filterFolders = filterByFolderId(folderId);
+      const pluckFields = pluckResultFields(opts.fields);
+      const snapshot = await this.getFilesRaw(opts);
+      return compose(pluckFields, filterFolders)(snapshot.val());
+    },
+
+    /**
+     * @description Given a fileId, return the download URL
+     * @param {String} fileId
+     * @param {Object} [options={}]
+     * @returns {Promise} Resolves to download URL string
+     */
+    async getURL(fileId, options = {}) {
+      if (!fileId) {
+        throw error('"storage.getURL()" should be called with at least the file ID');
+      }
+      const { size } = options;
+      const file = await this.getFile(fileId, options);
+      const { file: filename, sizes } = file;
+      const storageRefArgs = [filename];
+
+      if (size && sizes && sizes.length) {
+        const minSize = size === 'device' ? getScreenResolution() : size;
+        const smartWidth = sizes
+          .reduce((widths, s) => {
+            const width = s.maxWidth || s.width;
+            if (width) {
+              widths.push(parseInt(width, 10));
+            }
+            return widths;
+          }, [])
+          .sort((a, b) => a - b) // sort widths ascending
+          .find(width => width >= minSize);
+
+        if (smartWidth) {
+          storageRefArgs.push({ width: smartWidth });
+        }
+      }
+      const fileRef = await this.ref(...storageRefArgs);
+      return fileRef.getDownloadURL();
+    },
+
+    /**
+     * @description Get the Google Cloud Storage Bucket metadata for a given file
+     * @param {String|Number} fileId
+     * @returns {Promise}
+     */
+    async getMetadata(fileId, options = {}) {
+      if (!fileId) {
+        throw error('"storage.getMetadata()" should be called with at least the file ID');
+      }
+
+      const file = await this.getFile(fileId, options);
+
+      if (!file) {
+        throw error(`There is no file for File ID: "${fileId}"`);
+      }
+
+      const { file: filename } = file;
+
+      return this.ref(filename).getMetadata();
+    },
+
+    /**
+     * @description Update the Google Cloud Storage Bucket metadata for a given file
+     * @param {String|Number} fileId
+     * @param {Object|Null} payload
+     * @returns {Promise}
+     */
+    async updateMetadata(fileId, payload = {}) {
+      if (!fileId) {
+        throw error('"storage.updateMetadata()" should be called with at least the file ID');
+      }
+
+      const file = await this.getFile(fileId);
+
+      if (!file) {
+        throw error(`There is no file for File ID: "${fileId}"`);
+      }
+
+      const { file: filename } = file;
+
+      return this.ref(filename).updateMetadata(payload);
+    },
+
+    /**
+     * @description Delete a given file from the Cloud Storage Bucket as well as the real-time db
+     * @param {String|Number} fileId
+     * @returns {Promise}
+     */
+    async deleteFile(fileId, options = {}) {
+      if (!fileId) {
+        throw error('"storage.deleteFile()" should be called with at least the file ID');
+      }
+
+      const file = await this.getFile(fileId, options);
+
+      if (!file) {
+        return;
+      }
+
+      const { file: filename, sizes } = file;
+      const storageRef = this.ref(filename);
+
+      // Delete original file from storage bucket
+      await storageRef.delete();
+
+      // If sizes are set, delete all the resized images here
+      if (Array.isArray(sizes)) {
+        await Promise.all(
+          sizes.map(async size => {
+            const width = size.width || size.maxWidth;
+
+            if (!width) {
+              return Promise.resolve();
+            }
+
+            return this.ref(filename, { width }).delete();
+          })
+        );
+      }
+
+      // Delete file entry from the real-time db
+      return this.fileRef(fileId).remove();
+    },
+
+    /**
+     * @description Upload a given file to the Cloud Storage Bucket as well as the real-time db
+     * @param {String|File|Blob|Uint8Array} fileData
+     * @param {Object} [options={}]
+     * @returns {Object} UploadTask instance, which is similar to a Promise and an Observable
+     */
+    async upload(fileData, options = {}) {
+      const id = Date.now();
+      const metadata = options.metadata || {};
+      const filename =
+        (typeof fileData === 'object' && fileData.name) || typeof metadata.name === 'string'
+          ? `${id}_${metadata.name || fileData.name}`
+          : id;
+      const storageRef = this.ref(filename, options);
+      const updateMethod = typeof fileData === 'string' ? 'putString' : 'put';
+      const args = [fileData];
+
+      if (options.metadata) {
+        args.push(options.metadata);
+      }
+
+      // TODO: Test and verify how the Firebase SDK handles string uploads with encoding and metadata
+      // Is it the second argument then or should it be passed along with the metadata object?
+      if (updateMethod === 'putString' && options.stringEncoding) {
+        args.splice(1, 0, options.stringEncoding);
+      }
+
+      // Upload original file to storage bucket
+      const uploadTask = storageRef[updateMethod](...args);
+      const snapshot = await uploadTask;
+
+      const mediaType = /^image\//.test(snapshot.metadata.contentType) ? 'images' : 'files';
+      const folderId = await this._getFolderIdFromOptions(options);
+      const filePayload = {
+        id,
+        file: snapshot.metadata.name,
+        folderId,
+        type: mediaType,
+        contentType: snapshot.metadata.contentType
+      };
+
+      // If mediaType === 'images', file is resizeable and sizes/widths are set, resize images here
+      if (mediaType === 'images' && updateMethod === 'put' && Array.isArray(options.sizes)) {
+        filePayload.sizes = options.sizes;
+
+        await Promise.all(
+          options.sizes.map(size => this._createSizedImage(fileData, filename, size))
+        );
+      }
+
+      // Write to real-time db
+      await this._setFile(filePayload);
+
+      return uploadTask;
+    }
+  };
+
   const contentAPI = {
     /**
      * @description Establish and return a reference to section in firebase db
@@ -388,7 +760,13 @@ function flamelink(conf = {}) {
       // Is single entry query?
       if (['string', 'number'].includes(typeof entryRef)) {
         const pluckFields = pluckResultFields(options.fields);
-        const populateFields = populateEntry(schemasAPI, contentAPI, contentRef, options.populate);
+        const populateFields = populateEntry(
+          schemasAPI,
+          contentAPI,
+          storageAPI,
+          contentRef,
+          options.populate
+        );
         const snapshot = await this.getRaw(contentRef, entryRef, options);
         const wrapValue = { [entryRef]: snapshot.val() }; // Wrapping value to create the correct structure for our filtering to work
         const result = await compose(populateFields, pluckFields)(wrapValue);
@@ -399,7 +777,13 @@ function flamelink(conf = {}) {
       const opts = entryRef || {}; // second param is then the options
 
       const pluckFields = pluckResultFields(opts.fields);
-      const populateFields = populateEntry(schemasAPI, contentAPI, contentRef, opts.populate);
+      const populateFields = populateEntry(
+        schemasAPI,
+        contentAPI,
+        storageAPI,
+        contentRef,
+        opts.populate
+      );
       const snapshot = await this.getRaw(contentRef, opts);
       const result = await compose(populateFields, pluckFields)(snapshot.val());
       return result;
@@ -495,6 +879,7 @@ function flamelink(conf = {}) {
           const populateFields = populateEntry(
             schemasAPI,
             contentAPI,
+            storageAPI,
             contentRef,
             options.populate
           );
@@ -518,7 +903,13 @@ function flamelink(conf = {}) {
         }
 
         const pluckFields = pluckResultFields(options.fields);
-        const populateFields = populateEntry(schemasAPI, contentAPI, contentRef, options.populate);
+        const populateFields = populateEntry(
+          schemasAPI,
+          contentAPI,
+          storageAPI,
+          contentRef,
+          options.populate
+        );
 
         return this.subscribeRaw(contentRef, options, async snapshot => {
           const result = await compose(populateFields, pluckFields)(snapshot.val());
@@ -1004,383 +1395,6 @@ function flamelink(conf = {}) {
       }
 
       return this.ref(navRef).transaction(updateFn, cb);
-    }
-  };
-
-  const storageAPI = {
-    /**
-     * @description Get the folder ID for a given folder name using an optional fallback folder name
-     *
-     * @param {string} [folderName='']
-     * @param {string} [fallback='Root']
-     * @returns {string} folderId
-     * @private
-     */
-    async _getFolderId(folderName = '', fallback = 'Root') {
-      const foldersSnapshot = await databaseService_.ref(getFolderRefPath()).once('value');
-      const folders = foldersSnapshot.val();
-      const folder = find(folders, { name: folderName });
-
-      if (!folder) {
-        const fallbackFolder = find(folders, { name: fallback }) || {};
-        return fallbackFolder.id;
-      }
-
-      return folder.id;
-    },
-
-    /**
-     * @description Get the folder ID for a given options object. If the ID is given it is simply returned, otherwise it
-     * try and deduce it from a given folder name or falling back to the ID for the "Root" directory
-     *
-     * @param {any} [options={}]
-     * @returns {promise} Resolves to the folder ID
-     * @private
-     */
-    async _getFolderIdFromOptions(options = {}) {
-      const { folderId, folderName, folderFallback } = options;
-
-      if (folderId) {
-        return folderId;
-      }
-
-      return this._getFolderId(folderName, folderFallback);
-    },
-
-    /**
-     * @description Writes the file meta to the Firebase real-time db. Not intended as a public method.
-     * Used internally by the `upload` method.
-     *
-     * @param {object} [payload={}]
-     * @returns {promise}
-     * @private
-     */
-    _setFile(payload = {}) {
-      return this.fileRef(payload.id).set(payload);
-    },
-
-    /**
-     * @description Resizes a given file to the size provided in the options config. Not for public use.
-     * User internally by the `upload` method.
-     *
-     * @param {File} file
-     * @param {string} filename
-     * @param {object} options
-     * @returns {promise}
-     * @private
-     */
-    async _createSizedImage(file, filename, options) {
-      const resizedImage = await resizeImage(file, options);
-      return this.ref(filename, { width: options.width || options.maxWidth || 'wrong_size' }).put(
-        resizedImage
-      );
-    },
-
-    /**
-     * @description Establish and return a reference to section in cloud storage bucket
-     * @param {String} filename
-     * @returns {Object} Ref object
-     */
-    ref(filename, options = {}) {
-      // Check if the filename is a URL (contains "://")
-      if (/:\/\//.test(filename)) {
-        return storageService_.refFromURL(filename);
-      }
-      return storageService_.ref(getStorageRefPath(filename, options));
-    },
-
-    /**
-     * @description Establish and return a reference to a folder in the real-time db
-     * @param {String} folderID
-     */
-    folderRef(folderID) {
-      return databaseService_.ref(getFolderRefPath(folderID));
-    },
-
-    /**
-     * Read value once from db and return raw snapshot
-     *
-     * @param {Object} [options={}]
-     * @returns {Promise} Resolves to snapshot of query
-     */
-    getFoldersRaw(options = {}) {
-      const ordered = applyOrderBy(this.folderRef(), options);
-      const filtered = applyFilters(ordered, options);
-
-      return filtered.once(options.event || 'value');
-    },
-
-    /**
-     * Read value once from db
-     *
-     * @param {Object} [options={}]
-     * @returns {Promise} Resolves to value of query
-     */
-    async getFolders(options = {}) {
-      const pluckFields = pluckResultFields(options.fields);
-      const structureItems = formatStructure(options.structure, {
-        idProperty: 'id',
-        parentProperty: 'parentId'
-      });
-      const snapshot = await this.getFoldersRaw(options);
-      return compose(pluckFields, structureItems, Object.values)(snapshot.val());
-    },
-
-    /**
-     * @description Establish and return a reference to a file in the real-time db
-     * @param {String} fileId
-     */
-    fileRef(fileId) {
-      return databaseService_.ref(getFileRefPath(fileId));
-    },
-
-    /**
-     * Read value once from db and return raw snapshot
-     *
-     * @param {String} fileId
-     * @param {Object} [options={}]
-     * @returns {Promise} Resolves to snapshot of query
-     */
-    getFileRaw(fileId, options = {}) {
-      if (!fileId) {
-        throw error('"storage.getFileRaw()" should be called with at least the file ID');
-      }
-      const ordered = applyOrderBy(this.fileRef(fileId), options);
-      const filtered = applyFilters(ordered, options);
-
-      return filtered.once(options.event || 'value');
-    },
-
-    /**
-     * Read value once from db
-     *
-     * @param {String} fileId
-     * @param {Object} [options={}]
-     * @returns {Promise} Resolves to value of query
-     */
-    async getFile(fileId, options = {}) {
-      if (!fileId) {
-        throw error('"storage.getFile()" should be called with at least the file ID');
-      }
-      const pluckFields = pluckResultFields(options.fields);
-      const snapshot = await this.getFileRaw(fileId, options);
-      const wrapValue = { [fileId]: snapshot.val() }; // Wrapping value to create the correct structure for our filtering to work
-      const file = await compose(pluckFields)(wrapValue);
-      return file[fileId];
-    },
-
-    /**
-     * Read value once from db and return raw snapshot
-     *
-     * @param {Object} [options={}]
-     * @returns {Promise} Resolves to snapshot of query
-     */
-    getFilesRaw(options = {}) {
-      const ordered = applyOrderBy(this.fileRef(), options);
-      const filtered = applyFilters(ordered, options);
-
-      return filtered.once(options.event || 'value');
-    },
-
-    /**
-     * Read value once from db
-     *
-     * @param {Object} [options={}]
-     * @returns {Promise} Resolves to value of query
-     */
-    async getFiles(options = {}) {
-      const defaultOptions = { folderFallback: null };
-      const opts = Object.assign(
-        defaultOptions,
-        options,
-        options.mediaType
-          ? {
-              orderByChild: 'type',
-              equalTo: options.mediaType
-            }
-          : {}
-      );
-      const folderId = await this._getFolderIdFromOptions(opts);
-      const filterFolders = filterByFolderId(folderId);
-      const pluckFields = pluckResultFields(opts.fields);
-      const snapshot = await this.getFilesRaw(opts);
-      return compose(pluckFields, filterFolders)(snapshot.val());
-    },
-
-    /**
-     * @description Given a fileId, return the download URL
-     * @param {String} fileId
-     * @param {Object} [options={}]
-     * @returns {Promise} Resolves to download URL string
-     */
-    async getURL(fileId, options = {}) {
-      if (!fileId) {
-        throw error('"storage.getURL()" should be called with at least the file ID');
-      }
-      const { size } = options;
-      const file = await this.getFile(fileId, options);
-      const { file: filename, sizes } = file;
-      const storageRefArgs = [filename];
-
-      if (size && sizes && sizes.length) {
-        const minSize = size === 'device' ? getScreenResolution() : size;
-        const smartWidth = sizes
-          .reduce((widths, s) => {
-            const width = s.maxWidth || s.width;
-            if (width) {
-              widths.push(parseInt(width, 10));
-            }
-            return widths;
-          }, [])
-          .sort((a, b) => a - b) // sort widths ascending
-          .find(width => width >= minSize);
-
-        if (smartWidth) {
-          storageRefArgs.push({ width: smartWidth });
-        }
-      }
-      const fileRef = await this.ref(...storageRefArgs);
-      return fileRef.getDownloadURL();
-    },
-
-    /**
-     * @description Get the Google Cloud Storage Bucket metadata for a given file
-     * @param {String|Number} fileId
-     * @returns {Promise}
-     */
-    async getMetadata(fileId, options = {}) {
-      if (!fileId) {
-        throw error('"storage.getMetadata()" should be called with at least the file ID');
-      }
-
-      const file = await this.getFile(fileId, options);
-
-      if (!file) {
-        throw error(`There is no file for File ID: "${fileId}"`);
-      }
-
-      const { file: filename } = file;
-
-      return this.ref(filename).getMetadata();
-    },
-
-    /**
-     * @description Update the Google Cloud Storage Bucket metadata for a given file
-     * @param {String|Number} fileId
-     * @param {Object|Null} payload
-     * @returns {Promise}
-     */
-    async updateMetadata(fileId, payload = {}) {
-      if (!fileId) {
-        throw error('"storage.updateMetadata()" should be called with at least the file ID');
-      }
-
-      const file = await this.getFile(fileId);
-
-      if (!file) {
-        throw error(`There is no file for File ID: "${fileId}"`);
-      }
-
-      const { file: filename } = file;
-
-      return this.ref(filename).updateMetadata(payload);
-    },
-
-    /**
-     * @description Delete a given file from the Cloud Storage Bucket as well as the real-time db
-     * @param {String|Number} fileId
-     * @returns {Promise}
-     */
-    async deleteFile(fileId, options = {}) {
-      if (!fileId) {
-        throw error('"storage.deleteFile()" should be called with at least the file ID');
-      }
-
-      const file = await this.getFile(fileId, options);
-
-      if (!file) {
-        return;
-      }
-
-      const { file: filename, sizes } = file;
-      const storageRef = this.ref(filename);
-
-      // Delete original file from storage bucket
-      await storageRef.delete();
-
-      // If sizes are set, delete all the resized images here
-      if (Array.isArray(sizes)) {
-        await Promise.all(
-          sizes.map(async size => {
-            const width = size.width || size.maxWidth;
-
-            if (!width) {
-              return Promise.resolve();
-            }
-
-            return this.ref(filename, { width }).delete();
-          })
-        );
-      }
-
-      // Delete file entry from the real-time db
-      return this.fileRef(fileId).remove();
-    },
-
-    /**
-     * @description Upload a given file to the Cloud Storage Bucket as well as the real-time db
-     * @param {String|File|Blob|Uint8Array} fileData
-     * @param {Object} [options={}]
-     * @returns {Object} UploadTask instance, which is similar to a Promise and an Observable
-     */
-    async upload(fileData, options = {}) {
-      const id = Date.now();
-      const metadata = options.metadata || {};
-      const filename =
-        (typeof fileData === 'object' && fileData.name) || typeof metadata.name === 'string'
-          ? `${id}_${metadata.name || fileData.name}`
-          : id;
-      const storageRef = this.ref(filename, options);
-      const updateMethod = typeof fileData === 'string' ? 'putString' : 'put';
-      const args = [fileData];
-
-      if (options.metadata) {
-        args.push(options.metadata);
-      }
-
-      // TODO: Test and verify how the Firebase SDK handles string uploads with encoding and metadata
-      // Is it the second argument then or should it be passed along with the metadata object?
-      if (updateMethod === 'putString' && options.stringEncoding) {
-        args.splice(1, 0, options.stringEncoding);
-      }
-
-      // Upload original file to storage bucket
-      const uploadTask = storageRef[updateMethod](...args);
-      const snapshot = await uploadTask;
-
-      const mediaType = /^image\//.test(snapshot.metadata.contentType) ? 'images' : 'files';
-      const folderId = await this._getFolderIdFromOptions(options);
-      const filePayload = {
-        id,
-        file: snapshot.metadata.name,
-        folderId,
-        type: mediaType,
-        contentType: snapshot.metadata.contentType
-      };
-
-      // If mediaType === 'images', file is resizeable and sizes/widths are set, resize images here
-      if (mediaType === 'images' && updateMethod === 'put' && Array.isArray(options.sizes)) {
-        filePayload.sizes = options.sizes;
-
-        await Promise.all(
-          options.sizes.map(size => this._createSizedImage(fileData, filename, size))
-        );
-      }
-
-      // Write to real-time db
-      await this._setFile(filePayload);
-
-      return uploadTask;
     }
   };
 

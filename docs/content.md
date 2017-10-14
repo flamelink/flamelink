@@ -50,7 +50,9 @@ app.content.get('blog-posts', { fields: [ 'title', 'description', 'image' ] })
 
 ##### Populate
 
-- `populate` **{Array}** - A list of relational fields to be populated with their content for each entry.
+- `populate` **{Array}** - A list of relational and/or media (images/files) fields to be populated with their content for each entry.
+
+?> **Pro Tip:** When specifying a media field to be populated for you, it will replace the file ID for you with an object containing all the files data including a `url` property which is the URL to your file in the storage bucket.
 
 *Example*
 
@@ -62,15 +64,20 @@ app.content.get('blog-posts', { populate: [ 'category' ] });
 
 There is also an alternative, more flexible option, to pass through an array of objects instead of strings. The important thing is to set the `field` attribute to the name of the field that should be populated.
 
-This option allows you to apply other options and filters like the `fields` option above to each populated entry, as well as allow infinitely nested relationships. As an example, the following code snippet will find all your blog posts and then populate the `category` relational field, but only return the `id`, `name`, `icon` and `section` for each category assigned to each blog post. Additionally, each `category` might be related to a `section`, so populate that as well.
+This option allows you to apply other options and filters like the `fields` option above to each populated entry, as well as allow infinitely nested relationships. As an example, the following code snippet will find all your blog posts and then populate the `category` relational field along with the `banner-image` media field, but only return the `id`, `name`, `icon` and `section` for each category assigned to each blog post. Additionally, each `category` might be related to a `section`, so populate that as well.
 
 ```javascript
 app.content.get('blog-posts', {
-  populate: [{
-    field: 'category',
-    fields: [ 'id', 'name', 'icon', 'section' ],
-    populate: [ 'section' ]
-  }]
+  populate: [
+    {
+      field: 'category',
+      fields: [ 'id', 'name', 'icon', 'section' ],
+      populate: [ 'section' ]
+    },
+    {
+      field: 'banner-image'
+    }
+  ]
 });
 ```
 
@@ -223,7 +230,7 @@ app.content.subscribe('blog-posts', { fields: [ 'title', 'description', 'image' 
 
 ##### Populate
 
-- `populate` **{Array}** - A list of relational fields to be populated with their content for each entry.
+- `populate` **{Array}** - A list of relational or media fields to be populated with their content for each entry.
 
 *Example*
 

@@ -162,4 +162,41 @@ app.schemas.subscribe({ event: 'child_changed' }, function(error, schemas) {
 
 This method has no return value, but makes use of an [error-first callback](https://www.google.com/search?q=error-first+callback&oq=javascript+error-first+callback) function that should be passed as the last argument.
 
+---
+
+## .unsubscribe()
+
+This method is used to unsubscribe from previously subscribed schema updates or other child events. It is the equivalent of Firebase's `.off()` method and taking the Flamelink data structures into consideration.
+
+*To unsubscribe from a specific schema:*
+
+```javascript
+app.schemas.unsubscribe('product-categories');
+```
+
+*To unsubscribe from the `child_removed` event for a specific schema:*
+
+```javascript
+app.schemas.unsubscribe('product-categories', 'child_removed');
+```
+
+*To unsubscribe from all events for the schemas:*
+
+```javascript
+app.schemas.unsubscribe();
+```
+
+### Input parameters
+
+All parameters are optional and calling this method without options will unsubscribe from all callbacks.
+
+| Type     | Variable    | Required | Description                                                    |
+| -------- | ----------- | -------- | -------------------------------------------------------------- |
+| String   | `schemaKey` | optional | The schema key or reference to unsubscribe from                |
+| String   | `event`     | optional | The child event to unsubscribe from (see allowed child events) |
+
+### Return value
+
+This method has no return value.
+
 Next up: [Storage/Media](/storage)

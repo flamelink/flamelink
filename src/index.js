@@ -178,6 +178,115 @@ function flamelink(conf = {}) {
     },
 
     /**
+     * @description Establish stream to read value consistently from db, returning the raw snapshot
+     * @param {String} [schemaKey]
+     * @param {Object} [options={}]
+     * @param {Function} cb
+     * @returns {Promise} Resolves to snapshot of query
+     */
+    subscribeRaw(schemaKey, options = {}, cb) {
+      // Single schema
+      if (typeof schemaKey === 'string') {
+        if (!cb) {
+          cb = options; // second param is then the callback
+          options = {}; // set default options
+        }
+
+        const ordered = applyOrderBy(this.ref(schemaKey), options);
+        const filtered = applyFilters(ordered, options);
+
+        return filtered.on(options.event || 'value', cb);
+      }
+
+      // All schemas
+      cb = options;
+      options = schemaKey;
+
+      if (typeof cb === 'object') {
+        cb = schemaKey; // first param is then the callback
+        options = {}; // set default options
+      }
+
+      const ordered = applyOrderBy(this.ref(null), options);
+      const filtered = applyFilters(ordered, options);
+
+      return filtered.on(options.event || 'value', cb);
+    },
+
+    /**
+     * @description Establish stream to read value consistently from db, returning the processed value
+     * @param {String} [schemaKey]
+     * @param {Object} [options={}]
+     * @param {Function} cb
+     * @returns {Promise} Resolves to value of query
+     */
+    subscribe(schemaKey, options = {}, cb) {
+      try {
+        // Single schema
+        if (typeof schemaKey === 'string') {
+          if (!cb || typeof options === 'function') {
+            cb = options; // second param is then the callback
+            options = {}; // set default options
+          }
+
+          const pluckFields = pluckResultFields(options.fields);
+
+          return this.subscribeRaw(schemaKey, options, async snapshot => {
+            const wrappedSchema = await compose(pluckFields)({ [schemaKey]: snapshot.val() });
+            const schema = wrappedSchema[schemaKey];
+            return cb(null, schema); // Error-first callback
+          });
+        }
+
+        // All schemas
+        cb = options;
+        options = schemaKey;
+
+        if (typeof cb === 'object') {
+          cb = schemaKey; // first param is then the callback
+          options = {}; // set default options
+        }
+
+        const pluckFields = pluckResultFields(options.fields);
+
+        return this.subscribeRaw(options, async snapshot => {
+          const pluckedSchemas = await compose(pluckFields)(snapshot.val());
+
+          cb(null, pluckedSchemas); // Error-first callback
+        });
+      } catch (err) {
+        return cb(err);
+      }
+    },
+
+    /**
+     * @description Detach listeners from given reference.
+     * @param {String} schemaKey
+     * @param {String} event
+     * @returns {Promise}
+     */
+    unsubscribe(...args) {
+      if (args.length === 2) {
+        // Is second arg a valid firebase child event?
+        if (ALLOWED_CHILD_EVENTS.includes(args[1])) {
+          // args[0] = schemaKey
+          // args[1] = event
+          return this.ref(args[0]).off(args[1]);
+        }
+
+        throw error(`"${args[1]}" is not a valid child event`);
+      }
+
+      if (args.length === 1) {
+        return this.ref(args[0]).off();
+      }
+
+      throw error(
+        '"unsubscribe" method needs to be called with min 1 argument and max 2 arguments'
+      );
+    },
+
+    /**
      * @description Save data for a specific schema.
      * This overwrites data at the specified location, including any child nodes.
      * @param {String} schemaKey
@@ -687,8 +796,7 @@ function flamelink(conf = {}) {
     },
 
     /**
-     * Establish stream to read value consistently from db, returning the raw snapshot
-     *
+     * @description Establish stream to read value consistently from db, returning the raw snapshot
      * @param {String} [navRef]
      * @param {Object} [options={}]
      * @param {Function} cb
@@ -724,9 +832,8 @@ function flamelink(conf = {}) {
     },
 
     /**
-     * Establish stream to read value consistently from db, returning the processed value
-     *
-     * @param {String} navRef
+     * @description Establish stream to read value consistently from db, returning the processed value
+     * @param {String} [navRef]
      * @param {Object} [options={}]
      * @param {Function} cb
      * @returns {Promise} Resolves to value of query
@@ -814,8 +921,7 @@ function flamelink(conf = {}) {
     },
 
     /**
-     * Detach listeners from given reference.
-     *
+     * @description Detach listeners from given reference.
      * @param {String} navRef
      * @param {String} event
      * @returns {Promise}

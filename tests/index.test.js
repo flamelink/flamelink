@@ -1178,6 +1178,174 @@ describe('Flamelink SDK', () => {
         ));
     });
 
+    test('should expose a "subscribeRaw" method', () => {
+      const cb = jest.fn();
+      flamelink(basicConfig).schemas.subscribeRaw('ref', {}, cb);
+      expect(cb.mock.calls.length).toEqual(1);
+      expect(cb.mock.calls[0][0].val()).toEqual('"on" called with event: "value"');
+      flamelink(basicConfig).schemas.subscribeRaw('ref', cb);
+      expect(cb.mock.calls.length).toEqual(2);
+      expect(cb.mock.calls[0][0].val()).toEqual('"on" called with event: "value"');
+    });
+
+    describe('"subscribe" Method', () => {
+      test('should have a related "subscribeRaw" method', () => {
+        const tests = [
+          {
+            args: [jest.fn()],
+            expect: '"on" called with event: "value"'
+          },
+          {
+            args: [{}, jest.fn()],
+            expect: '"on" called with event: "value"'
+          },
+          {
+            args: ['schemaKey', jest.fn()],
+            expect: '"on" called with event: "value"'
+          },
+          {
+            args: ['schemaKey', {}, jest.fn()],
+            expect: '"on" called with event: "value"'
+          },
+          {
+            args: ['schemaKey', { event: 'child_moved' }, jest.fn()],
+            expect: '"on" called with event: "child_moved"'
+          }
+        ];
+
+        tests.forEach(test => {
+          flamelink(basicConfig).schemas.subscribeRaw(...test.args);
+          const cb = test.args.pop();
+          expect(cb.mock.calls.length).toEqual(1);
+          expect(cb.mock.calls[0][0].val()).toEqual(test.expect);
+        });
+      });
+
+      test('should handle arguments in any of the acceptable orders', done => {
+        // Callback automatically added as the last argument for each test
+        const tests = [
+          {
+            args: [],
+            expect: '"on" called with event: "value"'
+          },
+          {
+            args: [{}],
+            expect: '"on" called with event: "value"'
+          },
+          {
+            args: ['schemaKey'],
+            expect: '"on" called with event: "value"'
+          },
+          {
+            args: ['schemaKey', {}],
+            expect: '"on" called with event: "value"'
+          },
+          {
+            args: ['schemaKey', { event: 'child_moved' }],
+            expect: '"on" called with event: "child_moved"'
+          }
+        ];
+
+        tests.forEach((test, index) => {
+          flamelink(basicConfig).schemas.subscribe(...test.args, result => {
+            expect(result).toEqual(null, test.expect);
+
+            if (tests.length === index + 1) {
+              done();
+            }
+          });
+        });
+      });
+
+      test('should respect the "fields" option for a single schema', done => {
+        const schemaKey = 'get-schema';
+        const options = { fields: ['description', 'id', 'title'] };
+
+        flamelink(basicConfig).schemas.subscribe(schemaKey, options, result => {
+          expect(result).toEqual(null, {
+            description: expect.any(String),
+            id: expect.any(String),
+            title: expect.any(String)
+          });
+          done();
+        });
+      });
+
+      test('should respect the "fields" option for all schemas', done => {
+        const options = { fields: ['description', 'id', 'title'] };
+
+        flamelink(basicConfig).schemas.subscribe(options, result => {
+          expect(result).toEqual(null, {
+            'about-us': {
+              description: expect.any(String),
+              id: expect.any(String),
+              title: expect.any(String)
+            },
+            brands: {
+              description: expect.any(String),
+              id: expect.any(String),
+              title: expect.any(String)
+            }
+          });
+          done();
+        });
+      });
+    });
+
+    describe.only('"unsubscribe" Method', () => {
+      test('should throw if called with incorrect number of arguments', () => {
+        let message;
+
+        try {
+          flamelink(basicConfig).schemas.unsubscribe();
+        } catch (error) {
+          message = error.message;
+        }
+
+        expect(message).toMatch(
+          '[FLAMELINK] "unsubscribe" method needs to be called with min 1 argument and max 2 arguments'
+        );
+
+        message = '';
+
+        try {
+          flamelink(basicConfig).schemas.unsubscribe('ref', 'value', 'some-3rd-arg');
+        } catch (error) {
+          message = error.message;
+        }
+
+        expect(message).toMatch(
+          '[FLAMELINK] "unsubscribe" method needs to be called with min 1 argument and max 2 arguments'
+        );
+      });
+
+      test('should throw if called with invalid child event', () => {
+        let message;
+        const event = 'invalid-event';
+
+        try {
+          flamelink(basicConfig).schemas.unsubscribe('ref', event);
+        } catch (error) {
+          message = error.message;
+        }
+
+        expect(message).toMatch(`[FLAMELINK] "${event}" is not a valid child event`);
+      });
+
+      test('should unsubscribe all events for given schema ref', () => {
+        expect(flamelink(basicConfig).schemas.unsubscribe('ref')).toEqual(
+          '"off" called with event: "undefined"'
+        );
+      });
+
+      test('should unsubscribe given event for given schema ref', () => {
+        const event = 'child_moved';
+        expect(flamelink(basicConfig).schemas.unsubscribe('ref', event)).toEqual(
+          `"off" called with event: "${event}"`
+        );
+      });
+    });
+
     test('should expose a "set" method', () => {
       const payload = { key: 'value' };
 

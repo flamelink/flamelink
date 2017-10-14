@@ -19,7 +19,7 @@ app.schemas.get('product-categories')
 *or to get all schemas (with options):*
 
 ```javascript
-app.schemas.get({ fields: [ 'title', 'description', 'fields ] })
+app.schemas.get({ fields: [ 'title', 'description', 'fields' ] })
   .then(allSchemas => console.log('All schemas with options applied:', allSchemas))
   .catch(error => console.error('Something went wrong while retrieving the entry. Details:', error));
 ```
@@ -66,6 +66,59 @@ app.schemas.get('product-categories', { event: 'child_changed' })
 ### Return value
 
 A `Promise` that resolves to the reference `{Object}` on success or will reject with an error if the request fails.
+
+---
+
+## .getFields()
+
+To retrieve only the `fields` array for either a single schema entry or all the schemas once, ie. Give me the fields for my "Product Categories" schema.
+
+This method does not *watch* for real-time db changes, but is intended to retrieve your schema once. If you are looking for real-time methods, take a look at the [`app.schemas.subscribe()`](/schemas?id=subscribe) method below.
+
+*To get the fields for a specific schema:*
+
+```javascript
+app.schemas.getFields('product-categories')
+  .then(schema => console.log('Product Categories Schema Fields:', schema))
+  .catch(error => console.error('Something went wrong while retrieving the schema fields. Details:', error));
+```
+
+*or to get the fields for all schemas (with options):*
+
+```javascript
+app.schemas.getFields({ fields: [ 'title', 'description' ] })
+  .then(allSchemasFields => console.log('Fields for all schemas with options applied:', allSchemasFields))
+  .catch(error => console.error('Something went wrong while retrieving the fields. Details:', error));
+```
+
+### Input parameters
+
+| Type   | Variable    | Required | Description                                            |
+| ------ | ----------- | -------- | ------------------------------------------------------ |
+| String | `schemaKey` | optional | The schema database key/reference you want to retrieve |
+| Object | `options`   | optional | Additional options                                     |
+
+?> **Tip:** Leave the schema key out or set to `null` to retrieve all schemas
+
+#### Available Options
+
+The following optional options can be specified when retrieving your schema(s):
+
+##### Fields
+
+- `fields` **{Array}** - A list of fields to be plucked from an/each field entry.
+
+*Example*
+
+To retrieve the `'product-categories'` schema fields, but only the `title` and `description` properties.
+
+```javascript
+app.schemas.getFields('product-categories', { fields: [ 'title', 'description' ] })
+```
+
+### Return value
+
+A `Promise` that resolves to the fields `{Array}` for single schemas or `{Object}` for all schemas on success or will reject with an error if the request fails.
 
 ---
 

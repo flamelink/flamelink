@@ -1177,6 +1177,40 @@ describe('Flamelink SDK', () => {
           })
         ));
     });
+
+    test('should expose a "set" method', () => {
+      const payload = { key: 'value' };
+
+      return expect(flamelink(basicConfig).schemas.set('ref', payload)).resolves.toEqual(
+        `"set" called with payload: "${JSON.stringify(payload)}"`
+      );
+    });
+
+    test('should expose an "update" method', () => {
+      const payload = { key: 'value' };
+
+      return expect(flamelink(basicConfig).schemas.update('ref', payload)).resolves.toEqual(
+        `"update" called with payload: "${JSON.stringify(payload)}"`
+      );
+    });
+
+    test('should expose a "remove" method', () => {
+      const ref = 'choccie';
+      return expect(flamelink(basicConfig).schemas.remove(ref)).resolves.toEqual(
+        `"remove" called for "/environments/production/schemas/${ref}"`
+      );
+    });
+
+    test('should expose a "transaction" method', () => {
+      const updateFn = jest.fn();
+      const completeFn = jest.fn();
+      flamelink(basicConfig).schemas.transaction('ref', updateFn, completeFn);
+      expect(updateFn.mock.calls.length).toEqual(1);
+      expect(completeFn.mock.calls.length).toEqual(1);
+      flamelink(basicConfig).schemas.transaction('ref', updateFn);
+      expect(updateFn.mock.calls.length).toEqual(2);
+      expect(completeFn.mock.calls.length).toEqual(1);
+    });
   });
 
   describe('Storage', () => {

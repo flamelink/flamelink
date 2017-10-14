@@ -175,6 +175,65 @@ function flamelink(conf = {}) {
           }),
         {}
       );
+    },
+
+    /**
+     * @description Save data for a specific schema.
+     * This overwrites data at the specified location, including any child nodes.
+     * @param {String} schemaKey
+     * @param {Object} payload
+     * @returns {Promise}
+     */
+    set(schemaKey, payload) {
+      if (typeof schemaKey !== 'string' || (typeof payload !== 'object' && payload !== null)) {
+        throw error('"set" called with the incorrect arguments. Check the docs for details.');
+      }
+
+      return this.ref(schemaKey).set(payload);
+    },
+
+    /**
+     * @description Simultaneously write to specific children of a node without overwriting other child nodes.
+     * @param {String} schemaKey
+     * @param {Object} payload
+     * @returns {Promise}
+     */
+    update(schemaKey, payload) {
+      if (typeof schemaKey !== 'string' || (typeof payload !== 'object' && payload !== null)) {
+        throw error('"update" called with the incorrect arguments. Check the docs for details.');
+      }
+
+      return this.ref(schemaKey).update(payload);
+    },
+
+    /**
+     * @description The simplest way to delete a schema.
+     * @param {String} schemaKey
+     * @returns {Promise}
+     */
+    remove(schemaKey) {
+      if (typeof schemaKey !== 'string') {
+        throw error('"remove" called with the incorrect arguments. Check the docs for details.');
+      }
+      return this.ref(schemaKey).remove();
+    },
+
+    /**
+     * @description Transactional operation
+     * https://firebase.google.com/docs/reference/js/firebase.database.Reference#transaction
+     * @param {String} schemaKey
+     * @param {Function} updateFn
+     * @param {Function} [cb=() => {}]
+     * @returns
+     */
+    transaction(schemaKey, updateFn, cb = () => {}) {
+      if (typeof schemaKey !== 'string' || typeof updateFn !== 'function') {
+        throw error(
+          '"transaction" called with the incorrect arguments. Check the docs for details.'
+        );
+      }
+
+      return this.ref(schemaKey).transaction(updateFn, cb);
     }
   };
 

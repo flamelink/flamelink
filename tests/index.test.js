@@ -575,7 +575,7 @@ describe('Flamelink SDK', () => {
       const ref = 'choccie';
       const entryRef = 'choccie';
       return expect(flamelink(basicConfig).content.remove(ref, entryRef)).resolves.toEqual(
-        `"remove" called for "/environments/production/content/${ref}/en-US"`
+        `"remove" called for "/flamelink/environments/production/content/${ref}/en-US"`
       );
     });
 
@@ -996,7 +996,7 @@ describe('Flamelink SDK', () => {
     test('should expose a "remove" method', () => {
       const ref = 'choccie';
       return expect(flamelink(basicConfig).nav.remove(ref)).resolves.toEqual(
-        `"remove" called for "/environments/production/navigation/${ref}/en-US"`
+        `"remove" called for "/flamelink/environments/production/navigation/${ref}/en-US"`
       );
     });
 
@@ -1366,7 +1366,7 @@ describe('Flamelink SDK', () => {
     test('should expose a "remove" method', () => {
       const ref = 'choccie';
       return expect(flamelink(basicConfig).schemas.remove(ref)).resolves.toEqual(
-        `"remove" called for "/environments/production/schemas/${ref}"`
+        `"remove" called for "/flamelink/environments/production/schemas/${ref}"`
       );
     });
 
@@ -1798,7 +1798,7 @@ describe('Flamelink SDK', () => {
       test('should call the Firebase "delete" method', () => {
         const fileId = 123456789;
         return expect(flamelink(basicConfig).storage.deleteFile(fileId)).resolves.toEqual(
-          `"remove" called for "/media/files/${fileId}"`
+          `"remove" called for "/flamelink/media/files/${fileId}"`
         );
       });
     });

@@ -19,7 +19,7 @@ describe('Flamelink SDK > Utils', () => {
         const env = 'my-environment';
         const locale = 'my-locale';
         expect(utils.getContentRefPath(ref, env, locale)).toBe(
-          `/environments/${env}/content/${ref}/${locale}`
+          `/flamelink/environments/${env}/content/${ref}/${locale}`
         );
 
         try {
@@ -48,7 +48,7 @@ describe('Flamelink SDK > Utils', () => {
         const env = 'my-environment';
         const locale = 'my-locale';
         expect(utils.getNavigationRefPath(ref, env, locale)).toBe(
-          `/environments/${env}/navigation/${ref}/${locale}`
+          `/flamelink/environments/${env}/navigation/${ref}/${locale}`
         );
 
         try {
@@ -77,7 +77,7 @@ describe('Flamelink SDK > Utils', () => {
         const env = 'my-environment';
         const locale = 'my-locale';
         expect(utils.getSchemasRefPath(ref, env, locale)).toBe(
-          `/environments/${env}/schemas/${ref}`
+          `/flamelink/environments/${env}/schemas/${ref}`
         );
 
         try {
@@ -123,9 +123,9 @@ describe('Flamelink SDK > Utils', () => {
       test('should return the correct reference string for the given properties', () => {
         const fileID = '1506860602196';
 
-        expect(utils.getFileRefPath(fileID)).toBe(`/media/files/${fileID}`);
+        expect(utils.getFileRefPath(fileID)).toBe(`/flamelink/media/files/${fileID}`);
 
-        expect(utils.getFileRefPath()).toBe(`/media/files/`);
+        expect(utils.getFileRefPath()).toBe(`/flamelink/media/files/`);
       });
     });
 
@@ -133,9 +133,9 @@ describe('Flamelink SDK > Utils', () => {
       test('should return the correct reference string for the given properties', () => {
         const folderID = '1505670341980';
 
-        expect(utils.getFolderRefPath(folderID)).toBe(`/media/folders/${folderID}`);
+        expect(utils.getFolderRefPath(folderID)).toBe(`/flamelink/media/folders/${folderID}`);
 
-        expect(utils.getFolderRefPath()).toBe(`/media/folders/`);
+        expect(utils.getFolderRefPath()).toBe(`/flamelink/media/folders/`);
       });
     });
   });

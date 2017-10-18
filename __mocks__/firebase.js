@@ -56,7 +56,7 @@ const mockedDatabaseRef = jest.fn(ref => ({
     once: event => {
       switch (ref) {
         // NAVIGATION
-        case '/environments/production/navigation/get-items-ref/en-US':
+        case '/flamelink/environments/production/navigation/get-items-ref/en-US':
           return Promise.resolve({
             val: jest.fn().mockImplementation(() => [
               {
@@ -87,7 +87,7 @@ const mockedDatabaseRef = jest.fn(ref => ({
           });
 
         // CONTENT
-        case '/environments/production/content/get-entry-ref/en-US':
+        case '/flamelink/environments/production/content/get-entry-ref/en-US':
           return Promise.resolve({
             val: jest.fn(() => ({
               brand: [1491679616700],
@@ -113,7 +113,7 @@ const mockedDatabaseRef = jest.fn(ref => ({
             }))
           });
 
-        case '/environments/production/content/brands/en-US':
+        case '/flamelink/environments/production/content/brands/en-US':
           return Promise.resolve({
             val: jest.fn(() => ({
               id: 1491679616700,
@@ -133,7 +133,7 @@ const mockedDatabaseRef = jest.fn(ref => ({
       if (cb) {
         switch (ref) {
           // CONTENT
-          case '/environments/production/content/subscribe-content-entry-ref/en-US':
+          case '/flamelink/environments/production/content/subscribe-content-entry-ref/en-US':
             cb({
               val: () => ({
                 brand: [1491679616700],
@@ -182,19 +182,19 @@ const mockedDatabaseRef = jest.fn(ref => ({
   once: event => {
     switch (ref) {
       // LOCALES
-      case '/settings/locales':
+      case '/flamelink/settings/locales':
         return Promise.resolve({
           val: jest.fn().mockImplementation(() => ['en-US'])
         });
 
       // ENVIRONMENTS
-      case '/settings/environments':
+      case '/flamelink/settings/environments':
         return Promise.resolve({
           val: jest.fn().mockImplementation(() => ['production'])
         });
 
       // NAVIGATION
-      case '/environments/production/navigation/get-ref/en-US':
+      case '/flamelink/environments/production/navigation/get-ref/en-US':
         return Promise.resolve({
           val: jest.fn().mockImplementation(() => ({
             id: 'main',
@@ -228,7 +228,7 @@ const mockedDatabaseRef = jest.fn(ref => ({
           }))
         });
 
-      case '/environments/production/navigation/':
+      case '/flamelink/environments/production/navigation/':
         return Promise.resolve({
           val: jest.fn().mockImplementation(() => ({
             main: {
@@ -299,8 +299,8 @@ const mockedDatabaseRef = jest.fn(ref => ({
         });
 
       // CONTENT
-      case '/environments/production/content/get-ref/en-US':
-      case '/environments/production/content/raw-get-ref/en-US':
+      case '/flamelink/environments/production/content/get-ref/en-US':
+      case '/flamelink/environments/production/content/raw-get-ref/en-US':
         return Promise.resolve({
           val: jest.fn().mockImplementation(() => ({
             'content-type-1': {
@@ -315,7 +315,7 @@ const mockedDatabaseRef = jest.fn(ref => ({
         });
 
       // SCHEMAS
-      case '/environments/production/schemas/':
+      case '/flamelink/environments/production/schemas/':
         return Promise.resolve({
           val: jest.fn(() => ({
             'about-us': {
@@ -415,7 +415,7 @@ const mockedDatabaseRef = jest.fn(ref => ({
           }))
         });
 
-      case '/environments/production/schemas/get-schema':
+      case '/flamelink/environments/production/schemas/get-schema':
         return Promise.resolve({
           val: jest.fn(() => ({
             description: 'Brands',
@@ -469,8 +469,8 @@ const mockedDatabaseRef = jest.fn(ref => ({
           }))
         });
 
-      case '/environments/production/schemas/get-entry-ref/fields':
-      case '/environments/production/schemas/subscribe-content-entry-ref/fields':
+      case '/flamelink/environments/production/schemas/get-entry-ref/fields':
+      case '/flamelink/environments/production/schemas/subscribe-content-entry-ref/fields':
         return Promise.resolve({
           val: jest.fn(() => [
             {
@@ -510,7 +510,7 @@ const mockedDatabaseRef = jest.fn(ref => ({
         });
 
       // MEDIA (FOLDERS)
-      case '/media/folders/':
+      case '/flamelink/media/folders/':
         return Promise.resolve({
           val: jest.fn(() => ({
             '1505670341980': {
@@ -530,7 +530,7 @@ const mockedDatabaseRef = jest.fn(ref => ({
         });
 
       // MEDIA (FILES)
-      case '/media/files/':
+      case '/flamelink/media/files/':
         return Promise.resolve({
           TESTING: {
             event
@@ -538,7 +538,7 @@ const mockedDatabaseRef = jest.fn(ref => ({
           val: jest.fn(() => getAllFiles())
         });
 
-      case '/media/files/123456789':
+      case '/flamelink/media/files/123456789':
         return Promise.resolve({
           TESTING: {
             event
@@ -552,7 +552,7 @@ const mockedDatabaseRef = jest.fn(ref => ({
           }))
         });
 
-      case '/media/files/987654321':
+      case '/flamelink/media/files/987654321':
         return Promise.resolve({
           TESTING: {
             event

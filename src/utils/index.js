@@ -59,16 +59,16 @@ export const getContentRefPath = (
   ref = missingRefParam(),
   env = missingRefParam(),
   locale = missingRefParam()
-) => `/environments/${env}/content/${ref}/${locale}`;
+) => `/flamelink/environments/${env}/content/${ref}/${locale}`;
 
 export const getNavigationRefPath = (
   ref = missingRefParam(),
   env = missingRefParam(),
   locale = missingRefParam()
-) => `/environments/${env}/navigation/${ref ? `${ref}/${locale}` : ''}`;
+) => `/flamelink/environments/${env}/navigation/${ref ? `${ref}/${locale}` : ''}`;
 
 export const getSchemasRefPath = (ref = missingRefParam(), env = missingRefParam()) =>
-  `/environments/${env}/schemas/${ref || ''}`;
+  `/flamelink/environments/${env}/schemas/${ref || ''}`;
 
 /**
  * @description Return the reference path for the given file in the Cloud Storage Bucket
@@ -82,13 +82,13 @@ export const getStorageRefPath = (filename = missingRefParam(), { width } = {}) 
  * @description Return the reference path for the given file in the realtime db
  * @param {String} fileID
  */
-export const getFileRefPath = fileID => `/media/files/${fileID || ''}`;
+export const getFileRefPath = fileID => `/flamelink/media/files/${fileID || ''}`;
 
 /**
  * @description Return the reference path for the given folder in the realtime db
  * @param {String} folderID
  */
-export const getFolderRefPath = folderID => `/media/folders/${folderID || ''}`;
+export const getFolderRefPath = folderID => `/flamelink/media/folders/${folderID || ''}`;
 
 export const filterByFolderId = curry((folderId, files) => {
   if (!folderId) {

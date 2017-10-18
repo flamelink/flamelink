@@ -1421,7 +1421,7 @@ function flamelink(conf = {}) {
     setLocale(locale = locale_) {
       return new Promise((resolve, reject) => {
         databaseService_
-          .ref('/settings/locales')
+          .ref('/flamelink/settings/locales')
           .once('value')
           .then(snapshot => {
             const supportedLocales_ = snapshot.val();
@@ -1457,7 +1457,7 @@ function flamelink(conf = {}) {
     setEnv(env = env_) {
       return new Promise((resolve, reject) => {
         databaseService_
-          .ref('/settings/environments')
+          .ref('/flamelink/settings/environments')
           .once('value')
           .then(snapshot => {
             const supportedEnvironments_ = snapshot.val();

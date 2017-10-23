@@ -168,115 +168,222 @@ export const prepPopulateFields = populate => {
  * properties recursively.
  */
 export const populateEntry = curry(
-  async (schemasAPI, contentAPI, storageAPI, contentType, populate, entry) => {
-    if (!entry) {
-      return entry;
+  async (schemasAPI, contentAPI, storageAPI, contentType, populate, originalEntry) => {
+    if (!originalEntry) {
+      return originalEntry;
     }
 
-    const entryKeys = Object.keys(entry);
+    const entryKeys = Object.keys(originalEntry);
 
     if (entryKeys.length === 0) {
       throw error('"populateEntry" should be called with an object of objects');
     }
 
-    const schemaFields = await schemasAPI.getFields(contentType);
+    const processEntry = curry(async (entry, schemaFields, preppedPopulateFields, entryKey) => {
+      if (!preppedPopulateFields[0]) {
+        return entry;
+      }
 
-    const entries = await Promise.all(
-      entryKeys.map(async entryKey => {
-        const preppedPopulateFields = prepPopulateFields(populate);
+      const fieldsToPopulate = preppedPopulateFields.reduce((fields, preppedField) => {
+        const schemaField =
+          schemaFields && schemaFields.find(field => field.key === preppedField.field);
 
-        if (!preppedPopulateFields[0]) {
-          return entry;
-        }
-        // TODO: Update logic here to handle `media` types as well
-        const fieldsToPopulate = preppedPopulateFields.reduce((fields, preppedField) => {
-          const schemaField =
-            schemaFields && schemaFields.find(field => field.key === preppedField.field);
-          if (schemaField && schemaField.relation) {
-            return fields.concat([
-              Object.assign({}, preppedField, { contentType: schemaField.relation })
-            ]);
-          }
-          if (
-            schemaField &&
-            schemaField.type === 'media' &&
-            isArray(schemaField.mediaTypes) &&
-            schemaField.mediaTypes[0]
-          ) {
-            return fields.concat([Object.assign({}, preppedField, { isFile: true })]);
-          }
-          return fields;
-        }, []);
-
-        if (!fieldsToPopulate[0]) {
-          return entry;
+        // Relational Fields
+        if (schemaField && schemaField.relation) {
+          return fields.concat([
+            Object.assign({}, preppedField, {
+              contentType: schemaField.relation,
+              populateType: 'relational'
+            })
+          ]);
         }
 
-        const populatedFields = await Promise.all(
-          fieldsToPopulate.map(async populateField => {
-            const { field, contentType: innerContentType, isFile } = populateField;
+        // Media Fields
+        if (
+          schemaField &&
+          schemaField.type === 'media' &&
+          isArray(schemaField.mediaTypes) &&
+          schemaField.mediaTypes[0]
+        ) {
+          return fields.concat([Object.assign({}, preppedField, { populateType: 'media' })]);
+        }
 
-            // if it exists, the entry value for this field should be an array
-            if (entry[entryKey].hasOwnProperty(field)) {
-              const relationalEntries = entry[entryKey][field];
+        // Repeater Fields
+        if (schemaField && schemaField.type === 'repeater' && isArray(preppedField.subFields)) {
+          return fields.concat([Object.assign({}, preppedField, { populateType: 'repeater' })]);
+        }
 
-              if (!isArray(relationalEntries)) {
-                throw error(
-                  `The "${field}" field does not seem to be a relational property for the "${contentType}" content type.`
-                );
-              }
+        // Fieldset Fields
+        if (schemaField && schemaField.type === 'fieldset' && isArray(preppedField.subFields)) {
+          return fields.concat([Object.assign({}, preppedField, { populateType: 'fieldset' })]);
+        }
 
-              const populatedRelationsEntries = await Promise.all(
-                relationalEntries.map(async innerEntryKey => {
-                  const pluckFields = pluckResultFields(populateField.fields);
-                  const populateFields = populateEntry(
-                    schemasAPI,
-                    contentAPI,
-                    storageAPI,
-                    innerContentType,
-                    innerEntryKey,
-                    populateField.populate
-                  );
+        return fields;
+      }, []);
 
-                  let wrapValue = {};
+      if (!fieldsToPopulate[0]) {
+        return entry;
+      }
 
-                  if (isFile) {
+      const populatedFields = await Promise.all(
+        fieldsToPopulate.map(async populateField => {
+          const { field, subFields, contentType: innerContentType, populateType } = populateField;
+
+          switch (populateType) {
+            case 'media':
+              // if it exists, the entry value for this field should be an array
+              if (entry[entryKey].hasOwnProperty(field)) {
+                const mediaEntries = entry[entryKey][field];
+
+                if (!isArray(mediaEntries)) {
+                  throw error(`The "${field}" field does not seem to be a valid media property.`);
+                }
+
+                return Promise.all(
+                  mediaEntries.map(async innerEntryKey => {
+                    const pluckFields = pluckResultFields(populateField.fields);
+                    const populateFields = populateEntry(
+                      schemasAPI,
+                      contentAPI,
+                      storageAPI,
+                      innerContentType,
+                      innerEntryKey,
+                      populateField.populate
+                    );
+
                     const [fileObject, fileURL] = await Promise.all([
                       storageAPI.getFile(innerEntryKey, populateField),
                       storageAPI.getURL(innerEntryKey, populateField)
                     ]);
-                    wrapValue = {
+                    const wrapValue = {
                       [innerEntryKey]: Object.assign({}, fileObject, { url: fileURL })
                     };
-                  } else {
+
+                    const result = await compose(populateFields, pluckFields)(wrapValue);
+                    return result[innerEntryKey];
+                  })
+                );
+              }
+
+              return null;
+
+            case 'relational':
+              // if it exists, the entry value for this field should be an array
+              if (entry[entryKey].hasOwnProperty(field)) {
+                const relationalEntries = entry[entryKey][field];
+
+                if (!isArray(relationalEntries)) {
+                  throw error(
+                    `The "${field}" field does not seem to be a relational property for the "${contentType}" content type.`
+                  );
+                }
+
+                return Promise.all(
+                  relationalEntries.map(async innerEntryKey => {
+                    const pluckFields = pluckResultFields(populateField.fields);
+                    const populateFields = populateEntry(
+                      schemasAPI,
+                      contentAPI,
+                      storageAPI,
+                      innerContentType,
+                      innerEntryKey,
+                      populateField.populate
+                    );
+
                     const snapshot = await contentAPI.getRaw(
                       innerContentType,
                       innerEntryKey,
                       populateField
                     );
-                    wrapValue = { [innerEntryKey]: snapshot.val() };
-                  }
+                    const wrapValue = { [innerEntryKey]: snapshot.val() };
 
-                  const result = await compose(populateFields, pluckFields)(wrapValue);
-                  return result[innerEntryKey];
-                })
-              );
+                    const result = await compose(populateFields, pluckFields)(wrapValue);
+                    return result[innerEntryKey];
+                  })
+                );
+              }
 
-              return populatedRelationsEntries;
-            }
+              return null;
 
-            return null;
-          })
-        );
+            case 'repeater':
+              // if it exists, the entry value for this field should be an array
+              if (entry[entryKey].hasOwnProperty(field)) {
+                const repeaterFields = entry[entryKey][field];
 
-        return fieldsToPopulate.reduce((populatedEntry, populateField, index) => {
-          const { field } = populateField;
-          if (populatedEntry[entryKey].hasOwnProperty(field)) {
-            populatedEntry[entryKey][field] = populatedFields[index]; // eslint-disable-line no-param-reassign
+                if (!isArray(repeaterFields)) {
+                  throw error(`The "${field}" field does not seem to be a valid repeater field.`);
+                }
+
+                const schemaField = schemaFields && schemaFields.find(f => f.key === field);
+
+                return Promise.all(
+                  repeaterFields.map(async (repeaterField, repeaterIndex) => {
+                    const processedRepeaterField = await processEntry(
+                      { [repeaterIndex]: repeaterField },
+                      schemaField.options || [],
+                      prepPopulateFields(subFields),
+                      repeaterIndex
+                    );
+
+                    return processedRepeaterField[repeaterIndex];
+                  })
+                );
+              }
+
+              return null;
+
+            case 'fieldset':
+              // if it exists, the entry value for this field should be an object
+              if (entry[entryKey].hasOwnProperty(field)) {
+                const fieldsetFields = entry[entryKey][field];
+
+                if (!isPlainObject(fieldsetFields)) {
+                  throw error(`The "${field}" field does not seem to be a valid fieldset field.`);
+                }
+
+                const schemaField = schemaFields && schemaFields.find(f => f.key === field);
+
+                const processedFieldsetFields = await Promise.all(
+                  Object.keys(fieldsetFields).map(async (fieldsetKey, fieldsetIndex) => {
+                    const processedFieldsetField = await processEntry(
+                      { [fieldsetIndex]: { [fieldsetKey]: fieldsetFields[fieldsetKey] } }, // entry
+                      schemaField.options || [], // schemaFields
+                      prepPopulateFields(subFields), // populate fields
+                      fieldsetIndex // entry key
+                    );
+
+                    return processedFieldsetField[fieldsetIndex];
+                  })
+                );
+
+                return processedFieldsetFields.reduce(
+                  (sum, fieldsetField) => Object.assign({}, sum, fieldsetField),
+                  {}
+                );
+              }
+
+              return null;
+
+            default:
+              return entry[entryKey][field];
           }
-          return populatedEntry;
-        }, cloneDeep(entry));
-      })
+        })
+      );
+
+      return fieldsToPopulate.reduce((populatedEntry, populateField, index) => {
+        const { field } = populateField;
+        if (populatedEntry[entryKey].hasOwnProperty(field)) {
+          populatedEntry[entryKey][field] = populatedFields[index]; // eslint-disable-line no-param-reassign
+        }
+        return populatedEntry;
+      }, cloneDeep(entry));
+    });
+
+    const schemaFields = await schemasAPI.getFields(contentType);
+
+    const preppedPopulateFields = prepPopulateFields(populate);
+    const entries = await Promise.all(
+      entryKeys.map(processEntry(originalEntry, schemaFields, preppedPopulateFields))
     );
 
     return entryKeys.reduce(

@@ -81,6 +81,19 @@ app.content.get('blog-posts', {
 });
 ```
 
+!> **For advanced use:** It is also possible to populate fields for `repeater` and `fieldset` fields by specifying the `subFields` to populate.
+
+```javascript
+app.content.get('blog-posts', {
+  populate: [
+    {
+      field: 'some-repeater-field',
+      subFields: [ 'field-inside-repeater-field' ]
+    }
+  ]
+});
+```
+
 ?> **Tip:** The array of __strings__ *vs* array of __objects__ syntax can be mixed and matched if you want.
 
 ##### Event

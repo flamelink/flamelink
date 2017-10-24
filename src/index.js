@@ -2,6 +2,8 @@ import 'regenerator-runtime/runtime';
 import * as firebase from 'firebase';
 import compose from 'compose-then';
 import find from 'lodash/find';
+import get from 'lodash/get';
+import set from 'lodash/set';
 import resizeImage from 'browser-image-resizer';
 import './polyfills';
 import error from './utils/error';
@@ -18,7 +20,8 @@ import {
   populateEntry,
   filterByFolderId,
   formatStructure,
-  getScreenResolution
+  getScreenResolution,
+  hasNonCacheableOptions
 } from './utils';
 
 const DEFAULT_CONFIG = {
@@ -33,6 +36,8 @@ const ALLOWED_CHILD_EVENTS = [
   'child_changed',
   'child_moved'
 ];
+
+const CACHE = {};
 
 function flamelink(conf = {}) {
   let firebaseApp_ = null;
@@ -117,17 +122,28 @@ function flamelink(conf = {}) {
       if (typeof schemaRef === 'string') {
         // Single Schema
         const pluckFields = pluckResultFields(options.fields);
-        const snapshot = await this.getRaw(schemaRef, options);
-        const wrapValue = { [schemaRef]: snapshot.val() }; // Wrapping value to create the correct structure for our filtering to work
+
+        let schema = get(CACHE, `schemas[${env_}].${schemaRef}`);
+
+        if (!schema || hasNonCacheableOptions(options)) {
+          const snapshot = await this.getRaw(schemaRef, options);
+          schema = snapshot.val();
+        }
+        const wrapValue = { [schemaRef]: schema }; // Wrapping value to create the correct structure for our filtering to work
         return pluckFields(wrapValue)[schemaRef];
       }
 
+      // All Schemas
       options = schemaRef || {};
 
-      // All Schemas
+      let schemas = get(CACHE, `schemas[${env_}]`);
+
+      if (!schemas || hasNonCacheableOptions(options)) {
+        const snapshot = await this.getRaw(null, options);
+        schemas = snapshot.val();
+      }
       const pluckFields = pluckResultFields(options.fields);
-      const snapshot = await this.getRaw(null, options);
-      return pluckFields(snapshot.val());
+      return pluckFields(schemas);
     },
 
     /**
@@ -156,14 +172,26 @@ function flamelink(conf = {}) {
     async getFields(schemaRef, options = {}) {
       if (typeof schemaRef === 'string') {
         // Single schema
-        const snapshot = await this.getFieldsRaw(schemaRef, options);
-        return pluckResultFields(options.fields, snapshot.val());
+        const schemaCache = get(CACHE, `schemas[${env_}].${schemaRef}`);
+        let fields = schemaCache ? schemaCache.fields : null;
+
+        if (!fields || hasNonCacheableOptions(options)) {
+          const snapshot = await this.getFieldsRaw(schemaRef, options);
+          fields = snapshot.val();
+        }
+
+        return pluckResultFields(options.fields, fields);
       }
 
       // All schemas
       const opts = schemaRef || {};
-      const snapshot = await this.getFieldsRaw(opts);
-      const schemas = snapshot.val();
+      let schemas = get(CACHE, `schemas[${env_}]`);
+
+      if (!schemas || hasNonCacheableOptions(opts)) {
+        const snapshot = await this.getFieldsRaw(opts);
+        schemas = snapshot.val();
+      }
+
       return Object.keys(schemas).reduce(
         (result, key) =>
           Object.assign({}, result, {
@@ -196,7 +224,7 @@ function flamelink(conf = {}) {
 
       // All schemas
       cb = options;
-      options = schemaKey;
+      options = schemaKey || {};
 
       if (typeof cb === 'object') {
         cb = schemaKey; // first param is then the callback
@@ -236,7 +264,7 @@ function flamelink(conf = {}) {
 
         // All schemas
         cb = options;
-        options = schemaKey;
+        options = schemaKey || {};
 
         if (typeof cb === 'object') {
           cb = schemaKey; // first param is then the callback
@@ -773,6 +801,9 @@ function flamelink(conf = {}) {
         return result[entryRef];
       }
 
+      const schema = await schemasAPI.get(contentRef);
+      const isSingleType = schema && schema.type === 'single';
+
       // Query all entries for given content type
       const opts = entryRef || {}; // second param is then the options
 
@@ -785,8 +816,10 @@ function flamelink(conf = {}) {
         opts.populate
       );
       const snapshot = await this.getRaw(contentRef, opts);
-      const result = await compose(populateFields, pluckFields)(snapshot.val());
-      return result;
+      // If content type is a single, we need to wrap the object for filters to work correctly
+      const value = isSingleType ? { [contentRef]: snapshot.val() } : snapshot.val();
+      const result = await compose(populateFields, pluckFields)(value);
+      return isSingleType ? result[contentRef] : result;
     },
 
     /**
@@ -866,7 +899,7 @@ function flamelink(conf = {}) {
      * @param {Function} cb
      * @returns {Promise} Resolves to value of query
      */
-    subscribe(contentRef, entryRef, options = {}, cb) {
+    async subscribe(contentRef, entryRef, options = {}, cb) {
       try {
         // Is single entry subscription?
         if (['string', 'number'].includes(typeof entryRef)) {
@@ -902,6 +935,8 @@ function flamelink(conf = {}) {
           throw error('Check out the docs for the required parameters for this method');
         }
 
+        const schema = await schemasAPI.get(contentRef);
+        const isSingleType = schema && schema.type === 'single';
         const pluckFields = pluckResultFields(options.fields);
         const populateFields = populateEntry(
           schemasAPI,
@@ -912,8 +947,10 @@ function flamelink(conf = {}) {
         );
 
         return this.subscribeRaw(contentRef, options, async snapshot => {
-          const result = await compose(populateFields, pluckFields)(snapshot.val());
-          cb(null, result); // Error-first callback
+          // If content type is a single, we need to wrap the object for filters to work correctly
+          const value = isSingleType ? { [contentRef]: snapshot.val() } : snapshot.val();
+          const result = await compose(populateFields, pluckFields)(value);
+          cb(null, isSingleType ? result[contentRef] : result); // Error-first callback
         });
       } catch (err) {
         return cb(err);
@@ -1397,6 +1434,18 @@ function flamelink(conf = {}) {
       return this.ref(navRef).transaction(updateFn, cb);
     }
   };
+
+  // Setup listener to get app schemas and cache it
+  const start = () => {
+    schemasAPI.subscribe(null, (err, schemas) => {
+      if (err) {
+        return console.error(err);
+      }
+      return set(CACHE, `schemas[${env_}]`, schemas);
+    });
+  };
+
+  start();
 
   // Public API
   return {

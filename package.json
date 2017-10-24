@@ -4,13 +4,12 @@
   "description": "Javascript SDK for integrating with Flamelink CMS",
   "main": "dist/flamelink.js",
   "module": "src/index.js",
-  "files": [
-    "dist"
-  ],
+  "files": ["dist"],
   "scripts": {
     "build": "webpack --config ./config/webpack.config.js",
     "package": "webpack -p --config ./config/webpack.config.js",
-    "test": "jest --coverage --collectCoverageFrom=src/**/*.js --collectCoverageFrom=!src/polyfills.js",
+    "test":
+      "jest --coverage --collectCoverageFrom=src/**/*.js --collectCoverageFrom=!src/polyfills.js",
     "lint": "eslint ./src --cache",
     "serve-docs": "docsify serve ./docs -o true -p 4000"
   },
@@ -70,7 +69,7 @@
       "^.+\\.js$": "babel-jest"
     },
     "globals": {
-      "__PACKAGE_VERSION__": "0.8.0"
+      "__PACKAGE_VERSION__": "0.9.0"
     }
   },
   "babel": {
@@ -79,11 +78,7 @@
         "env",
         {
           "targets": {
-            "browsers": [
-              "last 2 versions",
-              "safari >= 8",
-              "ie >= 9"
-            ]
+            "browsers": ["last 2 versions", "safari >= 8", "ie >= 9"]
           },
           "modules": false,
           "loose": true
@@ -92,9 +87,7 @@
     ],
     "env": {
       "test": {
-        "plugins": [
-          "transform-es2015-modules-commonjs"
-        ]
+        "plugins": ["transform-es2015-modules-commonjs"]
       }
     }
   }

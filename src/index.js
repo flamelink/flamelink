@@ -801,6 +801,9 @@ function flamelink(conf = {}) {
         return result[entryRef];
       }
 
+      const schema = await schemasAPI.get(contentRef);
+      const isSingleType = schema && schema.type === 'single';
+
       // Query all entries for given content type
       const opts = entryRef || {}; // second param is then the options
 
@@ -813,8 +816,10 @@ function flamelink(conf = {}) {
         opts.populate
       );
       const snapshot = await this.getRaw(contentRef, opts);
-      const result = await compose(populateFields, pluckFields)(snapshot.val());
-      return result;
+      // If content type is a single, we need to wrap the object for filters to work correctly
+      const value = isSingleType ? { [contentRef]: snapshot.val() } : snapshot.val();
+      const result = await compose(populateFields, pluckFields)(value);
+      return isSingleType ? result[contentRef] : result;
     },
 
     /**
@@ -894,7 +899,7 @@ function flamelink(conf = {}) {
      * @param {Function} cb
      * @returns {Promise} Resolves to value of query
      */
-    subscribe(contentRef, entryRef, options = {}, cb) {
+    async subscribe(contentRef, entryRef, options = {}, cb) {
       try {
         // Is single entry subscription?
         if (['string', 'number'].includes(typeof entryRef)) {
@@ -930,6 +935,8 @@ function flamelink(conf = {}) {
           throw error('Check out the docs for the required parameters for this method');
         }
 
+        const schema = await schemasAPI.get(contentRef);
+        const isSingleType = schema && schema.type === 'single';
         const pluckFields = pluckResultFields(options.fields);
         const populateFields = populateEntry(
           schemasAPI,
@@ -940,8 +947,10 @@ function flamelink(conf = {}) {
         );
 
         return this.subscribeRaw(contentRef, options, async snapshot => {
-          const result = await compose(populateFields, pluckFields)(snapshot.val());
-          cb(null, result); // Error-first callback
+          // If content type is a single, we need to wrap the object for filters to work correctly
+          const value = isSingleType ? { [contentRef]: snapshot.val() } : snapshot.val();
+          const result = await compose(populateFields, pluckFields)(value);
+          cb(null, isSingleType ? result[contentRef] : result); // Error-first callback
         });
       } catch (err) {
         return cb(err);

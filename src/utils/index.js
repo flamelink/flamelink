@@ -432,3 +432,10 @@ export const getScreenResolution = () => {
   const pixelRatio = 'devicePixelRatio' in window ? window.devicePixelRatio : 1;
   return Math.max(window.screen.width, window.screen.height) * pixelRatio;
 };
+
+export const hasNonCacheableOptions = (options = {}) => {
+  const keys = Object.keys(options);
+  return keys.some(key =>
+    ['event', 'orderByValue', 'orderByChild', ...AVAILABLE_FILTER_OPTIONS].includes(key)
+  );
+};

@@ -1,7 +1,9 @@
 import flamelink from '../src/index';
 import pkg from '../package.json';
+import * as utils from '../src/utils/';
 
 jest.mock('firebase');
+utils.hasNonCacheableOptions = jest.fn(() => true);
 
 const basicConfig = {
   apiKey: 'AIzaSyAxlh-gBxcRkQWbxC0L10S5Qo3Su6xRs8E',

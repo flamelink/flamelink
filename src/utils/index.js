@@ -270,13 +270,11 @@ export const populateEntry = curry(
             case 'relational':
               // if it exists, the entry value for this field should be an array
               if (entry[entryKey].hasOwnProperty(field)) {
-                const relationalEntries = entry[entryKey][field];
+                let relationalEntries = entry[entryKey][field];
 
-                if (!isArray(relationalEntries)) {
-                  throw error(
-                    `The "${field}" field does not seem to be a relational property for the "${contentType}" content type.`
-                  );
-                }
+                relationalEntries = isArray(relationalEntries)
+                  ? relationalEntries
+                  : [relationalEntries];
 
                 return Promise.all(
                   relationalEntries.map(async innerEntryKey => {
@@ -436,6 +434,6 @@ export const getScreenResolution = () => {
 export const hasNonCacheableOptions = (options = {}) => {
   const keys = Object.keys(options);
   return keys.some(key =>
-    ['event', 'orderByValue', 'orderByChild', ...AVAILABLE_FILTER_OPTIONS].includes(key)
+    ['noCache', 'event', 'orderByValue', 'orderByChild', ...AVAILABLE_FILTER_OPTIONS].includes(key)
   );
 };

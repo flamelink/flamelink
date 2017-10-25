@@ -1421,6 +1421,10 @@ describe('Flamelink SDK', () => {
       expect(flamelink(basicConfig).storage.folderRef).toEqual(expect.any(Function));
     });
 
+    test('should expose a "mediaRef" method', () => {
+      expect(flamelink(basicConfig).storage.mediaRef).toEqual(expect.any(Function));
+    });
+
     describe('"getFile" method', () => {
       test('should be exposed on the `storage` object', () => {
         expect(flamelink(basicConfig).storage.getFile).toEqual(expect.any(Function));

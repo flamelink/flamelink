@@ -90,6 +90,12 @@ export const getFileRefPath = fileID => `/flamelink/media/files/${fileID || ''}`
  */
 export const getFolderRefPath = folderID => `/flamelink/media/folders/${folderID || ''}`;
 
+/**
+ * @description Return the reference path for the media directory in the realtime db
+ * @param {String} [mediaRef]
+ */
+export const getMediaRefPath = mediaRef => `/flamelink/media/${mediaRef || ''}`;
+
 export const filterByFolderId = curry((folderId, files) => {
   if (!folderId) {
     return files;

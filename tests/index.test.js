@@ -13,20 +13,6 @@ const basicConfig = {
   storageBucket: 'fir-editor.appspot.com'
 };
 
-const fakeFirebaseApp = {
-  __esModule: true,
-  initializeApp: () => {},
-  app: {},
-  apps: () => {},
-  Promise: () => {},
-  SDK_VERSION: '4.2.0',
-  INTERNAL: {},
-  default: {},
-  auth: {},
-  User: {},
-  database: () => {}
-};
-
 describe('Flamelink SDK', () => {
   test('should expose the package version', () => {
     expect(flamelink.VERSION).toBe(pkg.version);
@@ -40,11 +26,6 @@ describe('Flamelink SDK', () => {
     expect(flamelink).toThrow(
       '[FLAMELINK] The following config properties are mandatory: "apiKey", "authDomain", "databaseURL", "projectId"'
     );
-  });
-
-  test('should expose the `firebaseApp` instance if passed in via config', () => {
-    expect(flamelink(basicConfig)).toBeTruthy();
-    expect(flamelink({ firebaseApp: fakeFirebaseApp }).firebaseApp).toBe(fakeFirebaseApp);
   });
 
   describe('"setLocale"', () => {
@@ -1419,6 +1400,10 @@ describe('Flamelink SDK', () => {
 
     test('should expose a "folderRef" method', () => {
       expect(flamelink(basicConfig).storage.folderRef).toEqual(expect.any(Function));
+    });
+
+    test('should expose a "mediaRef" method', () => {
+      expect(flamelink(basicConfig).storage.mediaRef).toEqual(expect.any(Function));
     });
 
     describe('"getFile" method', () => {

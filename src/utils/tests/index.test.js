@@ -138,6 +138,16 @@ describe('Flamelink SDK > Utils', () => {
         expect(utils.getFolderRefPath()).toBe(`/flamelink/media/folders/`);
       });
     });
+
+    describe('"getMediaRefPath"', () => {
+      test('should return the correct reference string for the given properties', () => {
+        const mediaRef = 'folders';
+
+        expect(utils.getMediaRefPath(mediaRef)).toBe(`/flamelink/media/${mediaRef}`);
+
+        expect(utils.getMediaRefPath()).toBe(`/flamelink/media/`);
+      });
+    });
   });
 
   describe('"AVAILABLE_FILTER_OPTIONS"', () => {

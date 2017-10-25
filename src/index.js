@@ -16,6 +16,7 @@ import {
   getStorageRefPath,
   getFileRefPath,
   getFolderRefPath,
+  getMediaRefPath,
   pluckResultFields,
   populateEntry,
   filterByFolderId,
@@ -462,6 +463,166 @@ function flamelink(conf = {}) {
      */
     fileRef(fileId) {
       return databaseService_.ref(getFileRefPath(fileId));
+    },
+
+    /**
+     * @description Establish and return a reference to the media directory in the real-time db
+     * @param {String} [mediaRef] Optional media reference
+     */
+    mediaRef(mediaRef) {
+      return databaseService_.ref(getMediaRefPath(mediaRef));
+    },
+
+    /**
+     * Read all or an individual media from the db and return snapshot response
+     *
+     * @param {String} [mediaRef] The media's key in the db
+     * @param {Object} [options={}]
+     * @returns {Promise} Resolves to snapshot of query
+     */
+    getRaw(mediaRef, options = {}) {
+      const ref = typeof mediaRef === 'string' ? mediaRef : null;
+      const opts = typeof mediaRef === 'string' ? options : mediaRef || {};
+      const ordered = applyOrderBy(this.mediaRef(ref), opts);
+      const filtered = applyFilters(ordered, opts);
+
+      return filtered.once(opts.event || 'value');
+    },
+
+    /**
+     * Get all medias or an individual media object for the given reference
+     *
+     * @param {String} mediaRef The media's key in the db
+     * @param {Object} [options={}]
+     * @returns {Promise} Resolves to value of query
+     */
+    async get(mediaRef, options = {}) {
+      if (typeof mediaRef === 'string') {
+        // Single media
+        const pluckFields = pluckResultFields(options.fields);
+
+        const snapshot = await this.getRaw(mediaRef, options);
+        const media = snapshot.val();
+        const wrapValue = { [mediaRef]: media }; // Wrapping value to create the correct structure for our filtering to work
+        return pluckFields(wrapValue)[mediaRef];
+      }
+
+      // All medias
+      options = mediaRef || {};
+
+      const pluckFields = pluckResultFields(options.fields);
+      const snapshot = await this.getRaw(null, options);
+      const media = snapshot.val();
+      return pluckFields(media);
+    },
+
+    /**
+     * @description Establish stream to read value consistently from db, returning the raw snapshot
+     * @param {String} [mediaKey]
+     * @param {Object} [options={}]
+     * @param {Function} cb
+     * @returns {Promise} Resolves to snapshot of query
+     */
+    subscribeRaw(mediaKey, options = {}, cb) {
+      // Single media
+      if (typeof mediaKey === 'string') {
+        if (!cb) {
+          cb = options; // second param is then the callback
+          options = {}; // set default options
+        }
+
+        const ordered = applyOrderBy(this.mediaRef(mediaKey), options);
+        const filtered = applyFilters(ordered, options);
+
+        return filtered.on(options.event || 'value', cb);
+      }
+
+      // All medias
+      cb = options;
+      options = mediaKey || {};
+
+      if (typeof cb === 'object') {
+        cb = mediaKey; // first param is then the callback
+        options = {}; // set default options
+      }
+
+      const ordered = applyOrderBy(this.mediaRef(null), options);
+      const filtered = applyFilters(ordered, options);
+
+      return filtered.on(options.event || 'value', cb);
+    },
+
+    /**
+     * @description Establish stream to read value consistently from db, returning the processed value
+     * @param {String} [mediaKey]
+     * @param {Object} [options={}]
+     * @param {Function} cb
+     * @returns {Promise} Resolves to value of query
+     */
+    subscribe(mediaKey, options = {}, cb) {
+      try {
+        // Single media
+        if (typeof mediaKey === 'string') {
+          if (!cb || typeof options === 'function') {
+            cb = options; // second param is then the callback
+            options = {}; // set default options
+          }
+
+          const pluckFields = pluckResultFields(options.fields);
+
+          return this.subscribeRaw(mediaKey, options, async snapshot => {
+            const wrappedMedia = await compose(pluckFields)({ [mediaKey]: snapshot.val() });
+            const media = wrappedMedia[mediaKey];
+            return cb(null, media); // Error-first callback
+          });
+        }
+
+        // All medias
+        cb = options;
+        options = mediaKey || {};
+
+        if (typeof cb === 'object') {
+          cb = mediaKey; // first param is then the callback
+          options = {}; // set default options
+        }
+
+        const pluckFields = pluckResultFields(options.fields);
+
+        return this.subscribeRaw(options, async snapshot => {
+          const pluckedMedia = await compose(pluckFields)(snapshot.val());
+
+          cb(null, pluckedMedia); // Error-first callback
+        });
+      } catch (err) {
+        return cb(err);
+      }
+    },
+
+    /**
+     * @description Detach listeners from given reference.
+     * @param {String} mediaKey
+     * @param {String} event
+     * @returns {Promise}
+     */
+    unsubscribe(...args) {
+      if (args.length === 2) {
+        // Is second arg a valid firebase child event?
+        if (ALLOWED_CHILD_EVENTS.includes(args[1])) {
+          // args[0] = mediaKey
+          // args[1] = event
+          return this.ref(args[0]).off(args[1]);
+        }
+
+        throw error(`"${args[1]}" is not a valid child event`);
+      }
+
+      if (args.length === 1) {
+        return this.ref(args[0]).off();
+      }
+
+      throw error(
+        '"unsubscribe" method needs to be called with min 1 argument and max 2 arguments'
+      );
     },
 
     /**

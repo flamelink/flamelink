@@ -59,7 +59,7 @@ export const getContentRefPath = (
   ref = missingRefParam(),
   env = missingRefParam(),
   locale = missingRefParam()
-) => `/flamelink/environments/${env}/content/${ref}/${locale}`;
+) => `/flamelink/environments/${env}/content/${ref ? `${ref}/${locale}` : ''}`;
 
 export const getNavigationRefPath = (
   ref = missingRefParam(),

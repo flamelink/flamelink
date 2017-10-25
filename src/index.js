@@ -930,9 +930,10 @@ function flamelink(conf = {}) {
       }
 
       // Query all entries for given content type
-      const opts = entryRef; // second param is then the options
+      const ref = typeof contentRef === 'string' ? contentRef : null;
+      const opts = typeof contentRef === 'string' ? entryRef || {} : contentRef || {};
 
-      const ordered = applyOrderBy(this.ref(contentRef), opts);
+      const ordered = applyOrderBy(this.ref(ref), opts);
       const filtered = applyFilters(ordered, opts);
 
       return filtered.once(opts.event || 'value');
@@ -966,7 +967,8 @@ function flamelink(conf = {}) {
       const isSingleType = schema && schema.type === 'single';
 
       // Query all entries for given content type
-      const opts = entryRef || {}; // second param is then the options
+      const ref = typeof contentRef === 'string' ? contentRef : null;
+      const opts = typeof contentRef === 'string' ? entryRef || {} : contentRef || {};
 
       const pluckFields = pluckResultFields(opts.fields);
       const populateFields = populateEntry(
@@ -976,11 +978,24 @@ function flamelink(conf = {}) {
         contentRef,
         opts.populate
       );
-      const snapshot = await this.getRaw(contentRef, opts);
+      const snapshot = await this.getRaw(ref, opts);
       // If content type is a single, we need to wrap the object for filters to work correctly
-      const value = isSingleType ? { [contentRef]: snapshot.val() } : snapshot.val();
-      const result = await compose(populateFields, pluckFields)(value);
-      return isSingleType ? result[contentRef] : result;
+      if (ref) {
+        const value = isSingleType ? { [ref]: snapshot.val() } : snapshot.val();
+        const result = await compose(populateFields, pluckFields)(value);
+        return isSingleType ? result[ref] : result;
+      }
+
+      const withLocales = snapshot.val();
+      const currentLocale = locale_; // TODO: Look at getting from API method
+
+      const withoutLocales = Object.keys(withLocales).reduce(
+        (menus, key) => Object.assign({}, menus, { [key]: withLocales[key][currentLocale] }),
+        {}
+      );
+
+      const result = await compose(populateFields, pluckFields)(withoutLocales);
+      return result;
     },
 
     /**
@@ -1041,6 +1056,10 @@ function flamelink(conf = {}) {
       } else if (typeof entryRef === 'function') {
         cb = entryRef; // second param is then the callback
         options = {}; // set default options
+      } else if (typeof contentRef === 'function') {
+        cb = contentRef; // first param is then the callback
+        options = {}; // set default options
+        contentRef = null;
       } else {
         throw error('Check out the docs for the required parameters for this method');
       }
@@ -1092,6 +1111,10 @@ function flamelink(conf = {}) {
         } else if (typeof entryRef === 'function') {
           cb = entryRef; // second param is then the callback
           options = {}; // set default options
+        } else if (typeof contentRef === 'function') {
+          cb = contentRef; // first param is then the callback
+          options = {}; // set default options
+          contentRef = null;
         } else {
           throw error('Check out the docs for the required parameters for this method');
         }
@@ -1109,9 +1132,23 @@ function flamelink(conf = {}) {
 
         return this.subscribeRaw(contentRef, options, async snapshot => {
           // If content type is a single, we need to wrap the object for filters to work correctly
-          const value = isSingleType ? { [contentRef]: snapshot.val() } : snapshot.val();
-          const result = await compose(populateFields, pluckFields)(value);
-          cb(null, isSingleType ? result[contentRef] : result); // Error-first callback
+          if (contentRef) {
+            const value = isSingleType ? { [contentRef]: snapshot.val() } : snapshot.val();
+            const result = await compose(populateFields, pluckFields)(value);
+            cb(null, isSingleType ? result[contentRef] : result); // Error-first callback
+            return;
+          }
+
+          const withLocales = snapshot.val();
+          const currentLocale = locale_; // TODO: Look at getting from API method
+
+          const withoutLocales = Object.keys(withLocales).reduce(
+            (menus, key) => Object.assign({}, menus, { [key]: withLocales[key][currentLocale] }),
+            {}
+          );
+
+          const result = await compose(populateFields, pluckFields)(withoutLocales);
+          cb(null, result); // Error-first callback
         });
       } catch (err) {
         return cb(err);

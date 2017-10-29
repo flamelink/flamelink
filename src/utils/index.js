@@ -443,3 +443,18 @@ export const hasNonCacheableOptions = (options = {}) => {
     ['noCache', 'event', 'orderByValue', 'orderByChild', ...AVAILABLE_FILTER_OPTIONS].includes(key)
   );
 };
+
+export const prepConstraintsForValidate = constraints => {
+  if (isArray(constraints)) {
+    return constraints.reduce(
+      (rules, entry) => Object.assign({}, rules, { [entry.rule]: entry.ruleValue }),
+      {}
+    );
+  }
+
+  if (isPlainObject(constraints)) {
+    return constraints;
+  }
+
+  return {};
+};

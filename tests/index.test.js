@@ -436,60 +436,44 @@ describe('Flamelink SDK', () => {
       test('should be exposed on the "content" object', () => {
         const contentRef = 'ref';
         const entryRef = 'entry-ref';
-        const payload = { key: 'value' };
+        const payload = { image: 'value' };
         return expect(
           flamelink(basicConfig).content.set(contentRef, entryRef, payload)
         ).resolves.toEqual(`"set" called with payload: "${JSON.stringify(payload)}"`);
       });
 
-      test('should throw if called with the incorrect arguments', () => {
-        let message;
-
+      test('should throw if called with the incorrect arguments', async () => {
         try {
-          flamelink(basicConfig).content.set();
-        } catch (error) {
-          message = error.message;
+          await flamelink(basicConfig).content.set();
+        } catch (err) {
+          expect(err.message).toEqual(
+            '[FLAMELINK] "set" called with the incorrect arguments. Check the docs for details.'
+          );
         }
 
-        expect(message).toMatch(
-          '[FLAMELINK] "set" called with the incorrect arguments. Check the docs for details.'
-        );
-
-        message = '';
-
         try {
-          flamelink(basicConfig).content.set('content-ref');
+          await flamelink(basicConfig).content.set('content-ref');
         } catch (error) {
-          message = error.message;
+          expect(error.message).toEqual(
+            '[FLAMELINK] "set" called with the incorrect arguments. Check the docs for details.'
+          );
         }
 
-        expect(message).toMatch(
-          '[FLAMELINK] "set" called with the incorrect arguments. Check the docs for details.'
-        );
-
-        message = '';
-
         try {
-          flamelink(basicConfig).content.set('content-ref', 'entry-ref');
+          await flamelink(basicConfig).content.set('content-ref', 'entry-ref');
         } catch (error) {
-          message = error.message;
+          expect(error.message).toEqual(
+            '[FLAMELINK] "set" called with the incorrect arguments. Check the docs for details.'
+          );
         }
 
-        expect(message).toMatch(
-          '[FLAMELINK] "set" called with the incorrect arguments. Check the docs for details.'
-        );
-
-        message = '';
-
         try {
-          flamelink(basicConfig).content.set('content-ref', 'entry-ref', 'not-an-object');
+          await flamelink(basicConfig).content.set('content-ref', 'entry-ref', 'not-an-object');
         } catch (error) {
-          message = error.message;
+          expect(error.message).toEqual(
+            '[FLAMELINK] "set" called with the incorrect arguments. Check the docs for details.'
+          );
         }
-
-        expect(message).toMatch(
-          '[FLAMELINK] "set" called with the incorrect arguments. Check the docs for details.'
-        );
       });
     });
 
@@ -497,60 +481,44 @@ describe('Flamelink SDK', () => {
       test('should be exposed on the "content" object', () => {
         const contentRef = 'ref';
         const entryRef = 'entry-ref';
-        const payload = { key: 'value' };
+        const payload = { image: 'value' };
         return expect(
           flamelink(basicConfig).content.update(contentRef, entryRef, payload)
         ).resolves.toEqual(`"update" called with payload: "${JSON.stringify(payload)}"`);
       });
 
-      test('should throw if called with the incorrect arguments', () => {
-        let message;
-
+      test('should throw if called with the incorrect arguments', async () => {
         try {
-          flamelink(basicConfig).content.update();
-        } catch (error) {
-          message = error.message;
+          await flamelink(basicConfig).content.update();
+        } catch (err) {
+          expect(err.message).toEqual(
+            '[FLAMELINK] "update" called with the incorrect arguments. Check the docs for details.'
+          );
         }
 
-        expect(message).toMatch(
-          '[FLAMELINK] "update" called with the incorrect arguments. Check the docs for details.'
-        );
-
-        message = '';
-
         try {
-          flamelink(basicConfig).content.update('content-ref');
+          await flamelink(basicConfig).content.update('content-ref');
         } catch (error) {
-          message = error.message;
+          expect(error.message).toEqual(
+            '[FLAMELINK] "update" called with the incorrect arguments. Check the docs for details.'
+          );
         }
 
-        expect(message).toMatch(
-          '[FLAMELINK] "update" called with the incorrect arguments. Check the docs for details.'
-        );
-
-        message = '';
-
         try {
-          flamelink(basicConfig).content.update('content-ref', 'entry-ref');
+          await flamelink(basicConfig).content.update('content-ref', 'entry-ref');
         } catch (error) {
-          message = error.message;
+          expect(error.message).toEqual(
+            '[FLAMELINK] "update" called with the incorrect arguments. Check the docs for details.'
+          );
         }
 
-        expect(message).toMatch(
-          '[FLAMELINK] "update" called with the incorrect arguments. Check the docs for details.'
-        );
-
-        message = '';
-
         try {
-          flamelink(basicConfig).content.update('content-ref', 'entry-ref', 'not-an-object');
+          await flamelink(basicConfig).content.update('content-ref', 'entry-ref', 'not-an-object');
         } catch (error) {
-          message = error.message;
+          expect(error.message).toEqual(
+            '[FLAMELINK] "update" called with the incorrect arguments. Check the docs for details.'
+          );
         }
-
-        expect(message).toMatch(
-          '[FLAMELINK] "update" called with the incorrect arguments. Check the docs for details.'
-        );
       });
     });
 

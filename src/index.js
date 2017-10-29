@@ -1,9 +1,11 @@
 import 'regenerator-runtime/runtime';
 import * as firebase from 'firebase';
+import validate from 'validate.js';
 import compose from 'compose-then';
 import find from 'lodash/find';
 import get from 'lodash/get';
 import set from 'lodash/set';
+import pick from 'lodash/fp/pick';
 import resizeImage from 'browser-image-resizer';
 import './polyfills';
 import error from './utils/error';
@@ -22,7 +24,8 @@ import {
   filterByFolderId,
   formatStructure,
   getScreenResolution,
-  hasNonCacheableOptions
+  hasNonCacheableOptions,
+  prepConstraintsForValidate
 } from './utils';
 
 const DEFAULT_CONFIG = {
@@ -1202,22 +1205,50 @@ function flamelink(conf = {}) {
      * This overwrites data at the specified location, including any child nodes.
      *
      * @param {String} contentRef
-     * @param {String} entryRef
+     * @param {String} [entryRef]
      * @param {Object} payload
      * @returns {Promise}
      */
-    set(contentRef, entryRef, payload) {
+    async set(contentRef, entryRef, payload) {
+      const schema = await schemasAPI.get(contentRef);
+      const isSingleType = schema && schema.type === 'single';
+
+      const payload_ = isSingleType ? entryRef : payload;
+
       if (
-        typeof contentRef !== 'string' ||
-        typeof entryRef !== 'string' ||
-        (typeof payload !== 'object' && payload !== null)
+        (isSingleType &&
+          (typeof contentRef !== 'string' ||
+            (typeof payload_ !== 'object' && payload_ !== null))) ||
+        (!isSingleType &&
+          (typeof contentRef !== 'string' ||
+            typeof entryRef !== 'string' ||
+            (typeof payload_ !== 'object' && payload_ !== null)))
       ) {
         throw error('"set" called with the incorrect arguments. Check the docs for details.');
       }
 
+      const { fields = [] } = schema;
+      const constraints = fields.reduce(
+        (rules, field) =>
+          Object.assign({}, rules, { [field.key]: prepConstraintsForValidate(field.constraints) }),
+        {}
+      );
+      const validationErrors = validate(payload_, constraints);
+
+      if (validationErrors) {
+        return Promise.reject(validationErrors);
+      }
+
+      const fieldKeys = fields.map(field => field.key);
+      const pickFields = pick(fieldKeys);
+
+      if (isSingleType) {
+        return this.ref(contentRef).set(pickFields(payload_));
+      }
+
       return this.ref(contentRef)
         .child(entryRef)
-        .set(payload);
+        .set(pickFields(payload_));
     },
 
     /**
@@ -1228,18 +1259,55 @@ function flamelink(conf = {}) {
      * @param {Object} payload
      * @returns {Promise}
      */
-    update(contentRef, entryRef, payload) {
+    async update(contentRef, entryRef, payload) {
+      const schema = await schemasAPI.get(contentRef);
+      const isSingleType = schema && schema.type === 'single';
+
+      const payload_ = isSingleType ? entryRef : payload;
+
       if (
-        typeof contentRef !== 'string' ||
-        typeof entryRef !== 'string' ||
-        (typeof payload !== 'object' && payload !== null)
+        (isSingleType &&
+          (typeof contentRef !== 'string' ||
+            (typeof payload_ !== 'object' && payload_ !== null))) ||
+        (!isSingleType &&
+          (typeof contentRef !== 'string' ||
+            typeof entryRef !== 'string' ||
+            (typeof payload_ !== 'object' && payload_ !== null)))
       ) {
         throw error('"update" called with the incorrect arguments. Check the docs for details.');
       }
 
+      const { fields = [] } = schema;
+
+      const constraints = fields.reduce(
+        (rules, field) =>
+          Object.assign({}, rules, { [field.key]: prepConstraintsForValidate(field.constraints) }),
+        {}
+      );
+
+      const validationErrors = Object.keys(payload_).reduce((errors_, attr) => {
+        const error_ = validate.single(payload_[attr], constraints[attr]);
+        if (error_) {
+          return Object.assign({}, errors_, { [attr]: error_ });
+        }
+
+        return errors_;
+      }, {});
+
+      const fieldKeys = fields.map(field => field.key);
+      const pickFields = pick(fieldKeys);
+
+      if (Object.keys(validationErrors).length) {
+        return Promise.reject(validationErrors);
+      }
+
+      if (isSingleType) {
+        return this.ref(contentRef).update(pickFields(payload_));
+      }
+
       return this.ref(contentRef)
         .child(entryRef)
-        .update(payload);
+        .update(pickFields(payload_));
     },
 
     /**

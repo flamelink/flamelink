@@ -509,6 +509,60 @@ const mockedDatabaseRef = jest.fn(ref => ({
           ])
         });
 
+      case '/flamelink/environments/production/schemas/ref':
+        return Promise.resolve({
+          val: jest.fn(() => ({
+            description: 'Brands',
+            display: true,
+            fields: [
+              {
+                description: '',
+                key: 'brand',
+                relation: 'brands',
+                show: true,
+                title: 'Brand',
+                type: 'tree-relational'
+              },
+              {
+                description: '',
+                key: 'logo',
+                show: true,
+                title: 'Logo',
+                type: 'image'
+              },
+              {
+                description: '',
+                key: 'image',
+                title: 'Image',
+                type: 'image'
+              },
+              {
+                description: '',
+                key: 'brochure',
+                title: 'Brochure',
+                type: 'image'
+              },
+              {
+                description: '',
+                key: 'certificate',
+                title: 'Certificate',
+                type: 'image'
+              }
+            ],
+            group: 'Brands',
+            icon: 'FaRegistered',
+            id: 'brands',
+            menuIndex: 1,
+            sortable: {
+              enabled: true,
+              fields: ['name'],
+              startCollapsed: true
+            },
+            title: 'Brands',
+            type: 'collection'
+          }))
+        });
+
       // MEDIA (FOLDERS)
       case '/flamelink/media/folders/':
         return Promise.resolve({

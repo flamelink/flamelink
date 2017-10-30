@@ -1,6 +1,6 @@
-!> Support for multiple locales are currently in development. Once this exciting feature is released, you will be able to set up multiple language support for your content and query data for the specified language.
+!> Support for multiple locales are currently in development. Once this helpful feature is released, you will be able to set up multiple language support for your content and query data for the specified language.
 
-On initialization of your flamelink app instance, you should specify the `locale` for your content. If no locale is specified, the default locale will be `"en-US"`.
+On initialization of your Flamelink app instance, you should specify the `locale` for your content. If no locale is specified, the default locale will be `"en-US"`.
 
 Currently, the only supported locale is `"en-US"`.
 
@@ -59,3 +59,5 @@ A `Promise` that resolves to the currently set locale `{String}` on success.
 ---
 
 Next up: [Content](/content)
+
+> 🔥🔥🔥 **Pretty sure your keyboard's melting from all that hot code you're dropping** 🔥🔥🔥

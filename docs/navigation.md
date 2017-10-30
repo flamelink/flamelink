@@ -33,7 +33,7 @@ app.nav.get()
 
 #### Available Options
 
-The following optional options can be specified when retrieving your data:
+The following options can be specified when retrieving your data:
 
 ##### Fields
 
@@ -177,7 +177,7 @@ Parameters should be passed in the order of the following table. If an optional 
 
 #### Available Options
 
-The following optional options can be specified when retrieving your data:
+The following options can be specified when retrieving your data:
 
 ##### Fields
 
@@ -320,7 +320,7 @@ A `Promise` that resolves when the entry is removed or will reject with an error
 
 ## .transaction()
 
-> This is a more advanced API method, that for most use cases will not be necessary.
+> **FIRE RISK WARNING:** This is a more advanced API method, that for most use cases will not be necessary.
 
 If you need to update a navigation entry whose data could be corrupted by concurrent changes, Firebase allows us to perform a "transaction" update that updates data based on the existing data/state.
 
@@ -355,10 +355,9 @@ This method has no return value. Use the optional `callback` function to determi
 
 ## .ref()
 
-> This is a more advanced API method, that for most use cases will not be necessary.
+> **FIRE RISK WARNING:** This is a more advanced API method, that for most use cases will not be necessary.
 
 To retrieve a context aware (environment and locale) reference to any node/location within your "Navigation" data.
-
 
 ```javascript
 app.nav.ref('your-reference')
@@ -379,3 +378,5 @@ A `Promise` that resolves to the reference `{Object}` on success or will reject 
 ---
 
 Next up: [Schemas](/schemas)
+
+> 🔥🔥🔥 **Now we’re cooking with Fire…** 🔥🔥🔥

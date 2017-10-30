@@ -35,7 +35,7 @@ app.schemas.get({ fields: [ 'title', 'description', 'fields' ] })
 
 #### Available Options
 
-The following optional options can be specified when retrieving your schema(s):
+The following options can be specified when retrieving your schema(s):
 
 ##### Fields
 
@@ -102,7 +102,7 @@ app.schemas.getFields({ fields: [ 'title', 'description' ] })
 
 #### Available Options
 
-The following optional options can be specified when retrieving your schema(s):
+The following options can be specified when retrieving your schema(s):
 
 ##### Fields
 
@@ -124,7 +124,7 @@ A `Promise` that resolves to the fields `{Array}` for single schemas or `{Object
 
 ## .subscribe()
 
-This method is similar to the `app.schemas.get()` method except that where the `.get()` method returns a `Promise` resolving to the once-off value, this method subscribes to either a single schema entry or all the schemas for real-time updates. A callback method should be passed as the last argument which will be called each time the data changes in your Firebase db.
+This method is similar to the `app.schemas.get()` method, except that where the `.get()` method returns a `Promise` resolving to the once-off value, this method subscribes to either a single schema entry or all the schemas for real-time updates. A callback method should be passed as the last argument which will be called each time the data changes in your Firebase db.
 
 If you are looking for retrieving data once, take a look at the [`app.schemas.get()`](/schemas?id=get) method above.
 
@@ -161,7 +161,7 @@ app.schemas.subscribe({ fields: [ 'title', 'description', 'fields' ] }, function
 });
 ```
 
-?> **Pro Tip:** If you are using [RxJS Observables](http://reactivex.io/rxjs/) and you don't like callbacks, turn this `subscribe` method into an **Observable** like this:
+?> **HOT TIP:** If you are using [RxJS Observables](http://reactivex.io/rxjs/) and you don't like callbacks, turn this `subscribe` method into an **Observable** like this:
 ```javascript
 const getSchemaObservable = Rx.Observable.bindCallback(app.schemas.subscribe);
 getSchemaObservable('product-categories').subscribe()
@@ -179,7 +179,7 @@ Parameters should be passed in the order of the following table. If an optional 
 
 #### Available Options
 
-The following optional options can be specified when retrieving your schema data:
+The following options can be specified when retrieving your schema data:
 
 ##### Fields
 
@@ -260,7 +260,7 @@ This method has no return value.
 
 This method can be used to save data and overwrite the whole object for a given schema.
 
-!> **Caution!!** Using `set()` overwrites all the data for the specified schema(s), including any child nodes. For this reason, this method can only be used to update an individual schema and not all schemas at once. It is generally safer to use the `app.schemas.update()` method to patch only the specified properties. **With great power comes great responsibility, Peter.**
+!> **FIRE RISK WARNING:** Using `set()` overwrites all the data for the specified schema(s), including any child nodes. For this reason, this method can only be used to update an individual schema and not all schemas at once. It is generally safer to use the `app.schemas.update()` method to patch only the specified properties. **With great power comes great responsibility, Peter Parker.**
 
 ```javascript
 app.schemas.set('product-categories', { id: 'product-categories', title: 'Product Categories', ...All other properties... })
@@ -283,7 +283,7 @@ A `Promise` that resolves when the payload is set or will reject with an error i
 
 ## .update()
 
-> This is a more advanced API method, that for most use cases will not be necessary. Only use it if you know what you are doing. If you mess this up, you might break your CMS. It is strongly advised to use backups.
+> **FIRE RISK WARNING:** This is a more advanced API method, that for most use cases will not be necessary. Only use it if you know what you are doing. If you mess this up, you might break your CMS. It is strongly advised to use backups.
 
 This method can be used to save data for a single given schema without overwriting other child properties.
 
@@ -310,7 +310,7 @@ A `Promise` that resolves when the payload is update or will reject with an erro
 
 ## .remove()
 
-> This is a more advanced API method, that for most use cases will not be necessary. Only use it if you know what you are doing. If you mess this up, you might break your CMS. It is strongly advised to use backups.
+> **FIRE RISK WARNING:** This is a more advanced API method, that for most use cases will not be necessary. Only use it if you know what you are doing. If you mess this up, you might break your CMS. It is strongly advised to use backups.
 
 This method can only be used to remove an individual schema.
 
@@ -336,7 +336,7 @@ A `Promise` that resolves when the schema is removed or will reject with an erro
 
 ## .transaction()
 
-> This is a more advanced API method, that for most use cases will not be necessary. Only use it if you know what you are doing. If you mess this up, you might break your CMS. It is strongly advised to use backups.
+> **FIRE RISK WARNING:** This is a more advanced API method, that for most use cases will not be necessary. Only use it if you know what you are doing. If you mess this up, you might break your CMS. It is strongly advised to use backups.
 
 If you need to update a schema whose data could be corrupted by concurrent changes, Firebase allows us to perform a "transaction" update that updates data based on the existing data/state.
 
@@ -371,7 +371,7 @@ This method has no return value. Use the optional `callback` function to determi
 
 ## .ref()
 
-> This is a more advanced API method, that for most use cases will not be necessary.
+> **FIRE RISK WARNING:** This is a more advanced API method, that for most use cases will not be necessary.
 
 To retrieve a context aware (environment and locale) reference to any node/location within your "Schemas" data.
 
@@ -398,3 +398,5 @@ A `Promise` that resolves to the reference `{Object}` on success or will reject 
 ---
 
 Next up: [Storage/Media](/storage)
+
+> 🔥🔥🔥 **Feel the Burn!!! Feel the Deep Burn!!** 🔥🔥🔥

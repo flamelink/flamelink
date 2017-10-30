@@ -1,6 +1,6 @@
-!> Support for multiple environments are currently in development. Once this exciting feature is released, you will be able to set up multiple streams for your development. This will allow you to have different data for "production", "staging", "development", etc.
+!> Support for multiple environments is currently in development. Once this exciting feature is released, you will be able to set up multiple streams for your development. This will allow you to have different data for "production", "staging", "development", etc.
 
-On initialization of your flamelink app instance, you should specify the environment you want to connect to. If no environment is specified, the default environment will be `"production"`.
+On initialization of your Flamelink app instance, you should specify the environment you want to connect to. If no environment is specified, the default environment will be `"production"`.
 
 ```javascript
 import * as firebase from 'firebase';

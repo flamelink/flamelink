@@ -50,7 +50,7 @@ app.storage.upload(string)
 
 #### Available Options
 
-The following optional options can be specified when uploading a file:
+The following options can be specified when uploading a file:
 
 ##### String Type
 
@@ -260,7 +260,7 @@ app.storage.getFile('1505670341980')
 
 ### Input parameters
 
-This method has one required parameter, which is the file ID and also an optional options argument.
+This method has one required parameter, which is the file ID and also an optional `options` argument.
 
 | Type   | Variable  | Required | Description                                          |
 | ------ | --------- | -------- | ---------------------------------------------------- |
@@ -303,7 +303,7 @@ app.storage.getURL('1505670341980')
 
 ### Input parameters
 
-This method has one required parameter, which is the file ID and also an optional options argument.
+This method has one required parameter, which is the file ID and also an optional `options` argument.
 
 | Type   | Variable  | Required | Description                                  |
 | ------ | --------- | -------- | -------------------------------------------- |
@@ -413,7 +413,7 @@ This method takes two required parameters:
 | String | `fileId`  | required | The file ID for the file you want to update the metadata |
 | Object | `payload` | required | The metadata properties you want to update               |
 
-?> **Pro Tip:** To delete the metadata for a specific property, set it's value to `null`
+?> **HOT TIP:** To delete the metadata for a specific property, set it's value to `null`
 
 ### Return value
 
@@ -423,7 +423,7 @@ A `Promise` that resolves to the updated metadata `{Object}` on success or will 
 
 ## .ref()
 
-> This is a more advanced API method, that for most use cases will not be necessary.
+> **FIRE RISK WARNING:** This is a more advanced API method, that for most use cases will not be necessary.
 
 To retrieve a context aware (folder structure) reference to any node/location within your Storage bucket.
 
@@ -454,7 +454,7 @@ The `.ref()` method takes a two parameters
 
 #### Available Options
 
-The following optional options can be specified when getting a reference:
+The following options can be specified when getting a reference:
 
 ##### Width
 
@@ -475,3 +475,5 @@ app.storage.ref('image.jpg', {
 A `Promise` that resolves to the reference `{Object}` on success or will reject with an error if the request fails.
 
 ---
+
+> 🔥🔥🔥 **Grab a Fire Extinguisher. Your coding abilities are a Raging Inferno.** 🔥🔥🔥

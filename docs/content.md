@@ -6,7 +6,7 @@
 
 To either retrieve a single content entry or all the entries for a given content type once, ie. Give me all my "Blog Posts".
 
-This method does not *watch* for real-time db changes, but is intended to retrieve your content once. If you are looking for real-time methods, take a look at the [`app.content.subscribe()`](/content?id=subscribe) method below.
+This method does not *watch* for real-time db changes, but is intended to retrieve your content once. If you're looking for real-time methods, take a look at the [`app.content.subscribe()`](/content?id=subscribe) method below.
 
 *To get all entries for a specific content type:*
 
@@ -34,7 +34,7 @@ app.content.get('blog-posts', '1502966447501', { fields: [ 'title', 'description
 
 #### Available Options
 
-The following optional options can be specified when retrieving your data:
+The following options can be specified when retrieving your data:
 
 ##### Fields
 
@@ -52,7 +52,7 @@ app.content.get('blog-posts', { fields: [ 'title', 'description', 'image' ] })
 
 - `populate` **{Array}** - A list of relational and/or media (images/files) fields to be populated with their content for each entry.
 
-?> **Pro Tip:** When specifying a media field to be populated for you, it will replace the file ID for you with an object containing all the files data including a `url` property which is the URL to your file in the storage bucket.
+?> **HOT TIP:** When specifying a media field to be populated for you, it will replace the file ID for you with an object containing all the files data including a `url` property which is the URL to your file in the storage bucket.
 
 *Example*
 
@@ -126,7 +126,7 @@ app.content.getByField('blog-posts', 'slug', 'my-famous-blog-post')
   .catch(error => console.error('Something went wrong while retrieving the entry. Details:', error));
 ```
 
-> This method is simply a convenience method, but the same can be achieved with the standard `app.content.get()` method by adding the following options:
+> This method is just a convenient way of querying your data, but the same can be achieved with the standard `app.content.get()` method by adding the following options:
 
 ```javascript
 app.content.getByField('blog-posts', { orderByChild: 'slug', equalTo: 'my-famous-blog-post' })
@@ -145,7 +145,7 @@ app.content.getByField('blog-posts', { orderByChild: 'slug', equalTo: 'my-famous
 
 #### Available Options
 
-All options available to the `app.content.get()` method, expect for the already applied `orderByChild` and `equalTo`, is available for this method.
+All options available to the `app.content.get()` method, except for the already applied `orderByChild` and `equalTo`, is available for this method.
 
 *Example*
 
@@ -206,7 +206,8 @@ app.content.subscribe('blog-posts', '1502966447501', { fields: [ 'title', 'descr
 });
 ```
 
-?> **Pro Tip:** If you are using [RxJS Observables](http://reactivex.io/rxjs/) and you don't like callbacks, turn this `subscribe` method into an **Observable** like this:
+?> **HOT TIP:** If you are using [RxJS Observables](http://reactivex.io/rxjs/) and you don't like callbacks, turn this `subscribe` method into an **Observable** like this:
+
 ```javascript
 const getContentObservable = Rx.Observable.bindCallback(app.content.subscribe);
 getContentObservable('blog-posts', '1502966447501', { fields: [ 'title', 'description' ] }).subscribe()
@@ -225,7 +226,7 @@ Parameters should be passed in the order of the following table. If an optional 
 
 #### Available Options
 
-The following optional options can be specified when retrieving your data:
+The following options can be specified when retrieving your data:
 
 ##### Fields
 
@@ -400,9 +401,11 @@ A `Promise` that resolves when the entry is removed or will reject with an error
 
 ---
 
+> 🔥🔥🔥 **Are your fingers Flaming yet? They should be!** 🔥🔥🔥
+
 ## .transaction()
 
-> This is a more advanced API method, that for most use cases will not be necessary.
+> **FIRE RISK WARNING:** This is a more advanced API method, that for most use cases will not be necessary.
 
 If you need to update an entry whose data could be corrupted by concurrent changes, Firebase allows us to perform a "transaction" update that updates data based on the existing data/state.
 
@@ -439,7 +442,7 @@ This method has no return value. Use the optional `callback` function to determi
 
 ## .ref()
 
-> This is a more advanced API method, that for most use cases will not be necessary.
+> **FIRE RISK WARNING:** This is a more advanced API method, that for most use cases will not be necessary.
 
 To retrieve a context aware (environment and locale) reference to any node/location within your "Content" data.
 

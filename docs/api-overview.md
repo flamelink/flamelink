@@ -1,8 +1,8 @@
 # API Overview
 
-The Flamelink API is a Promise-based API that is intended to be very intuitive for you as the developer. If you are familiar with JavaScript Promises you should feel right at home. If you are not, take a quick peak at the [MDN](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise) or [Google Developer](https://developers.google.com/web/fundamentals/getting-started/primers/promises) docs and `then` come straight back.
+The Flamelink API is a Promise-based API that is intended to be very intuitive for you as the developer. If you are familiar with JavaScript Promises you should feel right at home. If you are not, take a quick peek at the [MDN](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise) or [Google Developer](https://developers.google.com/web/fundamentals/getting-started/primers/promises) docs and `then` 😂 come straight back.
 
-All API methods are available on your Flamelink `app` instance that you created. It will either be directly available on the instance object for any general methods, like `app.getLocale()`, or it will be available on one of the namespaces, like `app.content.get('blog-posts')`. The details for each of these methods can be found under the relevant sub-headings in these docs.
+All API methods are available on your Flamelink `app` instance that you've created. It will either be directly available on the instance object for any general methods, like `app.getLocale()`, or it will be available on one of the namespaces, like `app.content.get('blog-posts')`. The details for each of these methods can be found under the relevant sub-headings in these docs.
 
 > All methods are subject to the [Firebase Realtime Database Rules](https://firebase.google.com/docs/database/security/). For instance, if you have database rules set up that only allows authenticated users access to read and write, you would need to authenticate with a user before trying to use this API. It is always a good idea to only allow as little access as possible. If certain content should only be available behind a login, set up the Firebase Realtime Database Rules to require authentication for the particular read or write actions and then authenticate against this (Flamelink) SDK using the Auth Service.
 
@@ -14,9 +14,11 @@ Almost all API methods have a *raw* method as well which will return the raw **s
 
 !> The raw methods are not explicitly documented in detail, but it is good to know about them if you find you need to access the response snapshots directly. Be aware that the raw methods can not include all the nice data manipulations that you will get with the standard API methods because all of it is what you will get back from a Firebase query directly, but it includes the filtering and ordering options that Firebase provides.
 
+> 🔥🔥🔥 **Ok. Take a quick Flame-break!!!** 🔥🔥🔥
+
 ## Firebase App Instance
 
-In the odd chance that you run into any situation where you need to perform an advanced query on your Firebase database that you currently can't do with the Flamelink SDK, we conveniently expose the Firebase app instance for you as `app.firebaseApp`. This means that you are never stuck. We would in any case love to hear from you, so please [log an issue](https://github.com/flamelink/flamelink/issues) on GitHub and we will see what we can do to help you out.
+In the unlikely event that you run into a sticky situation where you need to perform an advanced query on your Firebase database that you're unable to do with the Flamelink SDK, we conveniently expose the Firebase app instance for you as `app.firebaseApp`. This means that you are never stuck. In any case we'd love to hear from you, so please take a few moments to [log your issue](https://github.com/flamelink/flamelink/issues) on GitHub and we'll see what we can do to help you out. *Flamelink’s got yo back, yo.*
 
 ## Firebase Services
 

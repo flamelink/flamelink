@@ -26,13 +26,13 @@ or through a `<script>` tag hosted from any of these CDN's
 
 [![](https://data.jsdelivr.com/v1/package/npm/flamelink/badge)](https://www.jsdelivr.com/package/npm/flamelink)
 
-Simply add the following script tag to the `<body>` of your index.html file:
+Add the following script tag to the `<body>` of your index.html file:
 
 ```html
 <script src="//cdn.jsdelivr.net/npm/flamelink/dist/flamelink.js"></script>
 ```
 
-This will always load the latest version of this SDK for you. If you want to load a specific version, you can specify the version number explicitly as well (1.0.0 in the example):
+This will always load the latest version of this SDK for you. If you want to load a specific version, you can specify the version number as well (1.0.0 in the example):
 
 ```html
 <script src="//cdn.jsdelivr.net/npm/flamelink@1.0.0/dist/flamelink.js"></script>
@@ -42,13 +42,13 @@ This will always load the latest version of this SDK for you. If you want to loa
 
 ### unpkg
 
-Simply add the following script tag to the `<body>` of your index.html file:
+Add the following script tag to the `<body>` of your index.html file:
 
 ```html
 <script src="//unpkg.com/flamelink/dist/flamelink.js"></script>
 ```
 
-This will always load the latest version of this SDK for you. If you want to load a specific version, you can specify the version number explicitly as well (1.0.0 in the example):
+This will always load the latest version of this SDK for you. If you want to load a specific version, you can specify the version number as well (1.0.0 in the example):
 
 ```html
 <script src="//unpkg.com/flamelink@1.0.0/dist/flamelink.js"></script>
@@ -60,7 +60,7 @@ This will always load the latest version of this SDK for you. If you want to loa
 
 ### Importing/Adding the dependencies
 
-First make sure that you load the `flamelink` package to your file. When using the `<script>` tag version, you need to load both `firebase` and `flamelink` which will then be globally available on the browser's `window` object.
+First ensure that you load the `flamelink` package to your file. When using the `<script>` tag version, you will need to load both `firebase` and `flamelink` which will then be globally available on the browser's `window` object.
 
 Depending on your app setup, you can import the package using `require()` statements:
 
@@ -74,7 +74,7 @@ or using ES2015/ES6 imports:
 import flamelink from 'flamelink';
 ```
 
-### Creating your flamelink app instance
+### Creating your Flamelink app instance
 
 You can either create your `flamelink` app instance by passing in all the required config options that you would normally use to instantiate a firebase application:
 
@@ -113,8 +113,7 @@ const app = flamelink({ firebaseApp });
 
 ### Using your flamelink app
 
-<!-- TODO: Make the `flamelink` references links to the CMS once it is live -->
-Once you have an instance of the `flamelink` app, you can start using it to interact with your data stored in your firebase database, for example: let's suppose you want to retrieve all your products created under the "Content" section in `flamelink`.
+Once you have an instance of the [`flamelink` app](https://app.flamelink.io), you can start using it to interact with your data stored in your firebase database. Suppose you want to retrieve all your products created under the "Content" section in `flamelink`.
 
 *Using standard Promises:*
 
@@ -132,3 +131,5 @@ console.log('All of your products:', products);
 ```
 
 Check out the [API docs](/api-overview) for all the available methods!
+
+> 🔥🔥🔥 **PSST. Your coding skills... So hot right now.** 🔥🔥🔥

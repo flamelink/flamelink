@@ -476,4 +476,6 @@ A `Promise` that resolves to the reference `{Object}` on success or will reject 
 
 ---
 
+Next up: [Environments](/environments)
+
 > 🔥🔥🔥 **Grab a Fire Extinguisher. Your coding abilities are a Raging Inferno.** 🔥🔥🔥

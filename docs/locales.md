@@ -58,6 +58,4 @@ A `Promise` that resolves to the currently set locale `{String}` on success.
 
 ---
 
-Next up: [Content](/content)
-
 > 🔥🔥🔥 **Pretty sure your keyboard's melting from all that hot code you're dropping** 🔥🔥🔥

@@ -49,6 +49,7 @@ function flamelink(conf = {}) {
   let storageService_ = null;
   let authService_ = null;
   let firestoreService_ = null;
+  let isAdminApp_ = false;
 
   const config = Object.assign({}, DEFAULT_CONFIG, conf);
 
@@ -56,8 +57,11 @@ function flamelink(conf = {}) {
   let env_ = config.env;
   let locale_ = config.locale;
 
-  // Init firebaseApp if not set of provided
-  if (config.firebaseApp) {
+  // Init firebaseApp if not set or provided
+  if (config.adminApp) {
+    firebaseApp_ = config.adminApp;
+    isAdminApp_ = true;
+  } else if (config.firebaseApp) {
     firebaseApp_ = config.firebaseApp;
   } else if (!firebaseApp_) {
     const { apiKey, authDomain, databaseURL, storageBucket, projectId } = config;
@@ -465,9 +469,14 @@ function flamelink(conf = {}) {
 
       // Check if the filename is a URL (contains "://")
       if (/:\/\//.test(filename)) {
+        if (isAdminApp_) {
+          throw error('Retrieving files from URL is not supported for the admin SDK');
+        }
         return storageService_.refFromURL(filename);
       }
-      return storageService_.ref(getStorageRefPath(filename, options));
+      return isAdminApp_
+        ? storageService_.bucket().file(getStorageRefPath(filename, options))
+        : storageService_.ref(getStorageRefPath(filename, options));
     },
 
     /**
@@ -798,6 +807,14 @@ function flamelink(conf = {}) {
         }
       }
       const fileRef = await this.ref(...storageRefArgs);
+
+      if (isAdminApp_) {
+        const signedUrls = await fileRef.getSignedUrl({
+          action: 'read',
+          expires: '01-01-2500' // Just expire at some very far time in the future
+        });
+        return get(signedUrls, '[0]', '');
+      }
       return fileRef.getDownloadURL();
     },
 
@@ -850,6 +867,10 @@ function flamelink(conf = {}) {
      * @returns {Promise}
      */
     async deleteFile(fileId, options = {}) {
+      if (isAdminApp_) {
+        throw error('"storage.deleteFile()" is not currently supported for server-side use.');
+      }
+
       if (!fileId) {
         throw error('"storage.deleteFile()" should be called with at least the file ID');
       }
@@ -892,6 +913,10 @@ function flamelink(conf = {}) {
      * @returns {Object} UploadTask instance, which is similar to a Promise and an Observable
      */
     async upload(fileData, options = {}) {
+      if (isAdminApp_) {
+        throw error('"storage.upload()" is not currently supported for server-side use.');
+      }
+
       const id = Date.now();
       const metadata = options.metadata || {};
       const filename =

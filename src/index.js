@@ -96,6 +96,12 @@ function flamelink(conf = {}) {
      * @returns {Object} Ref object
      */
     ref(ref) {
+      if (!databaseService_) {
+        throw error(
+          'The Database service is not available. Make sure the "databaseURL" property is provided.'
+        );
+      }
+
       return databaseService_.ref(getSchemasRefPath(ref || null, env_, locale_));
     },
 
@@ -383,6 +389,12 @@ function flamelink(conf = {}) {
      * @private
      */
     async _getFolderId(folderName = '', fallback = 'Root') {
+      if (!databaseService_) {
+        throw error(
+          'The Database service is not available. Make sure the "databaseURL" property is provided.'
+        );
+      }
+
       const foldersSnapshot = await databaseService_.ref(getFolderRefPath()).once('value');
       const folders = foldersSnapshot.val();
       const folder = find(folders, { name: folderName });
@@ -445,6 +457,12 @@ function flamelink(conf = {}) {
      * @returns {Object} Ref object
      */
     ref(filename, options = {}) {
+      if (!storageService_) {
+        throw error(
+          'The Storage service is not available. Make sure the "storageBucket" property is provided.'
+        );
+      }
+
       // Check if the filename is a URL (contains "://")
       if (/:\/\//.test(filename)) {
         return storageService_.refFromURL(filename);
@@ -457,6 +475,12 @@ function flamelink(conf = {}) {
      * @param {String} folderID
      */
     folderRef(folderID) {
+      if (!databaseService_) {
+        throw error(
+          'The Database service is not available. Make sure the "databaseURL" property is provided.'
+        );
+      }
+
       return databaseService_.ref(getFolderRefPath(folderID));
     },
 
@@ -465,6 +489,12 @@ function flamelink(conf = {}) {
      * @param {String} fileId
      */
     fileRef(fileId) {
+      if (!databaseService_) {
+        throw error(
+          'The Database service is not available. Make sure the "databaseURL" property is provided.'
+        );
+      }
+
       return databaseService_.ref(getFileRefPath(fileId));
     },
 
@@ -473,6 +503,12 @@ function flamelink(conf = {}) {
      * @param {String} [mediaRef] Optional media reference
      */
     mediaRef(mediaRef) {
+      if (!databaseService_) {
+        throw error(
+          'The Database service is not available. Make sure the "databaseURL" property is provided.'
+        );
+      }
+
       return databaseService_.ref(getMediaRefPath(mediaRef));
     },
 
@@ -913,6 +949,12 @@ function flamelink(conf = {}) {
      * @returns {Object} Ref object
      */
     ref(ref) {
+      if (!databaseService_) {
+        throw error(
+          'The Database service is not available. Make sure the "databaseURL" property is provided.'
+        );
+      }
+
       return databaseService_.ref(getContentRefPath(ref, env_, locale_));
     },
 
@@ -1361,6 +1403,12 @@ function flamelink(conf = {}) {
      * @returns {Object} Ref object
      */
     ref(ref) {
+      if (!databaseService_) {
+        throw error(
+          'The Database service is not available. Make sure the "databaseURL" property is provided.'
+        );
+      }
+
       return databaseService_.ref(getNavigationRefPath(ref, env_, locale_));
     },
 

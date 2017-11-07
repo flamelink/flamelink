@@ -658,14 +658,14 @@ function flamelink(conf = {}) {
         if (ALLOWED_CHILD_EVENTS.includes(args[1])) {
           // args[0] = mediaKey
           // args[1] = event
-          return this.ref(args[0]).off(args[1]);
+          return this.mediaRef(args[0]).off(args[1]);
         }
 
         throw error(`"${args[1]}" is not a valid child event`);
       }
 
       if (args.length === 1) {
-        return this.ref(args[0]).off();
+        return this.mediaRef(args[0]).off();
       }
 
       throw error(

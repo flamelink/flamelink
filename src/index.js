@@ -58,11 +58,13 @@ function flamelink(conf = {}) {
   let locale_ = config.locale;
 
   // Init firebaseApp if not set or provided
-  if (config.adminApp) {
-    firebaseApp_ = config.adminApp;
-    isAdminApp_ = true;
-  } else if (config.firebaseApp) {
+  if (config.firebaseApp) {
     firebaseApp_ = config.firebaseApp;
+
+    // Is the Firebase app instance an admin app instance?
+    if (config.isAdminApp) {
+      isAdminApp_ = true;
+    }
   } else if (!firebaseApp_) {
     const { apiKey, authDomain, databaseURL, storageBucket, projectId } = config;
 

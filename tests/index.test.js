@@ -483,9 +483,10 @@ describe('Flamelink SDK', () => {
         const contentRef = 'ref';
         const entryRef = 'entry-ref';
         const payload = { image: 'value' };
+        const result = /"update" called with payload: "{"image":"value","__meta__\/lastModifiedBy":"(.*)","__meta__\/lastModifiedDate":"(.*)","id":"entry-ref"}"/;
         return expect(
           flamelink(basicConfig).content.update(contentRef, entryRef, payload)
-        ).resolves.toEqual(`"update" called with payload: "${JSON.stringify(payload)}"`);
+        ).resolves.toMatch(result);
       });
 
       test('should throw if called with the incorrect arguments', async () => {

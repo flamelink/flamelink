@@ -1342,7 +1342,7 @@ function flamelink(conf = {}) {
       const schema = await schemasAPI.get(contentRef);
       const isSingleType = schema && schema.type === 'single';
 
-      const payload_ = isSingleType ? entryRef : payload;
+      let payload_ = isSingleType ? entryRef : payload;
 
       if (
         (isSingleType &&
@@ -1380,13 +1380,21 @@ function flamelink(conf = {}) {
         return Promise.reject(validationErrors);
       }
 
+      if (typeof payload_ === 'object') {
+        payload_ = Object.assign({}, pickFields(payload_), {
+          '__meta__/lastModifiedBy': get(authService_, 'currentUser.uid', 'UNKNOWN'),
+          '__meta__/lastModifiedDate': new Date().toISOString(),
+          id: isSingleType ? contentRef : entryRef
+        });
+      }
+
       if (isSingleType) {
-        return this.ref(contentRef).update(pickFields(payload_));
+        return this.ref(contentRef).update(payload_);
       }
 
       return this.ref(contentRef)
         .child(entryRef)
-        .update(pickFields(payload_));
+        .update(payload_);
     },
 
     /**

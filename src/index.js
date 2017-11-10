@@ -49,6 +49,7 @@ function flamelink(conf = {}) {
   let storageService_ = null;
   let authService_ = null;
   let firestoreService_ = null;
+  let isAdminApp_ = false;
 
   const config = Object.assign({}, DEFAULT_CONFIG, conf);
 
@@ -56,9 +57,14 @@ function flamelink(conf = {}) {
   let env_ = config.env;
   let locale_ = config.locale;
 
-  // Init firebaseApp if not set of provided
+  // Init firebaseApp if not set or provided
   if (config.firebaseApp) {
     firebaseApp_ = config.firebaseApp;
+
+    // Is the Firebase app instance an admin app instance?
+    if (config.isAdminApp) {
+      isAdminApp_ = true;
+    }
   } else if (!firebaseApp_) {
     const { apiKey, authDomain, databaseURL, storageBucket, projectId } = config;
 
@@ -96,6 +102,12 @@ function flamelink(conf = {}) {
      * @returns {Object} Ref object
      */
     ref(ref) {
+      if (!databaseService_) {
+        throw error(
+          'The Database service is not available. Make sure the "databaseURL" property is provided.'
+        );
+      }
+
       return databaseService_.ref(getSchemasRefPath(ref || null, env_, locale_));
     },
 
@@ -383,6 +395,12 @@ function flamelink(conf = {}) {
      * @private
      */
     async _getFolderId(folderName = '', fallback = 'Root') {
+      if (!databaseService_) {
+        throw error(
+          'The Database service is not available. Make sure the "databaseURL" property is provided.'
+        );
+      }
+
       const foldersSnapshot = await databaseService_.ref(getFolderRefPath()).once('value');
       const folders = foldersSnapshot.val();
       const folder = find(folders, { name: folderName });
@@ -445,11 +463,22 @@ function flamelink(conf = {}) {
      * @returns {Object} Ref object
      */
     ref(filename, options = {}) {
+      if (!storageService_) {
+        throw error(
+          'The Storage service is not available. Make sure the "storageBucket" property is provided.'
+        );
+      }
+
       // Check if the filename is a URL (contains "://")
       if (/:\/\//.test(filename)) {
+        if (isAdminApp_) {
+          throw error('Retrieving files from URL is not supported for the admin SDK');
+        }
         return storageService_.refFromURL(filename);
       }
-      return storageService_.ref(getStorageRefPath(filename, options));
+      return isAdminApp_
+        ? storageService_.bucket().file(getStorageRefPath(filename, options))
+        : storageService_.ref(getStorageRefPath(filename, options));
     },
 
     /**
@@ -457,6 +486,12 @@ function flamelink(conf = {}) {
      * @param {String} folderID
      */
     folderRef(folderID) {
+      if (!databaseService_) {
+        throw error(
+          'The Database service is not available. Make sure the "databaseURL" property is provided.'
+        );
+      }
+
       return databaseService_.ref(getFolderRefPath(folderID));
     },
 
@@ -465,6 +500,12 @@ function flamelink(conf = {}) {
      * @param {String} fileId
      */
     fileRef(fileId) {
+      if (!databaseService_) {
+        throw error(
+          'The Database service is not available. Make sure the "databaseURL" property is provided.'
+        );
+      }
+
       return databaseService_.ref(getFileRefPath(fileId));
     },
 
@@ -473,6 +514,12 @@ function flamelink(conf = {}) {
      * @param {String} [mediaRef] Optional media reference
      */
     mediaRef(mediaRef) {
+      if (!databaseService_) {
+        throw error(
+          'The Database service is not available. Make sure the "databaseURL" property is provided.'
+        );
+      }
+
       return databaseService_.ref(getMediaRefPath(mediaRef));
     },
 
@@ -613,14 +660,14 @@ function flamelink(conf = {}) {
         if (ALLOWED_CHILD_EVENTS.includes(args[1])) {
           // args[0] = mediaKey
           // args[1] = event
-          return this.ref(args[0]).off(args[1]);
+          return this.mediaRef(args[0]).off(args[1]);
         }
 
         throw error(`"${args[1]}" is not a valid child event`);
       }
 
       if (args.length === 1) {
-        return this.ref(args[0]).off();
+        return this.mediaRef(args[0]).off();
       }
 
       throw error(
@@ -762,6 +809,14 @@ function flamelink(conf = {}) {
         }
       }
       const fileRef = await this.ref(...storageRefArgs);
+
+      if (isAdminApp_) {
+        const signedUrls = await fileRef.getSignedUrl({
+          action: 'read',
+          expires: '01-01-2500' // Just expire at some very far time in the future
+        });
+        return get(signedUrls, '[0]', '');
+      }
       return fileRef.getDownloadURL();
     },
 
@@ -814,6 +869,10 @@ function flamelink(conf = {}) {
      * @returns {Promise}
      */
     async deleteFile(fileId, options = {}) {
+      if (isAdminApp_) {
+        throw error('"storage.deleteFile()" is not currently supported for server-side use.');
+      }
+
       if (!fileId) {
         throw error('"storage.deleteFile()" should be called with at least the file ID');
       }
@@ -856,6 +915,10 @@ function flamelink(conf = {}) {
      * @returns {Object} UploadTask instance, which is similar to a Promise and an Observable
      */
     async upload(fileData, options = {}) {
+      if (isAdminApp_) {
+        throw error('"storage.upload()" is not currently supported for server-side use.');
+      }
+
       const id = Date.now();
       const metadata = options.metadata || {};
       const filename =
@@ -913,6 +976,12 @@ function flamelink(conf = {}) {
      * @returns {Object} Ref object
      */
     ref(ref) {
+      if (!databaseService_) {
+        throw error(
+          'The Database service is not available. Make sure the "databaseURL" property is provided.'
+        );
+      }
+
       return databaseService_.ref(getContentRefPath(ref, env_, locale_));
     },
 
@@ -1361,6 +1430,12 @@ function flamelink(conf = {}) {
      * @returns {Object} Ref object
      */
     ref(ref) {
+      if (!databaseService_) {
+        throw error(
+          'The Database service is not available. Make sure the "databaseURL" property is provided.'
+        );
+      }
+
       return databaseService_.ref(getNavigationRefPath(ref, env_, locale_));
     },
 

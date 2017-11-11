@@ -41,6 +41,8 @@ app.storage.upload(string)
   .catch(error => console.error('Upload failed. Details:', error));
 ```
 
+?> It is important to note that this method will set the file's `id` as well as the `createdBy` and `createdDate` meta data for you.
+
 ### Input parameters
 
 | Type                              | Variable   | Required | Description                                       |

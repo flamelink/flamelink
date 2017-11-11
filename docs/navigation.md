@@ -258,6 +258,8 @@ app.nav.set('main-menu', { id: 'new-id', title: 'new-title', items: [] })
   .catch(() => console.error('Something went wrong while setting the menu.'));
 ```
 
+?> It is important to note that this method will set the entry's `id` as well as the `createdBy` and `createdDate` meta data for you.
+
 ### Input parameters
 
 | Type   | Variable       | Required | Description                                          |
@@ -280,6 +282,8 @@ app.nav.update('main-menu', { items: [] })
   .then(() => console.log('Updating the navigation entry succeeded'))
   .catch(() => console.error('Something went wrong while updating the navigation entry.'));
 ```
+
+?> It is important to note that this method will set the entry's `id` as well as the `lastModifiedBy` and `lastModifiedDate` meta data for you.
 
 ### Input parameters
 

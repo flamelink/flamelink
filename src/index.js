@@ -338,7 +338,18 @@ function flamelink(conf = {}) {
         throw error('"set" called with the incorrect arguments. Check the docs for details.');
       }
 
-      return this.ref(schemaKey).set(payload);
+      const payload_ =
+        typeof payload === 'object'
+          ? Object.assign({}, payload, {
+              __meta__: {
+                createdBy: get(authService_, 'currentUser.uid', 'UNKNOWN'),
+                createdDate: new Date().toISOString()
+              },
+              id: schemaKey
+            })
+          : payload;
+
+      return this.ref(schemaKey).set(payload_);
     },
 
     /**
@@ -352,7 +363,16 @@ function flamelink(conf = {}) {
         throw error('"update" called with the incorrect arguments. Check the docs for details.');
       }
 
-      return this.ref(schemaKey).update(payload);
+      const payload_ =
+        typeof payload === 'object'
+          ? Object.assign({}, payload, {
+              '__meta__/lastModifiedBy': get(authService_, 'currentUser.uid', 'UNKNOWN'),
+              '__meta__/lastModifiedDate': new Date().toISOString(),
+              id: schemaKey
+            })
+          : payload;
+
+      return this.ref(schemaKey).update(payload_);
     },
 
     /**
@@ -438,7 +458,17 @@ function flamelink(conf = {}) {
      * @private
      */
     _setFile(payload = {}) {
-      return this.fileRef(payload.id).set(payload);
+      const payload_ =
+        typeof payload === 'object'
+          ? Object.assign({}, payload, {
+              __meta__: {
+                createdBy: get(authService_, 'currentUser.uid', 'UNKNOWN'),
+                createdDate: new Date().toISOString()
+              }
+            })
+          : payload;
+
+      return this.fileRef(payload.id).set(payload_);
     },
 
     /**
@@ -1743,7 +1773,18 @@ function flamelink(conf = {}) {
         throw error('"set" called with the incorrect arguments. Check the docs for details.');
       }
 
-      return this.ref(navRef).set(payload);
+      const payload_ =
+        typeof payload === 'object'
+          ? Object.assign({}, payload, {
+              __meta__: {
+                createdBy: get(authService_, 'currentUser.uid', 'UNKNOWN'),
+                createdDate: new Date().toISOString()
+              },
+              id: navRef
+            })
+          : payload;
+
+      return this.ref(navRef).set(payload_);
     },
 
     /**
@@ -1758,7 +1799,16 @@ function flamelink(conf = {}) {
         throw error('"update" called with the incorrect arguments. Check the docs for details.');
       }
 
-      return this.ref(navRef).update(payload);
+      const payload_ =
+        typeof payload === 'object'
+          ? Object.assign({}, payload, {
+              '__meta__/lastModifiedBy': get(authService_, 'currentUser.uid', 'UNKNOWN'),
+              '__meta__/lastModifiedDate': new Date().toISOString(),
+              id: navRef
+            })
+          : payload;
+
+      return this.ref(navRef).update(payload_);
     },
 
     /**

@@ -437,9 +437,10 @@ describe('Flamelink SDK', () => {
         const contentRef = 'ref';
         const entryRef = 'entry-ref';
         const payload = { image: 'value' };
+        const result = /"set" called with payload: "{"image":"value","__meta__":{"createdBy":"(.*)","createdDate":"(.*)"},"id":"entry-ref"}"/;
         return expect(
           flamelink(basicConfig).content.set(contentRef, entryRef, payload)
-        ).resolves.toEqual(`"set" called with payload: "${JSON.stringify(payload)}"`);
+        ).resolves.toMatch(result);
       });
 
       test('should throw if called with the incorrect arguments', async () => {
@@ -482,9 +483,10 @@ describe('Flamelink SDK', () => {
         const contentRef = 'ref';
         const entryRef = 'entry-ref';
         const payload = { image: 'value' };
+        const result = /"update" called with payload: "{"image":"value","__meta__\/lastModifiedBy":"(.*)","__meta__\/lastModifiedDate":"(.*)","id":"entry-ref"}"/;
         return expect(
           flamelink(basicConfig).content.update(contentRef, entryRef, payload)
-        ).resolves.toEqual(`"update" called with payload: "${JSON.stringify(payload)}"`);
+        ).resolves.toMatch(result);
       });
 
       test('should throw if called with the incorrect arguments', async () => {
@@ -930,18 +932,16 @@ describe('Flamelink SDK', () => {
 
     test('should expose a "set" method', () => {
       const payload = { key: 'value' };
+      const result = /"set" called with payload: "{"key":"value","__meta__":{"createdBy":"(.*)","createdDate":"(.*)"},"id":"ref"}"/;
 
-      return expect(flamelink(basicConfig).nav.set('ref', payload)).resolves.toEqual(
-        `"set" called with payload: "${JSON.stringify(payload)}"`
-      );
+      return expect(flamelink(basicConfig).nav.set('ref', payload)).resolves.toMatch(result);
     });
 
     test('should expose an "update" method', () => {
       const payload = { key: 'value' };
+      const result = /"update" called with payload: "{"key":"value","__meta__\/lastModifiedBy":"(.*)","__meta__\/lastModifiedDate":"(.*)","id":"ref"}"/;
 
-      return expect(flamelink(basicConfig).nav.update('ref', payload)).resolves.toEqual(
-        `"update" called with payload: "${JSON.stringify(payload)}"`
-      );
+      return expect(flamelink(basicConfig).nav.update('ref', payload)).resolves.toMatch(result);
     });
 
     test('should expose a "remove" method', () => {
@@ -1300,18 +1300,16 @@ describe('Flamelink SDK', () => {
 
     test('should expose a "set" method', () => {
       const payload = { key: 'value' };
+      const result = /"set" called with payload: "{"key":"value","__meta__":{"createdBy":"(.*)","createdDate":"(.*)"},"id":"ref"}"/;
 
-      return expect(flamelink(basicConfig).schemas.set('ref', payload)).resolves.toEqual(
-        `"set" called with payload: "${JSON.stringify(payload)}"`
-      );
+      return expect(flamelink(basicConfig).schemas.set('ref', payload)).resolves.toMatch(result);
     });
 
     test('should expose an "update" method', () => {
       const payload = { key: 'value' };
+      const result = /"update" called with payload: "{"key":"value","__meta__\/lastModifiedBy":"(.*)","__meta__\/lastModifiedDate":"(.*)","id":"ref"}"/;
 
-      return expect(flamelink(basicConfig).schemas.update('ref', payload)).resolves.toEqual(
-        `"update" called with payload: "${JSON.stringify(payload)}"`
-      );
+      return expect(flamelink(basicConfig).schemas.update('ref', payload)).resolves.toMatch(result);
     });
 
     test('should expose a "remove" method', () => {

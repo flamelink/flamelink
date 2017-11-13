@@ -98,17 +98,17 @@ function flamelink(conf = {}) {
     /**
      * Establish and return a reference to schemas in firebase db
      *
-     * @param {String} ref
+     * @param {String} schemaRef
      * @returns {Object} Ref object
      */
-    ref(ref) {
+    ref(schemaRef) {
       if (!databaseService_) {
         throw error(
           'The Database service is not available. Make sure the "databaseURL" property is provided.'
         );
       }
 
-      return databaseService_.ref(getSchemasRefPath(ref || null, env_, locale_));
+      return databaseService_.ref(getSchemasRefPath(schemaRef || null, env_, locale_));
     },
 
     /**
@@ -338,7 +338,18 @@ function flamelink(conf = {}) {
         throw error('"set" called with the incorrect arguments. Check the docs for details.');
       }
 
-      return this.ref(schemaKey).set(payload);
+      const payload_ =
+        typeof payload === 'object'
+          ? Object.assign({}, payload, {
+              __meta__: {
+                createdBy: get(authService_, 'currentUser.uid', 'UNKNOWN'),
+                createdDate: new Date().toISOString()
+              },
+              id: schemaKey
+            })
+          : payload;
+
+      return this.ref(schemaKey).set(payload_);
     },
 
     /**
@@ -352,7 +363,16 @@ function flamelink(conf = {}) {
         throw error('"update" called with the incorrect arguments. Check the docs for details.');
       }
 
-      return this.ref(schemaKey).update(payload);
+      const payload_ =
+        typeof payload === 'object'
+          ? Object.assign({}, payload, {
+              '__meta__/lastModifiedBy': get(authService_, 'currentUser.uid', 'UNKNOWN'),
+              '__meta__/lastModifiedDate': new Date().toISOString(),
+              id: schemaKey
+            })
+          : payload;
+
+      return this.ref(schemaKey).update(payload_);
     },
 
     /**
@@ -438,7 +458,17 @@ function flamelink(conf = {}) {
      * @private
      */
     _setFile(payload = {}) {
-      return this.fileRef(payload.id).set(payload);
+      const payload_ =
+        typeof payload === 'object'
+          ? Object.assign({}, payload, {
+              __meta__: {
+                createdBy: get(authService_, 'currentUser.uid', 'UNKNOWN'),
+                createdDate: new Date().toISOString()
+              }
+            })
+          : payload;
+
+      return this.fileRef(payload.id).set(payload_);
     },
 
     /**
@@ -1282,7 +1312,7 @@ function flamelink(conf = {}) {
       const schema = await schemasAPI.get(contentRef);
       const isSingleType = schema && schema.type === 'single';
 
-      const payload_ = isSingleType ? entryRef : payload;
+      let payload_ = isSingleType ? entryRef : payload;
 
       if (
         (isSingleType &&
@@ -1311,13 +1341,23 @@ function flamelink(conf = {}) {
       const fieldKeys = fields.map(field => field.key);
       const pickFields = pick(fieldKeys);
 
+      if (typeof payload_ === 'object') {
+        payload_ = Object.assign({}, pickFields(payload_), {
+          __meta__: {
+            createdBy: get(authService_, 'currentUser.uid', 'UNKNOWN'),
+            createdDate: new Date().toISOString()
+          },
+          id: isSingleType ? contentRef : entryRef
+        });
+      }
+
       if (isSingleType) {
-        return this.ref(contentRef).set(pickFields(payload_));
+        return this.ref(contentRef).set(payload_);
       }
 
       return this.ref(contentRef)
         .child(entryRef)
-        .set(pickFields(payload_));
+        .set(payload_);
     },
 
     /**
@@ -1332,7 +1372,7 @@ function flamelink(conf = {}) {
       const schema = await schemasAPI.get(contentRef);
       const isSingleType = schema && schema.type === 'single';
 
-      const payload_ = isSingleType ? entryRef : payload;
+      let payload_ = isSingleType ? entryRef : payload;
 
       if (
         (isSingleType &&
@@ -1370,13 +1410,21 @@ function flamelink(conf = {}) {
         return Promise.reject(validationErrors);
       }
 
+      if (typeof payload_ === 'object') {
+        payload_ = Object.assign({}, pickFields(payload_), {
+          '__meta__/lastModifiedBy': get(authService_, 'currentUser.uid', 'UNKNOWN'),
+          '__meta__/lastModifiedDate': new Date().toISOString(),
+          id: isSingleType ? contentRef : entryRef
+        });
+      }
+
       if (isSingleType) {
-        return this.ref(contentRef).update(pickFields(payload_));
+        return this.ref(contentRef).update(payload_);
       }
 
       return this.ref(contentRef)
         .child(entryRef)
-        .update(pickFields(payload_));
+        .update(payload_);
     },
 
     /**
@@ -1725,7 +1773,18 @@ function flamelink(conf = {}) {
         throw error('"set" called with the incorrect arguments. Check the docs for details.');
       }
 
-      return this.ref(navRef).set(payload);
+      const payload_ =
+        typeof payload === 'object'
+          ? Object.assign({}, payload, {
+              __meta__: {
+                createdBy: get(authService_, 'currentUser.uid', 'UNKNOWN'),
+                createdDate: new Date().toISOString()
+              },
+              id: navRef
+            })
+          : payload;
+
+      return this.ref(navRef).set(payload_);
     },
 
     /**
@@ -1740,7 +1799,16 @@ function flamelink(conf = {}) {
         throw error('"update" called with the incorrect arguments. Check the docs for details.');
       }
 
-      return this.ref(navRef).update(payload);
+      const payload_ =
+        typeof payload === 'object'
+          ? Object.assign({}, payload, {
+              '__meta__/lastModifiedBy': get(authService_, 'currentUser.uid', 'UNKNOWN'),
+              '__meta__/lastModifiedDate': new Date().toISOString(),
+              id: navRef
+            })
+          : payload;
+
+      return this.ref(navRef).update(payload_);
     },
 
     /**

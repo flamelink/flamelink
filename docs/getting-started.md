@@ -1,26 +1,26 @@
 ## Prerequisites
 
-It goes without saying that you will need to have a [Flamelink](https://www.flamelink.io) project to connect this SDK to.
+It goes without saying that you will need to have a [Flamelink](https://www.flamelink.io) project for this SDK to be of any use to you.
 
-Apart from the Flamelink project, the only real hard dependency is the [Firebase SDK](https://www.npmjs.com/package/firebase). Take a look at the installation instructions on their README, but in short, just make sure you add `firebase` as a dependency to your project.
+Apart from the Flamelink project, the only real hard dependency is either the [Firebase JavaScript SDK](https://www.npmjs.com/package/firebase) or [Firebase Admin SDK](https://firebase.google.com/docs/admin/setup), depending on whether you use Flamelink from the browser or server. Take a look at the installation instructions on their README, but in short, just make sure you add `firebase` or `firebase-admin` as a dependency to your project.
 
-Once you have `firebase` installed, you can install `flamelink` using any of the following options (we recommend installing through `npm` or `yarn`):
+Once you have `firebase` installed, you can install `flamelink` using any of the following options (we recommend installing with `npm` or `yarn`):
 
 ## Installation
 
-Install through `npm`
+Install with `npm`
 
 ```bash
 npm install --save flamelink
 ```
 
-or through `yarn`
+or with `yarn`
 
 ```bash
 yarn add flamelink
 ```
 
-or through a `<script>` tag hosted from any of these CDN's
+or with a `<script>` tag hosted from any of these CDN's
 
 ### jsDelivr
 
@@ -110,6 +110,26 @@ const firebaseApp = firebase.initializeApp(firebaseConfig);
 
 const app = flamelink({ firebaseApp });
 ```
+
+When using the `firebase-admin` SDK on server-side, you need to specify a `isAdminApp` property along with your `firebaseApp` instance, like this:
+
+```javascript
+const admin = require('firebase-admin');
+const flamelink = require('flamelink');
+const serviceAccount = require('path/to/serviceAccountKey.json');
+
+const firebaseConfig = {
+  credential: admin.credential.cert(serviceAccount), // required
+  databaseURL: '<your-database-url>',                // required
+  storageBucket: '<your-storage-bucket-code>',       // required if you want to your any Storage functionality
+};
+
+const firebaseApp = admin.initializeApp(config);
+
+const app = flamelink({ firebaseApp, isAdminApp: true }); // Remember `isAdminApp: true` here!!!
+```
+
+> You can use any of the [different ways to create the admin firebaseApp instance](https://firebase.google.com/docs/admin/setup), as long as you remember to set the `isAdminApp: true` option.
 
 ### Using your flamelink app
 

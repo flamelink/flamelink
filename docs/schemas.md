@@ -268,6 +268,8 @@ app.schemas.set('product-categories', { id: 'product-categories', title: 'Produc
   .catch(() => console.error('Something went wrong while setting the schema data.'));
 ```
 
+?> It is important to note that this method will set the entry's `id` as well as the `createdBy` and `createdDate` meta data for you.
+
 ### Input parameters
 
 | Type   | Variable    | Required | Description                                                |
@@ -294,6 +296,8 @@ app.schemas.update('product-categories', { id: 'product-categories', title: 'Pro
   .then(() => console.log('Updating the schema succeeded'))
   .catch(() => console.error('Something went wrong while updating the schema.'));
 ```
+
+?> It is important to note that this method will set the entry's `id` as well as the `lastModifiedBy` and `lastModifiedDate` meta data for you.
 
 ### Input parameters
 

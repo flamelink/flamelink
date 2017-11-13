@@ -336,6 +336,8 @@ app.content.set('blog-posts', '1502966447501', { id: 'new-id', title: 'new-title
   .catch(() => console.error('Something went wrong while setting the entry.'));
 ```
 
+?> It is important to note that this method will set the entry's `id` as well as the `createdBy` and `createdDate` meta data for you.
+
 ### Input parameters
 
 | Type   | Variable         | Required | Description                                              |
@@ -361,6 +363,8 @@ app.content.update('blog-posts', '1502966447501', { id: 'new-id', title: 'new-ti
   .then(() => console.log('Updating the entry succeeded'))
   .catch(() => console.error('Something went wrong while updating the entry.'));
 ```
+
+?> It is important to note that this method will set the entry's `id` as well as the `lastModifiedBy` and `lastModifiedDate` meta data for you.
 
 ### Input parameters
 

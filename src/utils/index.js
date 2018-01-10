@@ -141,8 +141,8 @@ export const pluckResultFields = curry((fields, resultSet) => {
 /**
  * Ensure that the passed in `populate` property is returning an array of objects
  * required by other populate functions.
- * @param {Array} populate
- * @returns {Array}
+ * @param {Array} `populate` Can be an array of strings, objects or a mix
+ * @returns {Array} Always an array of objects in the format `{ field: nameOfFieldToPopulate, ...otherOptions }`
  */
 export const prepPopulateFields = populate => {
   if (typeof memo.prepPopulateFields === 'undefined') {
@@ -172,6 +172,13 @@ export const prepPopulateFields = populate => {
 /**
  * Curried helper function that takes in an entry's object and then populates the given
  * properties recursively.
+ * @param {Object} `schemasAPI` The schemas API hash with all API methods
+ * @param {Object} `contentAPI` The content API hash with all API methods
+ * @param {Object} `storageAPI` The storage API hash with all API methods
+ * @param {String} `contentType` The name of the schema/content type as set up in CMS
+ * @param {Array} `populate` The array of fields to try and populate for the given entry
+ * @param {Object|Null} `originalEntry` The actual content entry on which the populate functionality should be run
+ *                                      Can be `null` when run recursively.
  */
 export const populateEntry = curry(
   async (schemasAPI, contentAPI, storageAPI, contentType, populate, originalEntry) => {
@@ -205,12 +212,7 @@ export const populateEntry = curry(
         }
 
         // Media Fields
-        if (
-          schemaField &&
-          schemaField.type === 'media' &&
-          isArray(schemaField.mediaTypes) &&
-          schemaField.mediaTypes[0]
-        ) {
+        if (schemaField && schemaField.type === 'media') {
           return fields.concat([Object.assign({}, preppedField, { populateType: 'media' })]);
         }
 

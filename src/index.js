@@ -121,7 +121,7 @@ function flamelink(conf = {}) {
     getRaw(schemaRef, options = {}) {
       const ref = typeof schemaRef === 'string' ? schemaRef : null;
       const opts = typeof schemaRef === 'string' ? options : schemaRef || {};
-      const ordered = applyOrderBy(this.ref(ref), opts);
+      const ordered = applyOrderBy(schemasAPI.ref(ref), opts);
       const filtered = applyFilters(ordered, opts);
 
       return filtered.once(opts.event || 'value');
@@ -142,7 +142,7 @@ function flamelink(conf = {}) {
         let schema = get(CACHE, `schemas[${env_}].${schemaRef}`);
 
         if (!schema || hasNonCacheableOptions(options)) {
-          const snapshot = await this.getRaw(schemaRef, options);
+          const snapshot = await schemasAPI.getRaw(schemaRef, options);
           schema = snapshot.val();
         }
         const wrapValue = { [schemaRef]: schema }; // Wrapping value to create the correct structure for our filtering to work
@@ -155,7 +155,7 @@ function flamelink(conf = {}) {
       let schemas = get(CACHE, `schemas[${env_}]`);
 
       if (!schemas || hasNonCacheableOptions(options)) {
-        const snapshot = await this.getRaw(null, options);
+        const snapshot = await schemasAPI.getRaw(null, options);
         schemas = snapshot.val();
       }
       const pluckFields = pluckResultFields(options.fields);
@@ -172,7 +172,7 @@ function flamelink(conf = {}) {
     getFieldsRaw(schemaRef, options = {}) {
       const ref = typeof schemaRef === 'string' ? `${schemaRef}/fields` : null;
       const opts = typeof schemaRef === 'string' ? options : schemaRef || {};
-      const ordered = applyOrderBy(this.ref(ref), opts);
+      const ordered = applyOrderBy(schemasAPI.ref(ref), opts);
       const filtered = applyFilters(ordered, opts);
 
       return filtered.once(opts.event || 'value');
@@ -192,7 +192,7 @@ function flamelink(conf = {}) {
         let fields = schemaCache ? schemaCache.fields : null;
 
         if (!fields || hasNonCacheableOptions(options)) {
-          const snapshot = await this.getFieldsRaw(schemaRef, options);
+          const snapshot = await schemasAPI.getFieldsRaw(schemaRef, options);
           fields = snapshot.val();
         }
 
@@ -204,7 +204,7 @@ function flamelink(conf = {}) {
       let schemas = get(CACHE, `schemas[${env_}]`);
 
       if (!schemas || hasNonCacheableOptions(opts)) {
-        const snapshot = await this.getFieldsRaw(opts);
+        const snapshot = await schemasAPI.getFieldsRaw(opts);
         schemas = snapshot.val();
       }
 
@@ -232,7 +232,7 @@ function flamelink(conf = {}) {
           options = {}; // set default options
         }
 
-        const ordered = applyOrderBy(this.ref(schemaKey), options);
+        const ordered = applyOrderBy(schemasAPI.ref(schemaKey), options);
         const filtered = applyFilters(ordered, options);
 
         return filtered.on(options.event || 'value', cb);
@@ -247,7 +247,7 @@ function flamelink(conf = {}) {
         options = {}; // set default options
       }
 
-      const ordered = applyOrderBy(this.ref(null), options);
+      const ordered = applyOrderBy(schemasAPI.ref(null), options);
       const filtered = applyFilters(ordered, options);
 
       return filtered.on(options.event || 'value', cb);
@@ -271,7 +271,7 @@ function flamelink(conf = {}) {
 
           const pluckFields = pluckResultFields(options.fields);
 
-          return this.subscribeRaw(schemaKey, options, async snapshot => {
+          return schemasAPI.subscribeRaw(schemaKey, options, async snapshot => {
             const wrappedSchema = await compose(pluckFields)({ [schemaKey]: snapshot.val() });
             const schema = wrappedSchema[schemaKey];
             return cb(null, schema); // Error-first callback
@@ -289,7 +289,7 @@ function flamelink(conf = {}) {
 
         const pluckFields = pluckResultFields(options.fields);
 
-        return this.subscribeRaw(options, async snapshot => {
+        return schemasAPI.subscribeRaw(options, async snapshot => {
           const pluckedSchemas = await compose(pluckFields)(snapshot.val());
 
           cb(null, pluckedSchemas); // Error-first callback
@@ -311,14 +311,14 @@ function flamelink(conf = {}) {
         if (ALLOWED_CHILD_EVENTS.includes(args[1])) {
           // args[0] = schemaKey
           // args[1] = event
-          return this.ref(args[0]).off(args[1]);
+          return schemasAPI.ref(args[0]).off(args[1]);
         }
 
         throw error(`"${args[1]}" is not a valid child event`);
       }
 
       if (args.length === 1) {
-        return this.ref(args[0]).off();
+        return schemasAPI.ref(args[0]).off();
       }
 
       throw error(
@@ -349,7 +349,7 @@ function flamelink(conf = {}) {
             })
           : payload;
 
-      return this.ref(schemaKey).set(payload_);
+      return schemasAPI.ref(schemaKey).set(payload_);
     },
 
     /**
@@ -372,7 +372,7 @@ function flamelink(conf = {}) {
             })
           : payload;
 
-      return this.ref(schemaKey).update(payload_);
+      return schemasAPI.ref(schemaKey).update(payload_);
     },
 
     /**
@@ -384,7 +384,7 @@ function flamelink(conf = {}) {
       if (typeof schemaKey !== 'string') {
         throw error('"remove" called with the incorrect arguments. Check the docs for details.');
       }
-      return this.ref(schemaKey).remove();
+      return schemasAPI.ref(schemaKey).remove();
     },
 
     /**
@@ -402,7 +402,7 @@ function flamelink(conf = {}) {
         );
       }
 
-      return this.ref(schemaKey).transaction(updateFn, cb);
+      return schemasAPI.ref(schemaKey).transaction(updateFn, cb);
     }
   };
 
@@ -447,7 +447,7 @@ function flamelink(conf = {}) {
         return folderId;
       }
 
-      return this._getFolderId(folderName, folderFallback);
+      return storageAPI._getFolderId(folderName, folderFallback);
     },
 
     /**
@@ -468,7 +468,7 @@ function flamelink(conf = {}) {
             })
           : payload;
 
-      return this.fileRef(payload.id).set(payload_);
+      return storageAPI.fileRef(payload.id).set(payload_);
     },
 
     /**
@@ -482,9 +482,9 @@ function flamelink(conf = {}) {
      */
     async _createSizedImage(file, filename, options) {
       const resizedImage = await resizeImage(file, options);
-      return this.ref(filename, { width: options.width || options.maxWidth || 'wrong_size' }).put(
-        resizedImage
-      );
+      return storageAPI
+        .ref(filename, { width: options.width || options.maxWidth || 'wrong_size' })
+        .put(resizedImage);
     },
 
     /**
@@ -563,7 +563,7 @@ function flamelink(conf = {}) {
     getRaw(mediaRef, options = {}) {
       const ref = typeof mediaRef === 'string' ? mediaRef : null;
       const opts = typeof mediaRef === 'string' ? options : mediaRef || {};
-      const ordered = applyOrderBy(this.mediaRef(ref), opts);
+      const ordered = applyOrderBy(storageAPI.mediaRef(ref), opts);
       const filtered = applyFilters(ordered, opts);
 
       return filtered.once(opts.event || 'value');
@@ -581,7 +581,7 @@ function flamelink(conf = {}) {
         // Single media
         const pluckFields = pluckResultFields(options.fields);
 
-        const snapshot = await this.getRaw(mediaRef, options);
+        const snapshot = await storageAPI.getRaw(mediaRef, options);
         const media = snapshot.val();
         const wrapValue = { [mediaRef]: media }; // Wrapping value to create the correct structure for our filtering to work
         return pluckFields(wrapValue)[mediaRef];
@@ -591,7 +591,7 @@ function flamelink(conf = {}) {
       options = mediaRef || {};
 
       const pluckFields = pluckResultFields(options.fields);
-      const snapshot = await this.getRaw(null, options);
+      const snapshot = await storageAPI.getRaw(null, options);
       const media = snapshot.val();
       return pluckFields(media);
     },
@@ -611,7 +611,7 @@ function flamelink(conf = {}) {
           options = {}; // set default options
         }
 
-        const ordered = applyOrderBy(this.mediaRef(mediaKey), options);
+        const ordered = applyOrderBy(storageAPI.mediaRef(mediaKey), options);
         const filtered = applyFilters(ordered, options);
 
         return filtered.on(options.event || 'value', cb);
@@ -626,7 +626,7 @@ function flamelink(conf = {}) {
         options = {}; // set default options
       }
 
-      const ordered = applyOrderBy(this.mediaRef(null), options);
+      const ordered = applyOrderBy(storageAPI.mediaRef(null), options);
       const filtered = applyFilters(ordered, options);
 
       return filtered.on(options.event || 'value', cb);
@@ -650,7 +650,7 @@ function flamelink(conf = {}) {
 
           const pluckFields = pluckResultFields(options.fields);
 
-          return this.subscribeRaw(mediaKey, options, async snapshot => {
+          return storageAPI.subscribeRaw(mediaKey, options, async snapshot => {
             const wrappedMedia = await compose(pluckFields)({ [mediaKey]: snapshot.val() });
             const media = wrappedMedia[mediaKey];
             return cb(null, media); // Error-first callback
@@ -668,7 +668,7 @@ function flamelink(conf = {}) {
 
         const pluckFields = pluckResultFields(options.fields);
 
-        return this.subscribeRaw(options, async snapshot => {
+        return storageAPI.subscribeRaw(options, async snapshot => {
           const pluckedMedia = await compose(pluckFields)(snapshot.val());
 
           cb(null, pluckedMedia); // Error-first callback
@@ -690,14 +690,14 @@ function flamelink(conf = {}) {
         if (ALLOWED_CHILD_EVENTS.includes(args[1])) {
           // args[0] = mediaKey
           // args[1] = event
-          return this.mediaRef(args[0]).off(args[1]);
+          return storageAPI.mediaRef(args[0]).off(args[1]);
         }
 
         throw error(`"${args[1]}" is not a valid child event`);
       }
 
       if (args.length === 1) {
-        return this.mediaRef(args[0]).off();
+        return storageAPI.mediaRef(args[0]).off();
       }
 
       throw error(
@@ -712,7 +712,7 @@ function flamelink(conf = {}) {
      * @returns {Promise} Resolves to snapshot of query
      */
     getFoldersRaw(options = {}) {
-      const ordered = applyOrderBy(this.folderRef(), options);
+      const ordered = applyOrderBy(storageAPI.folderRef(), options);
       const filtered = applyFilters(ordered, options);
 
       return filtered.once(options.event || 'value');
@@ -730,7 +730,7 @@ function flamelink(conf = {}) {
         idProperty: 'id',
         parentProperty: 'parentId'
       });
-      const snapshot = await this.getFoldersRaw(options);
+      const snapshot = await storageAPI.getFoldersRaw(options);
       return compose(pluckFields, structureItems, Object.values)(snapshot.val());
     },
 
@@ -745,7 +745,7 @@ function flamelink(conf = {}) {
       if (!fileId) {
         throw error('"storage.getFileRaw()" should be called with at least the file ID');
       }
-      const ordered = applyOrderBy(this.fileRef(fileId), options);
+      const ordered = applyOrderBy(storageAPI.fileRef(fileId), options);
       const filtered = applyFilters(ordered, options);
 
       return filtered.once(options.event || 'value');
@@ -762,7 +762,7 @@ function flamelink(conf = {}) {
         throw error('"storage.getFile()" should be called with at least the file ID');
       }
       const pluckFields = pluckResultFields(options.fields);
-      const snapshot = await this.getFileRaw(fileId, options);
+      const snapshot = await storageAPI.getFileRaw(fileId, options);
       const wrapValue = { [fileId]: snapshot.val() }; // Wrapping value to create the correct structure for our filtering to work
       const file = await compose(pluckFields)(wrapValue);
       return file[fileId];
@@ -775,7 +775,7 @@ function flamelink(conf = {}) {
      * @returns {Promise} Resolves to snapshot of query
      */
     getFilesRaw(options = {}) {
-      const ordered = applyOrderBy(this.fileRef(), options);
+      const ordered = applyOrderBy(storageAPI.fileRef(), options);
       const filtered = applyFilters(ordered, options);
 
       return filtered.once(options.event || 'value');
@@ -799,10 +799,10 @@ function flamelink(conf = {}) {
             }
           : {}
       );
-      const folderId = await this._getFolderIdFromOptions(opts);
+      const folderId = await storageAPI._getFolderIdFromOptions(opts);
       const filterFolders = filterByFolderId(folderId);
       const pluckFields = pluckResultFields(opts.fields);
-      const snapshot = await this.getFilesRaw(opts);
+      const snapshot = await storageAPI.getFilesRaw(opts);
       return compose(pluckFields, filterFolders)(snapshot.val());
     },
 
@@ -817,7 +817,7 @@ function flamelink(conf = {}) {
         throw error('"storage.getURL()" should be called with at least the file ID');
       }
       const { size } = options;
-      const file = await this.getFile(fileId, options);
+      const file = await storageAPI.getFile(fileId, options);
 
       if (!file) {
         return file;
@@ -842,7 +842,7 @@ function flamelink(conf = {}) {
           storageRefArgs.push({ width: smartWidth });
         }
       }
-      const fileRef = await this.ref(...storageRefArgs);
+      const fileRef = await storageAPI.ref(...storageRefArgs);
 
       if (isAdminApp_) {
         const signedUrls = await fileRef.getSignedUrl({
@@ -864,7 +864,7 @@ function flamelink(conf = {}) {
         throw error('"storage.getMetadata()" should be called with at least the file ID');
       }
 
-      const file = await this.getFile(fileId, options);
+      const file = await storageAPI.getFile(fileId, options);
 
       if (!file) {
         throw error(`There is no file for File ID: "${fileId}"`);
@@ -872,7 +872,7 @@ function flamelink(conf = {}) {
 
       const { file: filename } = file;
 
-      return this.ref(filename).getMetadata();
+      return storageAPI.ref(filename).getMetadata();
     },
 
     /**
@@ -886,7 +886,7 @@ function flamelink(conf = {}) {
         throw error('"storage.updateMetadata()" should be called with at least the file ID');
       }
 
-      const file = await this.getFile(fileId);
+      const file = await storageAPI.getFile(fileId);
 
       if (!file) {
         throw error(`There is no file for File ID: "${fileId}"`);
@@ -894,7 +894,7 @@ function flamelink(conf = {}) {
 
       const { file: filename } = file;
 
-      return this.ref(filename).updateMetadata(payload);
+      return storageAPI.ref(filename).updateMetadata(payload);
     },
 
     /**
@@ -911,14 +911,14 @@ function flamelink(conf = {}) {
         throw error('"storage.deleteFile()" should be called with at least the file ID');
       }
 
-      const file = await this.getFile(fileId, options);
+      const file = await storageAPI.getFile(fileId, options);
 
       if (!file) {
         return;
       }
 
       const { file: filename, sizes } = file;
-      const storageRef = this.ref(filename);
+      const storageRef = storageAPI.ref(filename);
 
       // Delete original file from storage bucket
       await storageRef.delete();
@@ -933,13 +933,13 @@ function flamelink(conf = {}) {
               return Promise.resolve();
             }
 
-            return this.ref(filename, { width }).delete();
+            return storageAPI.ref(filename, { width }).delete();
           })
         );
       }
 
       // Delete file entry from the real-time db
-      return this.fileRef(fileId).remove();
+      return storageAPI.fileRef(fileId).remove();
     },
 
     /**
@@ -959,7 +959,7 @@ function flamelink(conf = {}) {
         (typeof fileData === 'object' && fileData.name) || typeof metadata.name === 'string'
           ? `${id}_${metadata.name || fileData.name}`
           : id;
-      const storageRef = this.ref(filename, options);
+      const storageRef = storageAPI.ref(filename, options);
       const updateMethod = typeof fileData === 'string' ? 'putString' : 'put';
       const args = [fileData];
 
@@ -978,7 +978,7 @@ function flamelink(conf = {}) {
       const snapshot = await uploadTask;
 
       const mediaType = /^image\//.test(snapshot.metadata.contentType) ? 'images' : 'files';
-      const folderId = await this._getFolderIdFromOptions(options);
+      const folderId = await storageAPI._getFolderIdFromOptions(options);
       const filePayload = {
         id,
         file: snapshot.metadata.name,
@@ -992,12 +992,12 @@ function flamelink(conf = {}) {
         filePayload.sizes = options.sizes;
 
         await Promise.all(
-          options.sizes.map(size => this._createSizedImage(fileData, filename, size))
+          options.sizes.map(size => storageAPI._createSizedImage(fileData, filename, size))
         );
       }
 
       // Write to real-time db
-      await this._setFile(filePayload);
+      await storageAPI._setFile(filePayload);
 
       return uploadTask;
     }
@@ -1029,7 +1029,7 @@ function flamelink(conf = {}) {
     getRaw(contentRef, entryRef, options = {}) {
       // Is single entry query?
       if (['string', 'number'].includes(typeof entryRef)) {
-        const ordered = applyOrderBy(this.ref(contentRef).child(entryRef), options);
+        const ordered = applyOrderBy(contentAPI.ref(contentRef).child(entryRef), options);
         const filtered = applyFilters(ordered, options);
 
         return filtered.once(options.event || 'value');
@@ -1039,7 +1039,7 @@ function flamelink(conf = {}) {
       const ref = typeof contentRef === 'string' ? contentRef : null;
       const opts = typeof contentRef === 'string' ? entryRef || {} : contentRef || {};
 
-      const ordered = applyOrderBy(this.ref(ref), opts);
+      const ordered = applyOrderBy(contentAPI.ref(ref), opts);
       const filtered = applyFilters(ordered, opts);
 
       return filtered.once(opts.event || 'value');
@@ -1063,7 +1063,7 @@ function flamelink(conf = {}) {
           contentRef,
           options.populate
         );
-        const snapshot = await this.getRaw(contentRef, entryRef, options);
+        const snapshot = await contentAPI.getRaw(contentRef, entryRef, options);
         const wrapValue = { [entryRef]: snapshot.val() }; // Wrapping value to create the correct structure for our filtering to work
         const result = await compose(populateFields, pluckFields)(wrapValue);
         return result[entryRef];
@@ -1084,7 +1084,7 @@ function flamelink(conf = {}) {
         contentRef,
         opts.populate
       );
-      const snapshot = await this.getRaw(ref, opts);
+      const snapshot = await contentAPI.getRaw(ref, opts);
       // If content type is a single, we need to wrap the object for filters to work correctly
       if (ref) {
         const value = isSingleType ? { [ref]: snapshot.val() } : snapshot.val();
@@ -1115,7 +1115,7 @@ function flamelink(conf = {}) {
      */
     getByFieldRaw(contentRef, field, value, options = {}) {
       const opts = Object.assign({}, options, { orderByChild: field, equalTo: value });
-      return this.getRaw(contentRef, opts);
+      return contentAPI.getRaw(contentRef, opts);
     },
 
     /**
@@ -1129,7 +1129,7 @@ function flamelink(conf = {}) {
      */
     getByField(contentRef, field, value, options = {}) {
       const opts = Object.assign({}, options, { orderByChild: field, equalTo: value });
-      return this.get(contentRef, opts);
+      return contentAPI.get(contentRef, opts);
     },
 
     /**
@@ -1149,7 +1149,7 @@ function flamelink(conf = {}) {
           options = {};
         }
 
-        const ordered = applyOrderBy(this.ref(contentRef).child(entryRef), options);
+        const ordered = applyOrderBy(contentAPI.ref(contentRef).child(entryRef), options);
         const filtered = applyFilters(ordered, options);
 
         return filtered.on(options.event || 'value', cb);
@@ -1170,7 +1170,7 @@ function flamelink(conf = {}) {
         throw error('Check out the docs for the required parameters for this method');
       }
 
-      const ordered = applyOrderBy(this.ref(contentRef), options);
+      const ordered = applyOrderBy(contentAPI.ref(contentRef), options);
       const filtered = applyFilters(ordered, options);
 
       return filtered.on(options.event || 'value', cb);
@@ -1203,7 +1203,7 @@ function flamelink(conf = {}) {
             options.populate
           );
 
-          return this.subscribeRaw(contentRef, entryRef, options, async snapshot => {
+          return contentAPI.subscribeRaw(contentRef, entryRef, options, async snapshot => {
             const wrapValue = { [entryRef]: snapshot.val() }; // Wrapping value to create the correct structure for our filtering to work
             const result = await compose(populateFields, pluckFields)(wrapValue);
             cb(null, result[entryRef]); // Error-first callback
@@ -1236,7 +1236,7 @@ function flamelink(conf = {}) {
           options.populate
         );
 
-        return this.subscribeRaw(contentRef, options, async snapshot => {
+        return contentAPI.subscribeRaw(contentRef, options, async snapshot => {
           // If content type is a single, we need to wrap the object for filters to work correctly
           if (contentRef) {
             const value = isSingleType ? { [contentRef]: snapshot.val() } : snapshot.val();
@@ -1274,7 +1274,8 @@ function flamelink(conf = {}) {
         // args[0] = contentRef
         // args[1] = entryRef
         // args[2] = event
-        return this.ref(args[0])
+        return contentAPI
+          .ref(args[0])
           .child(args[1])
           .off(args[2]);
       }
@@ -1284,18 +1285,19 @@ function flamelink(conf = {}) {
         if (ALLOWED_CHILD_EVENTS.includes(args[1])) {
           // args[0] = contentRef
           // args[1] = event
-          return this.ref(args[0]).off(args[1]);
+          return contentAPI.ref(args[0]).off(args[1]);
         }
 
         // args[0] = contentRef
         // args[1] = entryRef
-        return this.ref(args[0])
+        return contentAPI
+          .ref(args[0])
           .child(args[1])
           .off();
       }
 
       if (args.length === 1) {
-        return this.ref(args[0]).off();
+        return contentAPI.ref(args[0]).off();
       }
 
       throw error(
@@ -1356,10 +1358,11 @@ function flamelink(conf = {}) {
       }
 
       if (isSingleType) {
-        return this.ref(contentRef).set(payload_);
+        return contentAPI.ref(contentRef).set(payload_);
       }
 
-      return this.ref(contentRef)
+      return contentAPI
+        .ref(contentRef)
         .child(entryRef)
         .set(payload_);
     },
@@ -1423,10 +1426,11 @@ function flamelink(conf = {}) {
       }
 
       if (isSingleType) {
-        return this.ref(contentRef).update(payload_);
+        return contentAPI.ref(contentRef).update(payload_);
       }
 
-      return this.ref(contentRef)
+      return contentAPI
+        .ref(contentRef)
         .child(entryRef)
         .update(payload_);
     },
@@ -1442,7 +1446,8 @@ function flamelink(conf = {}) {
       if (typeof contentRef !== 'string' || typeof entryRef !== 'string') {
         throw error('"remove" called with the incorrect arguments. Check the docs for details.');
       }
-      return this.ref(contentRef)
+      return contentAPI
+        .ref(contentRef)
         .child(entryRef)
         .remove();
     },
@@ -1468,7 +1473,8 @@ function flamelink(conf = {}) {
         );
       }
 
-      return this.ref(contentRef)
+      return contentAPI
+        .ref(contentRef)
         .child(entryRef)
         .transaction(updateFn, cb);
     }
@@ -1500,7 +1506,7 @@ function flamelink(conf = {}) {
     getRaw(navRef, options = {}) {
       const ref = typeof navRef === 'string' ? navRef : null;
       const opts = typeof navRef === 'string' ? options : navRef || {};
-      const ordered = applyOrderBy(this.ref(ref), opts);
+      const ordered = applyOrderBy(navigationAPI.ref(ref), opts);
       const filtered = applyFilters(ordered, opts);
 
       return filtered.once(opts.event || 'value');
@@ -1515,7 +1521,7 @@ function flamelink(conf = {}) {
     async get(navRef, options = {}) {
       if (typeof navRef === 'string') {
         // Single menu
-        const snapshot = await this.getRaw(navRef, options);
+        const snapshot = await navigationAPI.getRaw(navRef, options);
         const wrappedNav = await pluckResultFields(options.fields, { [navRef]: snapshot.val() });
         const nav = wrappedNav[navRef];
 
@@ -1538,7 +1544,7 @@ function flamelink(conf = {}) {
 
       // All menus
       const opts = navRef || {};
-      const snapshot = await this.getRaw(opts);
+      const snapshot = await navigationAPI.getRaw(opts);
 
       const withLocales = snapshot.val();
       const currentLocale = locale_; // TODO: Look at getting from API method
@@ -1585,7 +1591,7 @@ function flamelink(conf = {}) {
         throw error('"getItemsRaw" method requires a navigation reference');
       }
 
-      const ordered = applyOrderBy(this.ref(navRef).child('items'), options);
+      const ordered = applyOrderBy(navigationAPI.ref(navRef).child('items'), options);
       const filtered = applyFilters(ordered, options);
 
       return filtered.once(options.event || 'value');
@@ -1608,7 +1614,7 @@ function flamelink(conf = {}) {
         idProperty: 'uuid',
         parentProperty: 'parentIndex'
       });
-      const snapshot = await this.getItemsRaw(navRef, options);
+      const snapshot = await navigationAPI.getItemsRaw(navRef, options);
       return compose(pluckFields, structureItems)(snapshot.val());
     },
 
@@ -1627,7 +1633,7 @@ function flamelink(conf = {}) {
           options = {}; // set default options
         }
 
-        const ordered = applyOrderBy(this.ref(navRef), options);
+        const ordered = applyOrderBy(navigationAPI.ref(navRef), options);
         const filtered = applyFilters(ordered, options);
 
         return filtered.on(options.event || 'value', cb);
@@ -1642,7 +1648,7 @@ function flamelink(conf = {}) {
         options = {}; // set default options
       }
 
-      const ordered = applyOrderBy(this.ref(null), options);
+      const ordered = applyOrderBy(navigationAPI.ref(null), options);
       const filtered = applyFilters(ordered, options);
 
       return filtered.on(options.event || 'value', cb);
@@ -1666,7 +1672,7 @@ function flamelink(conf = {}) {
 
           const pluckFields = pluckResultFields(options.fields);
 
-          return this.subscribeRaw(navRef, options, async snapshot => {
+          return navigationAPI.subscribeRaw(navRef, options, async snapshot => {
             const wrappedNav = await compose(pluckFields)({ [navRef]: snapshot.val() });
             const nav = wrappedNav[navRef];
 
@@ -1697,7 +1703,7 @@ function flamelink(conf = {}) {
 
         const pluckFields = pluckResultFields(options.fields);
 
-        return this.subscribeRaw(options, async snapshot => {
+        return navigationAPI.subscribeRaw(options, async snapshot => {
           const withLocales = snapshot.val();
           const currentLocale = locale_; // TODO: Look at getting from API method
 
@@ -1749,14 +1755,14 @@ function flamelink(conf = {}) {
         if (ALLOWED_CHILD_EVENTS.includes(args[1])) {
           // args[0] = navRef
           // args[1] = event
-          return this.ref(args[0]).off(args[1]);
+          return navigationAPI.ref(args[0]).off(args[1]);
         }
 
         throw error(`"${args[1]}" is not a valid child event`);
       }
 
       if (args.length === 1) {
-        return this.ref(args[0]).off();
+        return navigationAPI.ref(args[0]).off();
       }
 
       throw error(
@@ -1788,7 +1794,7 @@ function flamelink(conf = {}) {
             })
           : payload;
 
-      return this.ref(navRef).set(payload_);
+      return navigationAPI.ref(navRef).set(payload_);
     },
 
     /**
@@ -1812,7 +1818,7 @@ function flamelink(conf = {}) {
             })
           : payload;
 
-      return this.ref(navRef).update(payload_);
+      return navigationAPI.ref(navRef).update(payload_);
     },
 
     /**
@@ -1825,7 +1831,7 @@ function flamelink(conf = {}) {
       if (typeof navRef !== 'string') {
         throw error('"remove" called with the incorrect arguments. Check the docs for details.');
       }
-      return this.ref(navRef).remove();
+      return navigationAPI.ref(navRef).remove();
     },
 
     /**
@@ -1844,7 +1850,7 @@ function flamelink(conf = {}) {
         );
       }
 
-      return this.ref(navRef).transaction(updateFn, cb);
+      return navigationAPI.ref(navRef).transaction(updateFn, cb);
     }
   };
 

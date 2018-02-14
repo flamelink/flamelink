@@ -43,6 +43,8 @@ const ALLOWED_CHILD_EVENTS = [
 
 const CACHE = {};
 
+const DEFAULT_REQUIRED_IMAGE_SIZE = 240;
+
 function flamelink(conf = {}) {
   let firebaseApp_ = null;
   let databaseService_ = null;
@@ -481,10 +483,15 @@ function flamelink(conf = {}) {
      * @private
      */
     async _createSizedImage(file, filename, options) {
-      const resizedImage = await resizeImage(file, options);
-      return storageAPI
-        .ref(filename, { width: options.width || options.maxWidth || 'wrong_size' })
-        .put(resizedImage);
+      if (options && (options.width || options.maxWidth)) {
+        const resizedImage = await resizeImage(file, options);
+        return storageAPI
+          .ref(filename, { width: options.width || options.maxWidth })
+          .put(resizedImage);
+      }
+      console.warn(
+        `Invalid size object supplied - please refer to https://flamelink.github.io/flamelink/#/storage?id=upload for more details on upload options.\nImage upload for supplied size skipped for file: ${filename}`
+      );
     },
 
     /**
@@ -948,7 +955,7 @@ function flamelink(conf = {}) {
      * @param {Object} [options={}]
      * @returns {Object} UploadTask instance, which is similar to a Promise and an Observable
      */
-    async upload(fileData, options = {}) {
+    async upload(fileData, options = { sizes: [{ width: DEFAULT_REQUIRED_IMAGE_SIZE }] }) {
       if (isAdminApp_) {
         throw error('"storage.upload()" is not currently supported for server-side use.');
       }
@@ -986,6 +993,24 @@ function flamelink(conf = {}) {
         type: mediaType,
         contentType: snapshot.metadata.contentType
       };
+
+      // Ensure image size with width DEFAULT_REQUIRED_IMAGE_SIZE exists
+      if (
+        !options.sizes ||
+        ((options.sizes && options.sizes.length === 0) ||
+          (Array.isArray(options.sizes) &&
+            options.sizes.filter(
+              size =>
+                size.width === DEFAULT_REQUIRED_IMAGE_SIZE ||
+                size.maxWidth === DEFAULT_REQUIRED_IMAGE_SIZE
+            ).length === 0))
+      ) {
+        if (Array.isArray(options.sizes)) {
+          options.sizes.push({ width: DEFAULT_REQUIRED_IMAGE_SIZE });
+        } else {
+          options.sizes = [{ width: DEFAULT_REQUIRED_IMAGE_SIZE }];
+        }
+      }
 
       // If mediaType === 'images', file is resizeable and sizes/widths are set, resize images here
       if (mediaType === 'images' && updateMethod === 'put' && Array.isArray(options.sizes)) {

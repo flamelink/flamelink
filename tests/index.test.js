@@ -1,8 +1,11 @@
 import flamelink from '../src/index';
 import pkg from '../package.json';
 import * as utils from '../src/utils/';
+import { mockFile } from './helpers';
 
 jest.mock('firebase');
+jest.mock('browser-image-resizer');
+
 utils.hasNonCacheableOptions = jest.fn(() => true);
 
 const basicConfig = {
@@ -1725,6 +1728,44 @@ describe('Flamelink SDK', () => {
             metadata: expect.any(Object)
           })
         );
+      });
+
+      test('should always set `sizes` property to array with a default required value if no sizes are defined', () => {
+        const app = flamelink(basicConfig);
+        const spy = jest.spyOn(app.storage, '_createSizedImage');
+        const file = mockFile();
+        return app.storage.upload(file).then(file => {
+          expect(spy).toHaveBeenCalledWith(expect.any(Object), expect.any(String), { width: 240 });
+        });
+      });
+
+      test('should always set `sizes` property to array with a default required value along with user specified values', () => {
+        const app = flamelink(basicConfig);
+        const spy = jest.spyOn(app.storage, '_createSizedImage');
+        const file = mockFile();
+        return app.storage.upload(file, { sizes: [{ width: 560 }] }).then(file => {
+          expect(spy).toHaveBeenCalledWith(expect.any(Object), expect.any(String), { width: 240 });
+          expect(spy).toHaveBeenCalledWith(expect.any(Object), expect.any(String), { width: 560 });
+        });
+      });
+
+      test('should not try to create a resized image when invalid size is specified', () => {
+        const app = flamelink(basicConfig);
+        const spy = jest.spyOn(app.storage, '_createSizedImage');
+        const file = mockFile();
+        return app.storage.upload(file, { sizes: 'wrong' }).then(file => {
+          expect(spy).not.toHaveBeenCalled();
+        });
+      });
+
+      test('should log a warning when an invalid size is specified within the sizes array', () => {
+        const app = flamelink(basicConfig);
+        // const spy = jest.spyOn(app.storage, '_createSizedImage');
+        const spy = jest.spyOn(window.console, 'warn');
+        const file = mockFile();
+        return app.storage.upload(file, { sizes: [{ wrong: 'wrong' }] }).then(file => {
+          expect(spy).toHaveBeenCalledWith(expect.stringMatching('Invalid size object supplied'));
+        });
       });
     });
 

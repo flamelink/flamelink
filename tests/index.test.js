@@ -1760,7 +1760,6 @@ describe('Flamelink SDK', () => {
 
       test('should log a warning when an invalid size is specified within the sizes array', () => {
         const app = flamelink(basicConfig);
-        // const spy = jest.spyOn(app.storage, '_createSizedImage');
         const spy = jest.spyOn(window.console, 'warn');
         const file = mockFile();
         return app.storage.upload(file, { sizes: [{ wrong: 'wrong' }] }).then(file => {

@@ -3,9 +3,6 @@ import pkg from '../package.json';
 import * as utils from '../src/utils/';
 import { mockFile } from './helpers';
 
-jest.mock('firebase');
-jest.mock('browser-image-resizer');
-
 utils.hasNonCacheableOptions = jest.fn(() => true);
 
 const basicConfig = {
@@ -1758,13 +1755,21 @@ describe('Flamelink SDK', () => {
         });
       });
 
-      test('should log a warning when an invalid size is specified within the sizes array', () => {
+      test('should throw an error if invalid size object is specified within the sizes array', async () => {
         const app = flamelink(basicConfig);
         const spy = jest.spyOn(window.console, 'warn');
         const file = mockFile();
-        return app.storage.upload(file, { sizes: [{ wrong: 'wrong' }] }).then(file => {
-          expect(spy).toHaveBeenCalledWith(expect.stringMatching('Invalid size object supplied'));
-        });
+        let message;
+
+        try {
+          await app.storage.upload(file, { sizes: [{ wrong: 'wrong' }] });
+        } catch (error) {
+          message = error.message;
+        }
+
+        expect(message).toMatch(
+          `[FLAMELINK] Invalid size object supplied - please refer to https://flamelink.github.io/flamelink/#/storage?id=upload for more details on upload options`
+        );
       });
     });
 

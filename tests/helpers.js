@@ -1,8 +1,4 @@
-const mockFile = (name, size, mimeType) => {
-  const fileName = name || 'mock.jpg';
-  const fileSize = size || 128;
-  const fileMimeType = mimeType || 'image/jpg';
-
+const mockFile = (fileName = 'mock.jpg', fileSize = 128, fileMimeType = 'image/jpg') => {
   const range = count => {
     let output = '';
 

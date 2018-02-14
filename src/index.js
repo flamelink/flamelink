@@ -489,7 +489,7 @@ function flamelink(conf = {}) {
           .ref(filename, { width: options.width || options.maxWidth })
           .put(resizedImage);
       }
-      console.warn(
+      throw error(
         `Invalid size object supplied - please refer to https://flamelink.github.io/flamelink/#/storage?id=upload for more details on upload options.\nImage upload for supplied size skipped for file: ${filename}`
       );
     },

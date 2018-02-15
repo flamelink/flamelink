@@ -683,7 +683,7 @@ const mockedStorageRef = jest.fn(ref => ({
           options,
           method: 'put'
         },
-        metadata: {}
+        metadata: { contentType: file.type || 'file' }
       });
     });
 

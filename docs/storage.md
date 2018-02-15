@@ -134,6 +134,41 @@ app.storage.upload(file, {
 });
 ```
 
+##### Sizes
+
+- `sizes` **{Array}** - When uploading a file, you can specify the different image sizes that should be created for you, apart from the original file that will always be uploaded.
+
+Since the Flamelink CMS uses a **240px** wide image as preview image, this method will always generate that image regardless of whether it is specified or not.
+
+*Example*
+
+```javascript
+app.storage.upload(file, {
+  sizes: [
+    {
+      width: 240
+    },
+    {
+      width: 320
+    },
+    {
+      width: 640
+    },
+    {
+      width: 800
+    },
+    {
+      width: 1024
+    },
+    {
+      width: 2300
+    }
+  ]
+});
+```
+
+!> In the future, this option will support restrictions on **height** and possibly other options like **image quality** as well.
+
 ### Return value
 
 A `Promise` that resolves when the upload is complete or will reject with an error if the request fails.

@@ -72,7 +72,7 @@
       "^.+\\.js$": "babel-jest"
     },
     "globals": {
-      "__PACKAGE_VERSION__": "0.13.5"
+      "__PACKAGE_VERSION__": "0.14.0"
     }
   },
   "babel": {

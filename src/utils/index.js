@@ -255,7 +255,6 @@ export const populateEntry = curry(
                       contentAPI,
                       storageAPI,
                       innerContentType,
-                      innerEntryKey,
                       populateField.populate
                     );
 
@@ -292,7 +291,6 @@ export const populateEntry = curry(
                       contentAPI,
                       storageAPI,
                       innerContentType,
-                      innerEntryKey,
                       populateField.populate
                     );
 

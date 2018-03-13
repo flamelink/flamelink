@@ -331,7 +331,7 @@ This method can be used to save data and overwrite the whole object for a single
 !> Using `set()` overwrites data for the specified entry, including any child nodes. For this reason, this method can only be used to set the data for an individual entry at a time and not to set all the entries for a given content type.
 
 ```javascript
-app.content.set('blog-posts', '1502966447501', { id: 'new-id', title: 'new-title' })
+app.content.set('blog-posts', '1502966447501', { title: 'new-title' })
   .then(() => console.log('Setting the entry succeeded'))
   .catch(() => console.error('Something went wrong while setting the entry.'));
 ```
@@ -359,7 +359,7 @@ This method can be used to save data for a single given entry without overwritin
 !> This method can only be used to update the data for an individual entry at a time and not to update all the entries for a given content type.
 
 ```javascript
-app.content.update('blog-posts', '1502966447501', { id: 'new-id', title: 'new-title' })
+app.content.update('blog-posts', '1502966447501', { title: 'new-title' })
   .then(() => console.log('Updating the entry succeeded'))
   .catch(() => console.error('Something went wrong while updating the entry.'));
 ```

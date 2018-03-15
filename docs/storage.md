@@ -19,7 +19,7 @@ When using a String, you can use one of the following 4 string encoding types: r
 ```javascript
 const file = ... // get file from the File or Blob API
 app.storage.upload(file)
-  .then(snapshot => console.log('Upload success!', snapshot))
+  .then(uploadTask => console.log('Upload success!', uploadTask))
   .catch(error => console.error('Upload failed. Details:', error));
 ```
 
@@ -28,7 +28,7 @@ app.storage.upload(file)
 ```javascript
 const bytes = new Uint8Array([0x48, 0x65, 0x6c, 0x6c, 0x6f, 0x2c, 0x20, 0x77, 0x6f, 0x72, 0x6c, 0x64, 0x21]);
 app.storage.upload(bytes)
-  .then(snapshot => console.log('Upload success!', snapshot))
+  .then(uploadTask => console.log('Upload success!', uploadTask))
   .catch(error => console.error('Upload failed. Details:', error));
 ```
 
@@ -37,7 +37,7 @@ app.storage.upload(bytes)
 ```javascript
 const string = 'This is a raw string of text to upload.';
 app.storage.upload(string)
-  .then(snapshot => console.log('Upload success!', snapshot))
+  .then(uploadTask => console.log('Upload success!', uploadTask))
   .catch(error => console.error('Upload failed. Details:', error));
 ```
 
@@ -171,7 +171,8 @@ app.storage.upload(file, {
 
 ### Return value
 
-A `Promise` that resolves when the upload is complete or will reject with an error if the request fails.
+A `UploadTask` instance, which is similar to a `Promise` and an `Observable` that resolves when the upload is complete or will reject with an error if the request fails.
+The response object will include the `flamelinkFileId` and `flamelinkFolderId` in the `customMetadata` object inside `metadata` if you need to acces it for some reason.
 
 ---
 

@@ -933,7 +933,7 @@ function flamelink(conf = {}) {
       const file = await storageAPI.getFile(fileId, options);
 
       if (!file) {
-        return;
+        return file;
       }
 
       const { file: filename, sizes } = file;
@@ -972,7 +972,7 @@ function flamelink(conf = {}) {
         throw error('"storage.upload()" is not currently supported for server-side use.');
       }
 
-      const id = Date.now();
+      const id = Date.now().toString();
       const metadata = options.metadata || {};
       const filename =
         (typeof fileData === 'object' && fileData.name) || typeof metadata.name === 'string'
@@ -982,9 +982,15 @@ function flamelink(conf = {}) {
       const updateMethod = typeof fileData === 'string' ? 'putString' : 'put';
       const args = [fileData];
 
-      if (options.metadata) {
-        args.push(options.metadata);
+      let folderId = await storageAPI._getFolderIdFromOptions(options);
+
+      if (typeof folderId === 'number') {
+        folderId = folderId.toString();
       }
+
+      set(options, 'metadata.customMetadata.flamelinkFileId', id);
+      set(options, 'metadata.customMetadata.flamelinkFolderId', folderId);
+      args.push(options.metadata);
 
       // TODO: Test and verify how the Firebase SDK handles string uploads with encoding and metadata
       // Is it the second argument then or should it be passed along with the metadata object?
@@ -997,7 +1003,6 @@ function flamelink(conf = {}) {
       const snapshot = await uploadTask;
 
       const mediaType = /^image\//.test(snapshot.metadata.contentType) ? 'images' : 'files';
-      const folderId = await storageAPI._getFolderIdFromOptions(options);
       const filePayload = {
         id,
         file: snapshot.metadata.name,

@@ -1,6 +1,6 @@
 {
   "name": "flamelink",
-  "version": "0.14.3",
+  "version": "0.15.0",
   "description": "Javascript SDK for integrating with Flamelink CMS",
   "main": "dist/flamelink.js",
   "module": "src/index.js",

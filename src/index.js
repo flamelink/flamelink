@@ -361,6 +361,10 @@ function flamelink(conf = {}) {
      * @returns {Promise}
      */
     update(schemaKey, payload) {
+      if (typeof schemaKey === 'number') {
+        schemaKey = schemaKey.toString();
+      }
+
       if (typeof schemaKey !== 'string' || (typeof payload !== 'object' && payload !== null)) {
         throw error('"update" called with the incorrect arguments. Check the docs for details.');
       }
@@ -383,6 +387,10 @@ function flamelink(conf = {}) {
      * @returns {Promise}
      */
     remove(schemaKey) {
+      if (typeof schemaKey === 'number') {
+        schemaKey = schemaKey.toString();
+      }
+
       if (typeof schemaKey !== 'string') {
         throw error('"remove" called with the incorrect arguments. Check the docs for details.');
       }
@@ -398,6 +406,10 @@ function flamelink(conf = {}) {
      * @returns
      */
     transaction(schemaKey, updateFn, cb = () => {}) {
+      if (typeof schemaKey === 'number') {
+        schemaKey = schemaKey.toString();
+      }
+
       if (typeof schemaKey !== 'string' || typeof updateFn !== 'function') {
         throw error(
           '"transaction" called with the incorrect arguments. Check the docs for details.'
@@ -1401,6 +1413,10 @@ function flamelink(conf = {}) {
      * @returns {Promise}
      */
     async update(contentRef, entryRef, payload) {
+      if (typeof entryRef === 'number') {
+        entryRef = entryRef.toString();
+      }
+
       const schema = await schemasAPI.get(contentRef);
       const isSingleType = schema && schema.type === 'single';
 
@@ -1468,6 +1484,10 @@ function flamelink(conf = {}) {
      * @returns {Promise}
      */
     remove(contentRef, entryRef) {
+      if (typeof entryRef === 'number') {
+        entryRef = entryRef.toString();
+      }
+
       if (typeof contentRef !== 'string' || typeof entryRef !== 'string') {
         throw error('"remove" called with the incorrect arguments. Check the docs for details.');
       }
@@ -1488,6 +1508,10 @@ function flamelink(conf = {}) {
      * @returns
      */
     transaction(contentRef, entryRef, updateFn, cb = () => {}) {
+      if (typeof entryRef === 'number') {
+        entryRef = entryRef.toString();
+      }
+
       if (
         typeof contentRef !== 'string' ||
         typeof entryRef !== 'string' ||

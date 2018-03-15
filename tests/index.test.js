@@ -1672,7 +1672,12 @@ describe('Flamelink SDK', () => {
           expect.objectContaining({
             TESTING: expect.objectContaining({
               string,
-              stringEncoding: undefined,
+              stringEncoding: {
+                customMetadata: {
+                  flamelinkFileId: expect.any(String),
+                  flamelinkFolderId: expect.any(String)
+                }
+              },
               method: 'putString'
             }),
             metadata: expect.any(Object)

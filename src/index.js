@@ -982,7 +982,11 @@ function flamelink(conf = {}) {
       const updateMethod = typeof fileData === 'string' ? 'putString' : 'put';
       const args = [fileData];
 
-      const folderId = await storageAPI._getFolderIdFromOptions(options);
+      let folderId = await storageAPI._getFolderIdFromOptions(options);
+
+      if (typeof folderId === 'number') {
+        folderId = folderId.toString();
+      }
 
       set(options, 'metadata.customMetadata.flamelinkFileId', id);
       set(options, 'metadata.customMetadata.flamelinkFolderId', folderId);

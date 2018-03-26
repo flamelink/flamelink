@@ -9,6 +9,7 @@ import pick from 'lodash/fp/pick';
 import resizeImage from 'browser-image-resizer';
 import './polyfills';
 import error from './utils/error';
+import deprecate from './utils/deprecate';
 import {
   applyOrderBy,
   applyFilters,
@@ -27,23 +28,9 @@ import {
   hasNonCacheableOptions,
   prepConstraintsForValidate
 } from './utils';
-
-const DEFAULT_CONFIG = {
-  env: 'production',
-  locale: 'en-US'
-};
-
-const ALLOWED_CHILD_EVENTS = [
-  'value',
-  'child_added',
-  'child_removed',
-  'child_changed',
-  'child_moved'
-];
+import { DEFAULT_CONFIG, ALLOWED_CHILD_EVENTS, DEFAULT_REQUIRED_IMAGE_SIZE } from './constants';
 
 const CACHE = {};
-
-const DEFAULT_REQUIRED_IMAGE_SIZE = 240;
 
 function flamelink(conf = {}) {
   let firebaseApp_ = null;
@@ -1939,8 +1926,10 @@ function flamelink(conf = {}) {
      *
      * @param {String} locale The locale to set
      * @returns {Promise} Resolves to given locale if it is a supported locale, otherwise it rejects
+     * @deprecated
      */
     setLocale(locale = locale_) {
+      deprecate('app.setLocale()', 'Use the "app.settings.setLocale()" method instead.');
       return new Promise((resolve, reject) => {
         databaseService_
           .ref('/flamelink/settings/locales')
@@ -1975,8 +1964,10 @@ function flamelink(conf = {}) {
      *
      * @param {String} env The environment to set
      * @returns {Promise} Resolves to given environment if it is a supported environment, otherwise it rejects
+     * @deprecated
      */
     setEnv(env = env_) {
+      deprecate('app.setEnv()', 'Use the "app.settings.setEnv()" method instead.');
       return new Promise((resolve, reject) => {
         databaseService_
           .ref('/flamelink/settings/environments')
@@ -2010,8 +2001,10 @@ function flamelink(conf = {}) {
      * Returns the set locale for the flamelink app
      *
      * @returns {Promise} Resolves with locale (just using promise for consistency and allowing us to make this async in the future)
+     * @deprecated
      */
     getLocale() {
+      deprecate('app.getLocale()', 'Use the "app.settings.getLocale()" method instead.');
       return Promise.resolve(locale_);
     },
 
@@ -2019,8 +2012,10 @@ function flamelink(conf = {}) {
      * Returns the set environment for the flamelink app
      *
      * @returns {Promise} Resolves with environment (just using promise for consistency and allowing us to make this async in the future)
+     * @deprecated
      */
     getEnv() {
+      deprecate('app.getEnv()', 'Use the "app.settings.getEnv()" method instead.');
       return Promise.resolve(env_);
     },
 

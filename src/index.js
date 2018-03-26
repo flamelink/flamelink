@@ -1895,6 +1895,80 @@ function flamelink(conf = {}) {
     }
   };
 
+  const settingsAPI = {
+    /**
+     * Sets the locale to be used for the flamelink app
+     *
+     * @param {String} locale The locale to set
+     * @returns {Promise} Resolves to given locale if it is a supported locale, otherwise it rejects
+     */
+    async setLocale(locale = locale_) {
+      const snapshot = await databaseService_.ref('/flamelink/settings/locales').once('value');
+      const supportedLocales_ = snapshot.val();
+
+      if (!supportedLocales_) {
+        throw error('No supported locales found.');
+      }
+
+      if (!supportedLocales_.includes(locale)) {
+        throw error(
+          `"${locale}" is not a supported locale. Supported Locales: ${supportedLocales_.join(
+            ', '
+          )}`
+        );
+      }
+
+      locale_ = locale;
+
+      return locale_;
+    },
+
+    /**
+     * Sets the environment to be used for the flamelink app
+     *
+     * @param {String} env The environment to set
+     * @returns {Promise} Resolves to given environment if it is a supported environment, otherwise it rejects
+     */
+    async setEnvironment(env = env_) {
+      const snapshot = await databaseService_.ref('/flamelink/settings/environments').once('value');
+      const supportedEnvironments_ = snapshot.val();
+
+      if (!supportedEnvironments_) {
+        throw error(`No supported environments found.`);
+      }
+
+      if (!supportedEnvironments_.includes(env)) {
+        throw error(
+          `"${env}" is not a supported environment. Supported Environments: ${supportedEnvironments_.join(
+            ', '
+          )}`
+        );
+      }
+
+      env_ = env;
+
+      return env_;
+    },
+
+    /**
+     * Returns the set locale for the flamelink app
+     *
+     * @returns {Promise} Resolves with locale (just using promise for consistency and allowing us to make this async in the future)
+     */
+    async getLocale() {
+      return locale_;
+    },
+
+    /**
+     * Returns the set environment for the flamelink app
+     *
+     * @returns {Promise} Resolves with environment (just using promise for consistency and allowing us to make this async in the future)
+     */
+    async getEnvironment() {
+      return env_;
+    }
+  };
+
   // Setup listener to get app schemas and cache it
   const start = () => {
     schemasAPI.subscribe(null, (err, schemas) => {
@@ -2025,7 +2099,9 @@ function flamelink(conf = {}) {
 
     schemas: schemasAPI,
 
-    storage: storageAPI
+    storage: storageAPI,
+
+    settings: settingsAPI
   };
 }
 

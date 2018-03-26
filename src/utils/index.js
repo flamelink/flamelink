@@ -240,7 +240,7 @@ export const populateEntry = curry(
           switch (populateType) {
             case 'media':
               // if it exists, the entry value for this field should be an array
-              if (entry[entryKey].hasOwnProperty(field)) {
+              if (entry[entryKey] && entry[entryKey].hasOwnProperty(field)) {
                 const mediaEntries = entry[entryKey][field];
 
                 if (!isArray(mediaEntries)) {
@@ -276,7 +276,7 @@ export const populateEntry = curry(
 
             case 'relational':
               // if it exists, the entry value for this field should be an array
-              if (entry[entryKey].hasOwnProperty(field)) {
+              if (entry[entryKey] && entry[entryKey].hasOwnProperty(field)) {
                 let relationalEntries = entry[entryKey][field];
 
                 relationalEntries = isArray(relationalEntries)
@@ -311,7 +311,7 @@ export const populateEntry = curry(
 
             case 'repeater':
               // if it exists, the entry value for this field should be an array
-              if (entry[entryKey].hasOwnProperty(field)) {
+              if (entry[entryKey] && entry[entryKey].hasOwnProperty(field)) {
                 const repeaterFields = entry[entryKey][field];
 
                 if (!isArray(repeaterFields)) {
@@ -338,7 +338,7 @@ export const populateEntry = curry(
 
             case 'fieldset':
               // if it exists, the entry value for this field should be an object
-              if (entry[entryKey].hasOwnProperty(field)) {
+              if (entry[entryKey] && entry[entryKey].hasOwnProperty(field)) {
                 const fieldsetFields = entry[entryKey][field];
 
                 if (!isPlainObject(fieldsetFields)) {
@@ -376,7 +376,7 @@ export const populateEntry = curry(
 
       return fieldsToPopulate.reduce((populatedEntry, populateField, index) => {
         const { field } = populateField;
-        if (populatedEntry[entryKey].hasOwnProperty(field)) {
+        if (populatedEntry[entryKey] && populatedEntry[entryKey].hasOwnProperty(field)) {
           populatedEntry[entryKey][field] = populatedFields[index]; // eslint-disable-line no-param-reassign
         }
         return populatedEntry;

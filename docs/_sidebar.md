@@ -5,5 +5,4 @@
   - [Navigation/Menus](/navigation)
   - [Schemas](/schemas)
   - [Storage/Media](/storage)
-  - [Environments](/environments)
-  - [Locales/Languages](/locales)
+  - [Settings](/settings)

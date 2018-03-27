@@ -28,74 +28,74 @@ describe('Flamelink SDK', () => {
     );
   });
 
-  describe('"setLocale"', () => {
-    test('should resolve with the given locale if called with a supported locale', () => {
-      expect.assertions(1);
+  describe('Settings', () => {
+    describe('"setLocale"', () => {
+      test('should resolve with the given locale if called with a supported locale', () => {
+        expect.assertions(1);
 
-      const app = flamelink(basicConfig);
-      const testLocale = 'en-US';
+        const app = flamelink(basicConfig);
+        const testLocale = 'en-US';
 
-      return expect(app.setLocale(testLocale)).resolves.toBe(testLocale);
+        return expect(app.settings.setLocale(testLocale)).resolves.toBe(testLocale);
+      });
+
+      test('should reject with an error if called with an unsupported locale', async () => {
+        expect.assertions(1);
+        const app = flamelink(basicConfig);
+        const testLocale = 'randomstring';
+
+        let message;
+
+        try {
+          await app.settings.setLocale(testLocale);
+        } catch (error) {
+          message = error.message;
+        }
+
+        expect(message).toMatch(
+          `[FLAMELINK] "${testLocale}" is not a supported locale. Supported Locales: en-US`
+        );
+      });
     });
 
-    test('should reject with an error if called with an unsupported locale', async () => {
-      expect.assertions(1);
+    test('should expose a "getLocale" method', () => {
       const app = flamelink(basicConfig);
-      const testLocale = 'randomstring';
-
-      let message;
-
-      try {
-        await app.setLocale(testLocale);
-      } catch (error) {
-        message = error.message;
-      }
-
-      expect(message).toMatch(
-        `[FLAMELINK] "${testLocale}" is not a supported locale. Supported Locales: en-US`
-      );
-    });
-  });
-
-  test('should expose a "getLocale" method', () => {
-    const app = flamelink(basicConfig);
-    expect(app.hasOwnProperty('getLocale')).toBe(true);
-    return expect(app.getLocale()).resolves.toBe('en-US');
-  });
-
-  describe('"setEnv"', () => {
-    test('should resolve with the given environment if called with a supported environment', () => {
-      expect.assertions(1);
-
-      const app = flamelink(basicConfig);
-      const testEnvironment = 'production';
-
-      return expect(app.setEnv(testEnvironment)).resolves.toBe(testEnvironment);
+      return expect(app.settings.getLocale()).resolves.toBe('en-US');
     });
 
-    test('should reject with an error if called with an unsupported environment', async () => {
-      expect.assertions(1);
-      const app = flamelink(basicConfig);
-      const testEnvironment = 'randomstring';
+    describe('"setEnvironment"', () => {
+      test('should resolve with the given environment if called with a supported environment', () => {
+        expect.assertions(1);
 
-      let message;
+        const app = flamelink(basicConfig);
+        const testEnvironment = 'production';
 
-      try {
-        await app.setEnv(testEnvironment);
-      } catch (error) {
-        message = error.message;
-      }
+        return expect(app.settings.setEnvironment(testEnvironment)).resolves.toBe(testEnvironment);
+      });
 
-      expect(message).toMatch(
-        `[FLAMELINK] "${testEnvironment}" is not a supported environment. Supported Environments: production`
-      );
+      test('should reject with an error if called with an unsupported environment', async () => {
+        expect.assertions(1);
+        const app = flamelink(basicConfig);
+        const testEnvironment = 'randomstring';
+
+        let message;
+
+        try {
+          await app.settings.setEnvironment(testEnvironment);
+        } catch (error) {
+          message = error.message;
+        }
+
+        expect(message).toMatch(
+          `[FLAMELINK] "${testEnvironment}" is not a supported environment. Supported Environments: production`
+        );
+      });
     });
-  });
 
-  test('should expose a "getEnv" method', () => {
-    const app = flamelink(basicConfig);
-    expect(app.hasOwnProperty('getEnv')).toBe(true);
-    return expect(app.getEnv()).resolves.toBe('production');
+    test('should expose a "getEnvironment" method', () => {
+      const app = flamelink(basicConfig);
+      return expect(app.settings.getEnvironment()).resolves.toBe('production');
+    });
   });
 
   describe('Content', () => {

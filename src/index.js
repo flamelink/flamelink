@@ -17,6 +17,7 @@ import {
   getNavigationRefPath,
   getSchemasRefPath,
   getStorageRefPath,
+  getSettingsRefPath,
   getFileRefPath,
   getFolderRefPath,
   getMediaRefPath,
@@ -1897,6 +1898,50 @@ function flamelink(conf = {}) {
 
   const settingsAPI = {
     /**
+     * Establish and return a reference to section in firebase db
+     *
+     * @param {String} ref
+     * @returns {Object} Ref object
+     */
+    ref(ref) {
+      if (!databaseService_) {
+        throw error(
+          'The Database service is not available. Make sure the "databaseURL" property is provided.'
+        );
+      }
+
+      return databaseService_.ref(getSettingsRefPath(ref));
+    },
+
+    /**
+     * @description Get snapshot for given settings reference
+     * @param {String} settingsRef
+     * @param {Object} [options={}]
+     * @returns {Promise} Resolves to snapshot of query
+     */
+    getRaw(settingsRef, options = {}) {
+      const ref = typeof settingsRef === 'string' ? settingsRef : null;
+      const opts = typeof settingsRef === 'string' ? options : settingsRef || {};
+      const ordered = applyOrderBy(settingsAPI.ref(ref), opts);
+      const filtered = applyFilters(ordered, opts);
+
+      return filtered.once(opts.event || 'value');
+    },
+
+    /**
+     * Read value once from db
+     *
+     * @param {String} settingsRef
+     * @param {Object} [options={}]
+     * @returns {Promise} Resolves to value of query
+     */
+    async get(settingsRef, options = {}) {
+      const pluckFields = pluckResultFields(options.fields);
+      const snapshot = await settingsAPI.getRaw(settingsRef, options);
+      return compose(pluckFields)(snapshot.val());
+    },
+
+    /**
      * Sets the locale to be used for the flamelink app
      *
      * @param {String} locale The locale to set
@@ -1920,6 +1965,15 @@ function flamelink(conf = {}) {
 
       locale_ = locale;
 
+      return locale_;
+    },
+
+    /**
+     * Returns the set locale for the flamelink app
+     *
+     * @returns {Promise} Resolves with locale (just using promise for consistency and allowing us to make this async in the future)
+     */
+    async getLocale() {
       return locale_;
     },
 
@@ -1951,21 +2005,21 @@ function flamelink(conf = {}) {
     },
 
     /**
-     * Returns the set locale for the flamelink app
-     *
-     * @returns {Promise} Resolves with locale (just using promise for consistency and allowing us to make this async in the future)
-     */
-    async getLocale() {
-      return locale_;
-    },
-
-    /**
      * Returns the set environment for the flamelink app
      *
      * @returns {Promise} Resolves with environment (just using promise for consistency and allowing us to make this async in the future)
      */
     async getEnvironment() {
       return env_;
+    },
+
+    /**
+     * Returns the set image sizes for the flamelink app
+     *
+     * @returns {Promise} Resolves with array of image size objects
+     */
+    async getImageSizes(options = {}) {
+      return settingsAPI.get('general/imageSizes', options);
     }
   };
 

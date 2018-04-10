@@ -70,6 +70,8 @@ export const getNavigationRefPath = (
 export const getSchemasRefPath = (ref = missingRefParam(), env = missingRefParam()) =>
   `/flamelink/environments/${env}/schemas/${ref || ''}`;
 
+export const getSettingsRefPath = ref => `/flamelink/settings/${ref || ''}`;
+
 /**
  * @description Return the reference path for the given file in the Cloud Storage Bucket
  * @param {String} filename

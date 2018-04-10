@@ -14,10 +14,6 @@ const basicConfig = {
 };
 
 describe('Flamelink SDK', () => {
-  test('should expose the package version', () => {
-    expect(flamelink.VERSION).toBe(pkg.version);
-  });
-
   test('should expose a factory function', () => {
     expect(typeof flamelink).toBe('function');
   });

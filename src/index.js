@@ -1085,12 +1085,13 @@ function flamelink(conf = {}) {
         await Promise.all(
           sizes.map(async size => {
             const width = size.width || size.maxWidth;
+            const { path } = size;
 
-            if (!width) {
+            if (!width && !path) {
               return Promise.resolve();
             }
 
-            return storageAPI.ref(filename, { width }).delete();
+            return storageAPI.ref(filename, { width, path }).delete();
           })
         );
       }

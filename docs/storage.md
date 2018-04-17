@@ -370,17 +370,33 @@ The only available option currently is:
 
 ##### Size
 
-- `size` **{String}** - The size of the image you want to retrieve.
+- `size` **{Object}** - The size of the image you want to retrieve.
 
 *Example*
 
-To retrieve the `1024` sized image for the given file ID. If the `1024` size exists for the particular image, it will be returned, otherwise the first available size bigger than the given size, ultimately falling back to the original image if nothing exists.
+To retrieve a sized image with a width of `1024`, height of `9999` and a quality of `1` for the given file ID. If the given size exists for the particular image, it will be returned, otherwise the first available size bigger than the given size, ultimately falling back to the original image if nothing exists.
 
 ```javascript
-app.storage.getURL('1505670341980', { size: '1024' })
+app.storage.getURL('1505670341980', {
+  size: {
+    width: 1024,
+    height: 9999,
+    quality: 0.75
+  }
+})
 ```
 
-?> **TIP:** Use `size: 'device'` to find a size closest to your device's viewport
+Alternatively, if you know what the sized path is for the image, you can specify that (you can find the sized path by looking in your Firebase Storage bucket under `flamelink > media > sized`:
+
+```javascript
+app.storage.getURL('1505670341980', {
+  size: {
+    path: '1024_9999_75'
+  }
+})
+```
+
+?> **HOT TIP:** Use `size: 'device'` to find a size closest to your device's viewport
 
 ### Return value
 

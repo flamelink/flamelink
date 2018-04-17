@@ -956,24 +956,47 @@ function flamelink(conf = {}) {
       if (!file) {
         return file;
       }
-      const { file: filename, sizes } = file || {};
+      const { file: filename, sizes: availableFileSizes } = file || {};
       const storageRefArgs = [filename];
 
-      if (size && sizes && sizes.length) {
+      if (typeof size === 'object') {
+        const { width, height, quality } = size;
+
+        if (
+          typeof width !== 'undefined' &&
+          typeof height !== 'undefined' &&
+          typeof quality !== 'undefined'
+        ) {
+          size.path = `${width}_${height}_${Math.round(parseFloat(quality, 10) * 100)}`;
+        }
+
+        if (size.path && availableFileSizes && availableFileSizes.length) {
+          if (availableFileSizes.find(({ path: filePath }) => filePath === size.path)) {
+            storageRefArgs.push({ path: size.path });
+          } else {
+            console.warn(
+              `[FLAMELINK]: The provided path (${size.path}) has been ignored because it did not match any of the given file's available paths.\nAvailable paths: ${availableFileSizes
+                .map(availableSize => availableSize.path)
+                .join(', ')}`
+            );
+          }
+        }
+      } else if (size && availableFileSizes && availableFileSizes.length) {
+        // This part is for the special 'device' use case and for the legacy width setting
         const minSize = size === 'device' ? getScreenResolution() : size;
-        const smartWidth = sizes
-          .reduce((widths, s) => {
-            const width = s.maxWidth || s.width;
-            if (width) {
-              widths.push(parseInt(width, 10));
-            }
-            return widths;
-          }, [])
-          .sort((a, b) => a - b) // sort widths ascending
-          .find(width => width >= minSize);
+        const smartWidth = availableFileSizes
+          .map(
+            availableSize =>
+              Object.assign({}, availableSize, {
+                width: parseInt(availableSize.width || availableSize.maxWidth, 10)
+              }),
+            []
+          )
+          .sort((a, b) => a.width - b.width) // sort widths ascending
+          .find(availableSize => availableSize.width >= minSize);
 
         if (smartWidth) {
-          storageRefArgs.push({ width: smartWidth });
+          storageRefArgs.push(smartWidth);
         }
       }
       const fileRef = await storageAPI.ref(...storageRefArgs);

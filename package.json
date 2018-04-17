@@ -58,7 +58,7 @@
     "babel-plugin-transform-es2015-modules-commonjs": "^6.24.1",
     "babel-preset-env": "^1.6.0",
     "compression-webpack-plugin": "^1.0.1",
-    "docsify-cli": "^4.1.10",
+    "docsify-cli": "^4.2.1",
     "eslint": "^4.6.1",
     "eslint-config-airbnb-base": "^12.0.0",
     "eslint-config-prettier": "^2.4.0",

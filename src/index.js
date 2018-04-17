@@ -450,7 +450,9 @@ function flamelink(conf = {}) {
     async get(settingsRef, options = {}) {
       const pluckFields = pluckResultFields(options.fields);
       const snapshot = await settingsAPI.getRaw(settingsRef, options);
-      return compose(pluckFields)(snapshot.val());
+      const value = options.needsWrap ? { [settingsRef]: snapshot.val() } : snapshot.val();
+      const result = await compose(pluckFields)(value);
+      return options.needsWrap ? result[settingsRef] : result;
     },
 
     /**
@@ -532,6 +534,24 @@ function flamelink(conf = {}) {
      */
     async getImageSizes(options = {}) {
       return settingsAPI.get('general/imageSizes', options);
+    },
+
+    /**
+     * Returns the ID of the default permissions group for the flamelink app
+     *
+     * @returns {Promise} Resolves with ID of permissions group
+     */
+    async getDefaultPermissionsGroup(options = {}) {
+      return settingsAPI.get('general/defaultPermissionsGroup', options);
+    },
+
+    /**
+     * Returns the global meta data for the flamelink app
+     *
+     * @returns {Promise} Resolves with globals object
+     */
+    async getGlobals(options = {}) {
+      return settingsAPI.get('globals', Object.assign({}, options, { needsWrap: true }));
     }
   };
 

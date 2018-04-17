@@ -103,6 +103,58 @@ A `Promise` that resolves to the currently set locale `{String}` on success.
 
 ---
 
+## .getGlobals()
+
+To retrieve the global meta data for your project, you can do so with the `getGlobals()` method:
+
+```javascript
+app.settings.getGlobals()
+  .then(globals => console.log(`Your project's global data: "${globals}"`)
+  .catch(error => console.error('Something went wrong while retrieving the data. Details:', error);
+```
+
+### Input parameters
+
+| Type   | Variable    | Required | Description                                            |
+| ------ | ----------- | -------- | ------------------------------------------------------ |
+| Object | `options`   | optional | Additional options                                     |
+
+#### Available Options
+
+The following options can be specified when retrieving your globals:
+
+##### Fields
+
+- `fields` **{Array}** - A list of fields to be plucked from the globals object.
+
+*Example*
+
+To retrieve only the `tagline` property.
+
+```javascript
+app.settings.getGlobals({ fields: [ 'tagline' ] })
+```
+
+##### Event
+
+- `event` **{String}** - The Firebase child event to retrieve data for. By default, the event is `value`, which is used for retrieving the entire globals object.
+
+*Example*
+
+The allowed child event options are: `value`, `child_added`, `child_changed`, `child_removed` and `child_moved`.
+
+> To read more about these events, see the [Firebase docs](https://firebase.google.com/docs/database/web/lists-of-data#listen_for_child_events).
+
+```javascript
+app.settings.getGlobals({ event: 'child_changed' })
+```
+
+### Return value
+
+A `Promise` that resolves to the globals `{Object}` on success or will reject with an error if the request fails.
+
+---
+
 ## .getImageSizes()
 
 To retrieve the list of different image sizes that are generated when an image is uploaded, you can do so with the `getImageSizes()` method:
@@ -152,6 +204,46 @@ app.settings.getImageSizes({ event: 'child_changed' })
 ### Return value
 
 A `Promise` that resolves to the image sizes `{Array}` on success or will reject with an error if the request fails.
+
+---
+
+## .getDefaultPermissionsGroup()
+
+To retrieve the ID of the default Permissions Group, you can do so with the `getDefaultPermissionsGroup()` method:
+
+```javascript
+app.settings.getDefaultPermissionsGroup()
+  .then(permissionsGroup => console.log(`Your default permissions groups is: "${permissionsGroup}"`)
+  .catch(error => console.error('Something went wrong while retrieving the permissions group. Details:', error);
+```
+
+### Input parameters
+
+| Type   | Variable    | Required | Description                                            |
+| ------ | ----------- | -------- | ------------------------------------------------------ |
+| Object | `options`   | optional | Additional options                                     |
+
+#### Available Options
+
+The following options can be specified:
+
+##### Event
+
+- `event` **{String}** - The Firebase child event to retrieve data for. By default, the event is `value`, which is used for retrieving the permissions group.
+
+*Example*
+
+The allowed child event options are: `value`, `child_added`, `child_changed`, `child_removed` and `child_moved`.
+
+> To read more about these events, see the [Firebase docs](https://firebase.google.com/docs/database/web/lists-of-data#listen_for_child_events).
+
+```javascript
+app.settings.getDefaultPermissionsGroup({ event: 'child_changed' })
+```
+
+### Return value
+
+A `Promise` that resolves to the default permissions group `{Number}` on success or will reject with an error if the request fails.
 
 ---
 

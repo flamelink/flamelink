@@ -136,9 +136,13 @@ app.storage.upload(file, {
 
 ##### Sizes
 
-- `sizes` **{Array}** - When uploading a file, you can specify the different image sizes that should be created for you, apart from the original file that will always be uploaded.
+- `sizes` **{Array}** - When uploading a file, you can optionally specify the different image sizes that should be created for you.
 
-Since the Flamelink CMS uses a **240px** wide image as preview image, this method will always generate that image regardless of whether it is specified or not.
+Both the `width` and `height` properties are used as a maximum width or height, respectively. ie. Images won't be scaled up in width or height if they are already smaller than the specified pixel value.
+
+The `quality` property can be any number between `0` and `1` and represents the quality in percentage. `0` being `0%` and `1` being `100%`.
+
+> When this setting is not specified, the image sizes that are specified in the project "Settings" will be used. See [`app.settings.getImageSizes()`](settings?id=getimagesizes)
 
 *Example*
 
@@ -146,28 +150,40 @@ Since the Flamelink CMS uses a **240px** wide image as preview image, this metho
 app.storage.upload(file, {
   sizes: [
     {
-      width: 240
+      width: 240,
+      height: 360,
+      quality: 1
     },
     {
-      width: 320
+      width: 320,
+      height: 480,
+      quality: 0.8
     },
     {
-      width: 640
+      width: 640,
+      height: 9999,
+      quality: 1
     },
     {
-      width: 800
+      width: 800,
+      height: 9999,
+      quality: 1
     },
     {
-      width: 1024
+      width: 1024,
+      height: 2400,
+      quality: 0.75
     },
     {
-      width: 2300
+      width: 2300,
+      height: 9999,
+      quality: 1
     }
   ]
 });
 ```
 
-!> In the future, this option will support restrictions on **height** and possibly other options like **image quality** as well.
+!> Since the Flamelink CMS uses a **240px** wide image as preview image, this method will always generate that image regardless of whether it is specified or not.
 
 ### Return value
 

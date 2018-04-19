@@ -17,6 +17,7 @@ import {
   getNavigationRefPath,
   getSchemasRefPath,
   getStorageRefPath,
+  getSettingsRefPath,
   getFileRefPath,
   getFolderRefPath,
   getMediaRefPath,
@@ -407,6 +408,153 @@ function flamelink(conf = {}) {
     }
   };
 
+  const settingsAPI = {
+    /**
+     * Establish and return a reference to section in firebase db
+     *
+     * @param {String} ref
+     * @returns {Object} Ref object
+     */
+    ref(ref) {
+      if (!databaseService_) {
+        throw error(
+          'The Database service is not available. Make sure the "databaseURL" property is provided.'
+        );
+      }
+
+      return databaseService_.ref(getSettingsRefPath(ref));
+    },
+
+    /**
+     * @description Get snapshot for given settings reference
+     * @param {String} settingsRef
+     * @param {Object} [options={}]
+     * @returns {Promise} Resolves to snapshot of query
+     */
+    getRaw(settingsRef, options = {}) {
+      const ref = typeof settingsRef === 'string' ? settingsRef : null;
+      const opts = typeof settingsRef === 'string' ? options : settingsRef || {};
+      const ordered = applyOrderBy(settingsAPI.ref(ref), opts);
+      const filtered = applyFilters(ordered, opts);
+
+      return filtered.once(opts.event || 'value');
+    },
+
+    /**
+     * Read value once from db
+     *
+     * @param {String} settingsRef
+     * @param {Object} [options={}]
+     * @returns {Promise} Resolves to value of query
+     */
+    async get(settingsRef, options = {}) {
+      const pluckFields = pluckResultFields(options.fields);
+      const snapshot = await settingsAPI.getRaw(settingsRef, options);
+      const value = options.needsWrap ? { [settingsRef]: snapshot.val() } : snapshot.val();
+      const result = await compose(pluckFields)(value);
+      return options.needsWrap ? result[settingsRef] : result;
+    },
+
+    /**
+     * Sets the locale to be used for the flamelink app
+     *
+     * @param {String} locale The locale to set
+     * @returns {Promise} Resolves to given locale if it is a supported locale, otherwise it rejects
+     */
+    async setLocale(locale = locale_) {
+      const snapshot = await databaseService_.ref('/flamelink/settings/locales').once('value');
+      const supportedLocales_ = snapshot.val();
+
+      if (!supportedLocales_) {
+        throw error('No supported locales found.');
+      }
+
+      if (!supportedLocales_.includes(locale)) {
+        throw error(
+          `"${locale}" is not a supported locale. Supported Locales: ${supportedLocales_.join(
+            ', '
+          )}`
+        );
+      }
+
+      locale_ = locale;
+
+      return locale_;
+    },
+
+    /**
+     * Returns the set locale for the flamelink app
+     *
+     * @returns {Promise} Resolves with locale (just using promise for consistency and allowing us to make this async in the future)
+     */
+    async getLocale() {
+      return locale_;
+    },
+
+    /**
+     * Sets the environment to be used for the flamelink app
+     *
+     * @param {String} env The environment to set
+     * @returns {Promise} Resolves to given environment if it is a supported environment, otherwise it rejects
+     */
+    async setEnvironment(env = env_) {
+      const snapshot = await databaseService_.ref('/flamelink/settings/environments').once('value');
+      const supportedEnvironments_ = snapshot.val();
+
+      if (!supportedEnvironments_) {
+        throw error(`No supported environments found.`);
+      }
+
+      if (!supportedEnvironments_.includes(env)) {
+        throw error(
+          `"${env}" is not a supported environment. Supported Environments: ${supportedEnvironments_.join(
+            ', '
+          )}`
+        );
+      }
+
+      env_ = env;
+
+      return env_;
+    },
+
+    /**
+     * Returns the set environment for the flamelink app
+     *
+     * @returns {Promise} Resolves with environment (just using promise for consistency and allowing us to make this async in the future)
+     */
+    async getEnvironment() {
+      return env_;
+    },
+
+    /**
+     * Returns the set image sizes for the flamelink app
+     *
+     * @returns {Promise} Resolves with array of image size objects
+     */
+    async getImageSizes(options = {}) {
+      return settingsAPI.get('general/imageSizes', options);
+    },
+
+    /**
+     * Returns the ID of the default permissions group for the flamelink app
+     *
+     * @returns {Promise} Resolves with ID of permissions group
+     */
+    async getDefaultPermissionsGroup(options = {}) {
+      return settingsAPI.get('general/defaultPermissionsGroup', options);
+    },
+
+    /**
+     * Returns the global meta data for the flamelink app
+     *
+     * @returns {Promise} Resolves with globals object
+     */
+    async getGlobals(options = {}) {
+      return settingsAPI.get('globals', Object.assign({}, options, { needsWrap: true }));
+    }
+  };
+
   const storageAPI = {
     /**
      * @description Get the folder ID for a given folder name using an optional fallback folder name
@@ -481,11 +629,11 @@ function flamelink(conf = {}) {
      * @returns {promise}
      * @private
      */
-    async _createSizedImage(file, filename, options) {
-      if (options && (options.width || options.maxWidth)) {
+    async _createSizedImage(file, filename, options = {}) {
+      if (options && (options.path || options.width || options.maxWidth)) {
         const resizedImage = await resizeImage(file, options);
         return storageAPI
-          .ref(filename, { width: options.width || options.maxWidth })
+          .ref(filename, { path: options.path, width: options.width || options.maxWidth })
           .put(resizedImage);
       }
       throw error(
@@ -828,24 +976,47 @@ function flamelink(conf = {}) {
       if (!file) {
         return file;
       }
-      const { file: filename, sizes } = file || {};
+      const { file: filename, sizes: availableFileSizes } = file || {};
       const storageRefArgs = [filename];
 
-      if (size && sizes && sizes.length) {
+      if (typeof size === 'object') {
+        const { width, height, quality } = size;
+
+        if (
+          typeof width !== 'undefined' &&
+          typeof height !== 'undefined' &&
+          typeof quality !== 'undefined'
+        ) {
+          size.path = `${width}_${height}_${Math.round(parseFloat(quality, 10) * 100)}`;
+        }
+
+        if (size.path && availableFileSizes && availableFileSizes.length) {
+          if (availableFileSizes.find(({ path: filePath }) => filePath === size.path)) {
+            storageRefArgs.push({ path: size.path });
+          } else {
+            console.warn(
+              `[FLAMELINK]: The provided path (${size.path}) has been ignored because it did not match any of the given file's available paths.\nAvailable paths: ${availableFileSizes
+                .map(availableSize => availableSize.path)
+                .join(', ')}`
+            );
+          }
+        }
+      } else if (size && availableFileSizes && availableFileSizes.length) {
+        // This part is for the special 'device' use case and for the legacy width setting
         const minSize = size === 'device' ? getScreenResolution() : size;
-        const smartWidth = sizes
-          .reduce((widths, s) => {
-            const width = s.maxWidth || s.width;
-            if (width) {
-              widths.push(parseInt(width, 10));
-            }
-            return widths;
-          }, [])
-          .sort((a, b) => a - b) // sort widths ascending
-          .find(width => width >= minSize);
+        const smartWidth = availableFileSizes
+          .map(
+            availableSize =>
+              Object.assign({}, availableSize, {
+                width: parseInt(availableSize.width || availableSize.maxWidth, 10)
+              }),
+            []
+          )
+          .sort((a, b) => a.width - b.width) // sort widths ascending
+          .find(availableSize => availableSize.width >= minSize);
 
         if (smartWidth) {
-          storageRefArgs.push({ width: smartWidth });
+          storageRefArgs.push(smartWidth);
         }
       }
       const fileRef = await storageAPI.ref(...storageRefArgs);
@@ -934,12 +1105,13 @@ function flamelink(conf = {}) {
         await Promise.all(
           sizes.map(async size => {
             const width = size.width || size.maxWidth;
+            const { path } = size;
 
-            if (!width) {
+            if (!width && !path) {
               return Promise.resolve();
             }
 
-            return storageAPI.ref(filename, { width }).delete();
+            return storageAPI.ref(filename, { width, path }).delete();
           })
         );
       }
@@ -960,7 +1132,7 @@ function flamelink(conf = {}) {
       }
 
       const id = Date.now().toString();
-      const metadata = options.metadata || {};
+      const metadata = get(options, 'metadata', {});
       const filename =
         (typeof fileData === 'object' && fileData.name) || typeof metadata.name === 'string'
           ? `${id}_${metadata.name || fileData.name}`
@@ -989,14 +1161,18 @@ function flamelink(conf = {}) {
       const uploadTask = storageRef[updateMethod](...args);
       const snapshot = await uploadTask;
 
-      const mediaType = /^image\//.test(snapshot.metadata.contentType) ? 'images' : 'files';
+      const mediaType = /^image\//.test(get(snapshot, 'metadata.contentType')) ? 'images' : 'files';
       const filePayload = {
         id,
-        file: snapshot.metadata.name,
+        file: get(snapshot, 'metadata.name', ''),
         folderId,
         type: mediaType,
-        contentType: snapshot.metadata.contentType
+        contentType: get(snapshot, 'metadata.contentType', '')
       };
+
+      if (!options.sizes) {
+        options.sizes = await settingsAPI.getImageSizes();
+      }
 
       // Ensure image size with width DEFAULT_REQUIRED_IMAGE_SIZE exists
       if (
@@ -1018,14 +1194,26 @@ function flamelink(conf = {}) {
 
       // If mediaType === 'images', file is resizeable and sizes/widths are set, resize images here
       if (mediaType === 'images' && updateMethod === 'put' && Array.isArray(options.sizes)) {
-        filePayload.sizes = options.sizes;
+        filePayload.sizes = options.sizes.map(size => {
+          const { width, height, quality } = size;
+          if (
+            typeof width !== 'undefined' &&
+            typeof height !== 'undefined' &&
+            typeof quality !== 'undefined'
+          ) {
+            return Object.assign({}, size, {
+              path: `${width}_${height}_${Math.round(quality * 100)}`
+            });
+          }
+          return size;
+        });
 
         await Promise.all(
-          options.sizes.map(size => storageAPI._createSizedImage(fileData, filename, size))
+          filePayload.sizes.map(size => storageAPI._createSizedImage(fileData, filename, size))
         );
       }
 
-      // Write to real-time db
+      // Write to db
       await storageAPI._setFile(filePayload);
 
       return uploadTask;
@@ -1892,80 +2080,6 @@ function flamelink(conf = {}) {
       }
 
       return navigationAPI.ref(navRef).transaction(updateFn, cb);
-    }
-  };
-
-  const settingsAPI = {
-    /**
-     * Sets the locale to be used for the flamelink app
-     *
-     * @param {String} locale The locale to set
-     * @returns {Promise} Resolves to given locale if it is a supported locale, otherwise it rejects
-     */
-    async setLocale(locale = locale_) {
-      const snapshot = await databaseService_.ref('/flamelink/settings/locales').once('value');
-      const supportedLocales_ = snapshot.val();
-
-      if (!supportedLocales_) {
-        throw error('No supported locales found.');
-      }
-
-      if (!supportedLocales_.includes(locale)) {
-        throw error(
-          `"${locale}" is not a supported locale. Supported Locales: ${supportedLocales_.join(
-            ', '
-          )}`
-        );
-      }
-
-      locale_ = locale;
-
-      return locale_;
-    },
-
-    /**
-     * Sets the environment to be used for the flamelink app
-     *
-     * @param {String} env The environment to set
-     * @returns {Promise} Resolves to given environment if it is a supported environment, otherwise it rejects
-     */
-    async setEnvironment(env = env_) {
-      const snapshot = await databaseService_.ref('/flamelink/settings/environments').once('value');
-      const supportedEnvironments_ = snapshot.val();
-
-      if (!supportedEnvironments_) {
-        throw error(`No supported environments found.`);
-      }
-
-      if (!supportedEnvironments_.includes(env)) {
-        throw error(
-          `"${env}" is not a supported environment. Supported Environments: ${supportedEnvironments_.join(
-            ', '
-          )}`
-        );
-      }
-
-      env_ = env;
-
-      return env_;
-    },
-
-    /**
-     * Returns the set locale for the flamelink app
-     *
-     * @returns {Promise} Resolves with locale (just using promise for consistency and allowing us to make this async in the future)
-     */
-    async getLocale() {
-      return locale_;
-    },
-
-    /**
-     * Returns the set environment for the flamelink app
-     *
-     * @returns {Promise} Resolves with environment (just using promise for consistency and allowing us to make this async in the future)
-     */
-    async getEnvironment() {
-      return env_;
     }
   };
 

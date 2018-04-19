@@ -1,7 +1,7 @@
 import flamelink from '../src/index';
-import pkg from '../package.json';
 import * as utils from '../src/utils/';
 import { mockFile } from './helpers';
+import imageSizesFixture from '../fixtures/image-sizes';
 
 utils.hasNonCacheableOptions = jest.fn(() => true);
 
@@ -14,10 +14,6 @@ const basicConfig = {
 };
 
 describe('Flamelink SDK', () => {
-  test('should expose the package version', () => {
-    expect(flamelink.VERSION).toBe(pkg.version);
-  });
-
   test('should expose a factory function', () => {
     expect(typeof flamelink).toBe('function');
   });
@@ -95,6 +91,11 @@ describe('Flamelink SDK', () => {
     test('should expose a "getEnvironment" method', () => {
       const app = flamelink(basicConfig);
       return expect(app.settings.getEnvironment()).resolves.toBe('production');
+    });
+
+    test('should expose a "getImageSizes" method', () => {
+      const app = flamelink(basicConfig);
+      return expect(app.settings.getImageSizes()).resolves.toEqual(imageSizesFixture());
     });
   });
 

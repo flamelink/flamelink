@@ -638,6 +638,14 @@ const mockedDatabaseRef = jest.fn(ref => ({
           })
         });
 
+      case '/flamelink/settings/general/imageSizes':
+        return Promise.resolve({
+          TESTING: {
+            event
+          },
+          val: jest.fn(() => require('../fixtures/image-sizes')())
+        });
+
       default:
         return Promise.resolve({
           val: jest.fn(() => ({ test: `"once" called with event: "${event}"` }))

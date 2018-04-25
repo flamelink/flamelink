@@ -129,7 +129,7 @@ app.content.getByField('blog-posts', 'slug', 'my-famous-blog-post')
 > This method is just a convenient way of querying your data, but the same can be achieved with the standard `app.content.get()` method by adding the following options:
 
 ```javascript
-app.content.getByField('blog-posts', { orderByChild: 'slug', equalTo: 'my-famous-blog-post' })
+app.content.get('blog-posts', { orderByChild: 'slug', equalTo: 'my-famous-blog-post' })
   .then(blogPost => console.log('Individual blog post:', blogPost))
   .catch(error => console.error('Something went wrong while retrieving the entry. Details:', error));
 ```

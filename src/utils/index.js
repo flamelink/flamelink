@@ -407,7 +407,9 @@ export const populateEntry = curry(
 export const formatStructure = curry((structure, options, items) => {
   const { idProperty = 'id', parentProperty = 'parentId' } = options || {};
 
-  if (!isArray(items)) {
+  const formattedItems = isArray(items) ? items : Object.keys(items).map(key => items[key]);
+
+  if (!isArray(formattedItems)) {
     throw error('"formatStructure" should be called with an array of items');
   }
 

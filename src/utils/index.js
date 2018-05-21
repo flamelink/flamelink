@@ -247,7 +247,7 @@ export const populateEntry = curry(
             case 'media':
               // if it exists, the entry value for this field should be an array
               if (entry[entryKey] && entry[entryKey].hasOwnProperty(field)) {
-                const mediaEntries = entry[entryKey][field];
+                const mediaEntries = entry[entryKey][field] || [];
 
                 if (!isArray(mediaEntries)) {
                   throw error(`The "${field}" field does not seem to be a valid media property.`);
@@ -318,7 +318,7 @@ export const populateEntry = curry(
             case 'repeater':
               // if it exists, the entry value for this field should be an array
               if (entry[entryKey] && entry[entryKey].hasOwnProperty(field)) {
-                const repeaterFields = entry[entryKey][field];
+                const repeaterFields = entry[entryKey][field] || [];
 
                 if (!isArray(repeaterFields)) {
                   throw error(`The "${field}" field does not seem to be a valid repeater field.`);
@@ -407,7 +407,9 @@ export const populateEntry = curry(
 export const formatStructure = curry((structure, options, items) => {
   const { idProperty = 'id', parentProperty = 'parentId' } = options || {};
 
-  if (!isArray(items)) {
+  const formattedItems = isArray(items) ? items : Object.keys(items).map(key => items[key]);
+
+  if (!isArray(formattedItems)) {
     throw error('"formatStructure" should be called with an array of items');
   }
 
@@ -416,7 +418,9 @@ export const formatStructure = curry((structure, options, items) => {
       levelItems
         .map(item =>
           Object.assign({}, item, {
-            children: items.filter(innerItem => innerItem[parentProperty] === item[idProperty])
+            children: formattedItems.filter(
+              innerItem => innerItem[parentProperty] === item[idProperty]
+            )
           })
         )
         .filter(item => item[parentProperty] === previousId)
@@ -429,10 +433,10 @@ export const formatStructure = curry((structure, options, items) => {
           });
         });
 
-    return mapChildren(items, 0);
+    return mapChildren(formattedItems, 0);
   }
 
-  return items;
+  return formattedItems;
 });
 
 /**

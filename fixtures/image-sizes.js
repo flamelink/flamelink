@@ -8,12 +8,6 @@ module.exports = () => [
   {
     height: 9999,
     quality: 1,
-    uniqueKey: 'B1gcKvGZof',
-    width: 240
-  },
-  {
-    height: 9999,
-    quality: 1,
     uniqueKey: 'HybqYvMWif',
     width: 320
   },
@@ -76,11 +70,5 @@ module.exports = () => [
     quality: 1,
     uniqueKey: 'H1jcFDz-iz',
     width: 2840
-  },
-  {
-    height: '',
-    quality: '',
-    uniqueKey: 'r1qcwMZoM',
-    width: 100
   }
 ];

@@ -46,7 +46,7 @@ app.storage.upload(string)
 ### Input parameters
 
 | Type                              | Variable   | Required | Description                                       |
-| --------------------------------- | ---------- | -------- | ------------------------------------------------- |
+|-----------------------------------|------------|----------|---------------------------------------------------|
 | File / Blob / Uint8Array / String | `fileData` | required | The file content to upload to the storage bucket. |
 | Object                            | `options`  | optional | Additional options                                |
 
@@ -144,6 +144,8 @@ The `quality` property can be any number between `0` and `1` and represents the 
 
 > When this setting is not specified, the image sizes that are specified in the project "Settings" will be used. See [`app.settings.getImageSizes()`](settings?id=getimagesizes)
 
+> When this setting is specified without `overwriteSizes`, the image sizes that are specified in the project "Settings" will be used in conjunction with the sizes specified.
+
 *Example*
 
 ```javascript
@@ -181,6 +183,30 @@ app.storage.upload(file, {
     }
   ]
 });
+
+```
+
+!> Since the Flamelink CMS uses a **240px** wide image as preview image, this method will always generate that image regardless of whether it is specified or not.
+
+##### Overwrite Sizes
+
+- `overwriteSizes` **{Boolean}** - When uploading a file, you can omit creating the default sizes defined in the project "Settings" area.
+
+> When this setting is not specified, the image sizes that are specified in the project "Settings" will be used in conjunction with the sizes specified.
+
+*Example*
+
+```javascript
+app.storage.upload(file, {
+  overwriteSizes: true,
+  sizes: [
+    {
+      width: 80,
+      height: 9999,
+      quality: 1
+    }
+  ]
+});
 ```
 
 !> Since the Flamelink CMS uses a **240px** wide image as preview image, this method will always generate that image regardless of whether it is specified or not.
@@ -207,7 +233,7 @@ app.storage.getFolders()
 This method only takes a single optional argument.
 
 | Type   | Variable  | Required | Description                         |
-| ------ | --------- | -------- | ----------------------------------- |
+|--------|-----------|----------|-------------------------------------|
 | Object | `options` | optional | Order, filter and structure options |
 
 #### Available Options
@@ -249,7 +275,7 @@ app.storage.getFiles()
 This method only takes a single optional argument. Used without any parameters will return all your files.
 
 | Type   | Variable  | Required | Description                         |
-| ------ | --------- | -------- | ----------------------------------- |
+|--------|-----------|----------|-------------------------------------|
 | Object | `options` | optional | Order, filter and structure options |
 
 #### Available Options
@@ -317,7 +343,7 @@ app.storage.getFile('1505670341980')
 This method has one required parameter, which is the file ID and also an optional `options` argument.
 
 | Type   | Variable  | Required | Description                                          |
-| ------ | --------- | -------- | ---------------------------------------------------- |
+|--------|-----------|----------|------------------------------------------------------|
 | String | `fileId`  | required | The file ID you want to retrieve the file object for |
 | Object | `options` | optional | Optional options                                     |
 
@@ -360,7 +386,7 @@ app.storage.getURL('1505670341980')
 This method has one required parameter, which is the file ID and also an optional `options` argument.
 
 | Type   | Variable  | Required | Description                                  |
-| ------ | --------- | -------- | -------------------------------------------- |
+|--------|-----------|----------|----------------------------------------------|
 | String | `fileId`  | required | The file ID you want to retrieve the URL for |
 | Object | `options` | optional | Optional options                             |
 
@@ -420,9 +446,9 @@ app.storage.deleteFile('1505670341980')
 
 This method takes only one required parameter, the `fileId` for the file you want to delete.
 
-| Type   | Variable  | Required | Description                                 |
-| ------ | --------- | -------- | ------------------------------------------- |
-| String | `fileId`  | required | The file ID for the file you want to delete |
+| Type   | Variable | Required | Description                                 |
+|--------|----------|----------|---------------------------------------------|
+| String | `fileId` | required | The file ID for the file you want to delete |
 
 #### Available Options
 
@@ -448,9 +474,9 @@ app.storage.getMetadata('1505670341980')
 
 This method takes only one required parameter, the `fileId` for the file you want to retrieve the metadata.
 
-| Type   | Variable  | Required | Description                                                |
-| ------ | --------- | -------- | ---------------------------------------------------------- |
-| String | `fileId`  | required | The file ID for the file you want to retrieve the metadata |
+| Type   | Variable | Required | Description                                                |
+|--------|----------|----------|------------------------------------------------------------|
+| String | `fileId` | required | The file ID for the file you want to retrieve the metadata |
 
 #### Available Options
 
@@ -479,7 +505,7 @@ app.storage.updateMetadata('1505670341980', { contentLanguage: 'en' })
 This method takes two required parameters:
 
 | Type   | Variable  | Required | Description                                              |
-| ------ | --------- | -------- | -------------------------------------------------------- |
+|--------|-----------|----------|----------------------------------------------------------|
 | String | `fileId`  | required | The file ID for the file you want to update the metadata |
 | Object | `payload` | required | The metadata properties you want to update               |
 
@@ -518,7 +544,7 @@ app.storage.ref('gs://your-storage-bucket/flamelink/image.jpg')
 The `.ref()` method takes a two parameters
 
 | Type   | Variable                 | Required | Description                                                                                          |
-| ------ | ------------------------ | -------- | ---------------------------------------------------------------------------------------------------- |
+|--------|--------------------------|----------|------------------------------------------------------------------------------------------------------|
 | String | `filename` or `filepath` | required | Either the filename for which you want to retrieve a reference or a full URL to your storage bucket. |
 | Object | `options`                | optional | Optional options. Currently only applies if you pass through a `filename` and not a `filepath`.      |
 

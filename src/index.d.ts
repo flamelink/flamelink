@@ -1,6 +1,12 @@
 // Type definitions for Flamelink JavaScript SDK
 import * as firebase from 'firebase';
 
+// Global export outside of module loader environment
+export as namespace flamelink;
+
+// Export for build systems (module loaders)
+export = flamelink;
+
 declare function flamelink(conf?: FlamelinkConfig): flamelink.PublicAPI;
 
 interface FlamelinkConfig {
@@ -149,9 +155,3 @@ declare namespace flamelink {
 
   export const VERSION: string;
 }
-
-// Global export outside of module loader environment
-export as namespace flamelink;
-
-// Export for build systems (module loaders)
-export = flamelink;

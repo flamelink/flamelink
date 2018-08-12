@@ -7,7 +7,7 @@ export as namespace flamelink;
 // Export for build systems (module loaders)
 export = flamelink;
 
-declare function flamelink(conf?: flamelink.FlamelinkConfig): flamelink.PublicAPI;
+declare function flamelink(conf?: flamelink.FlamelinkConfig): flamelink.App;
 
 declare namespace flamelink {
   export interface FlamelinkConfig {

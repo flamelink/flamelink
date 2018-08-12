@@ -10,14 +10,14 @@ export = flamelink;
 declare function flamelink(conf?: flamelink.FlamelinkConfig): flamelink.App;
 
 declare namespace flamelink {
-  export interface FlamelinkConfig {
+  interface ConfigOption1 {
     env?: string;
     locale?: string;
     isAdmin?: boolean;
     firebaseApp: firebase.app.App;
   }
 
-  export interface FlamelinkConfig {
+  interface ConfigOption2 {
     env?: string;
     locale?: string;
     isAdmin?: boolean;
@@ -29,6 +29,8 @@ declare namespace flamelink {
     messagingSenderId?: string | number;
   }
 
+  export type FlamelinkConfig = ConfigOption1 | ConfigOption2;
+
   interface ContentAPI {
     ref(ref: string): firebase.database.Reference;
     getRaw(contentRef: string, entryRef: string | number, options?: object): Promise<firebase.database.DataSnapshot>;
@@ -38,10 +40,10 @@ declare namespace flamelink {
     getByFieldRaw(contentRef: string, field: string, value: any, options?: object): Promise<firebase.database.DataSnapshot>;
     getByField(contentRef: string, field: string, value: any, options?: object): Promise<object | null>;
     subscribeRaw(contentRef: string, entryRef: string, cb: () => any): Promise<any>;
-    subscribeRaw(contentRef: string, entryRef: string, options?: object, cb: () => any): Promise<any>;
+    subscribeRaw(contentRef: string, entryRef: string, options: object, cb: () => any): Promise<any>;
     subscribe(contentRef: string, entryRef: string, cb: () => any): Promise<any>;
-    subscribe(contentRef: string, entryRef: string, options?: object, cb: () => any): Promise<any>;
-    unsubscribe(contentRef: string?, entryRef: string, event?: string): Promise<any>;
+    subscribe(contentRef: string, entryRef: string, options: object, cb: () => any): Promise<any>;
+    unsubscribe(contentRef: string, entryRef?: string, event?: string): Promise<any>;
     set(contentRef: string, entryRef: string, payload: any): Promise<any>;
     set(contentRef: string, payload: any): Promise<any>;
     update(contentRef: string, entryRef: string | number, payload: any): Promise<any>;
@@ -56,13 +58,19 @@ declare namespace flamelink {
     get(navRef?: string, options?: any): Promise<any>;
     getItemsRaw(navRef: string, options?: any): Promise<any>;
     getItems(navRef: string, options?: any): Promise<any>;
-    subscribeRaw(navRef?: string, options?: any, cb: Function): Promise<any>;
-    subscribe(navRef?: string, options?: any, cb: Function): Promise<any>;
+    subscribeRaw(cb: () => any): Promise<any>;
+    subscribeRaw(navRef: string, cb: () => any): Promise<any>;
+    subscribeRaw(options: object, cb: () => any): Promise<any>;
+    subscribeRaw(navRef: string, options: any, cb: () => any): Promise<any>;
+    subscribe(cb: () => any): Promise<any>;
+    subscribe(navRef: string, cb: () => any): Promise<any>;
+    subscribe(options: any, cb: () => any): Promise<any>;
+    subscribe(navRef: string, options: any, cb: () => any): Promise<any>;
     unsubscribe(...args: any[]): Promise<any>;
     set(navRef: string, payload: any): Promise<any>;
     update(navRef: string, payload: any): Promise<any>;
     remove(navRef: string): Promise<any>;
-    transaction(navRef: string, updateFn: Function, cb?: Function): any;
+    transaction(navRef: string, updateFn: () => any, cb?: () => any): any;
   }
 
   interface SchemasAPI {
@@ -71,13 +79,19 @@ declare namespace flamelink {
     get(schemaRef: string, options?: any): Promise<any>;
     getFieldsRaw(schemaRef: string, options?: any): Promise<any>;
     getFields(schemaRef: string, options?: any): Promise<any>;
-    subscribeRaw(schemaKey?: string, options?: any, cb: Function): Promise<any>;
-    subscribe(schemaKey?: string, options?: any, cb: Function): Promise<any>;
+    subscribeRaw(cb: () => any): Promise<any>;
+    subscribeRaw(schemaKey: string, cb: () => any): Promise<any>;
+    subscribeRaw(options: any, cb: () => any): Promise<any>;
+    subscribeRaw(schemaKey: string, options: any, cb: () => any): Promise<any>;
+    subscribe(cb: () => any): Promise<any>;
+    subscribe(schemaKey: string, cb: () => any): Promise<any>;
+    subscribe(options: any, cb: () => any): Promise<any>;
+    subscribe(schemaKey: string, options: any, cb: () => any): Promise<any>;
     unsubscribe(...args: any[]): Promise<any>;
     set(schemaKey: string, payload: any): Promise<any>;
     update(schemaKey: string, payload: any): Promise<any>;
     remove(schemaKey: string): Promise<any>;
-    transaction(schemaKey: string, updateFn: Function, cb?: Function): any;
+    transaction(schemaKey: string, updateFn: () => any, cb?: () => any): any;
   }
 
   interface StorageAPI {
@@ -96,8 +110,14 @@ declare namespace flamelink {
     mediaRef(mediaRef?: string): firebase.database.Reference;
     getRaw(mediaRef?: string, options?: any): Promise<firebase.database.DataSnapshot>;
     get(mediaRef: string, options?: any): Promise<any>;
-    subscribeRaw(mediaKey?: string, options?: any, cb: Function): Promise<any>;
-    subscribe(mediaKey?: string, options?: any, cb: Function): Promise<any>;
+    subscribeRaw(cb: () => any): Promise<any>;
+    subscribeRaw(mediaKey: string, cb: () => any): Promise<any>;
+    subscribeRaw(options: any, cb: () => any): Promise<any>;
+    subscribeRaw(mediaKey: string, options: any, cb: () => any): Promise<any>;
+    subscribe(cb: () => any): Promise<any>;
+    subscribe(mediaKey: string, cb: () => any): Promise<any>;
+    subscribe(options: any, cb: () => any): Promise<any>;
+    subscribe(mediaKey: string, options: any, cb: () => any): Promise<any>;
     unsubscribe(...args: any[]): Promise<any>;
     getFoldersRaw(options?: any): Promise<any>;
     getFolders(options?: any): Promise<any>;

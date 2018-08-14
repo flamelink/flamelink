@@ -1746,17 +1746,26 @@ describe('Flamelink SDK', () => {
         const app = flamelink(basicConfig);
         const spy = jest.spyOn(app.storage, '_createSizedImage');
         const file = mockFile();
-        return app.storage.upload(file, { sizes: [{ width: 560 }] }).then(file => {
-          expect(spy).toHaveBeenCalledWith(expect.any(Object), expect.any(String), { width: 240 });
-          expect(spy).toHaveBeenCalledWith(expect.any(Object), expect.any(String), { width: 560 });
-        });
+        return app.storage
+          .upload(file, { sizes: [{ width: 560, height: 9999, quality: 1 }], overwriteSizes: true })
+          .then(file => {
+            expect(spy).toHaveBeenCalledWith(expect.any(Object), expect.any(String), {
+              width: 240
+            });
+            expect(spy).toHaveBeenCalledWith(expect.any(Object), expect.any(String), {
+              width: 560,
+              height: 9999,
+              quality: 1,
+              path: '560_9999_100'
+            });
+          });
       });
 
-      test('should not try to create a resized image when invalid size is specified', () => {
+      test('should not try to create a resized image when invalid size is specified along with overwriteSizes as `true`', () => {
         const app = flamelink(basicConfig);
         const spy = jest.spyOn(app.storage, '_createSizedImage');
         const file = mockFile();
-        return app.storage.upload(file, { sizes: 'wrong' }).then(file => {
+        return app.storage.upload(file, { sizes: 'wrong', overwriteSizes: true }).then(file => {
           expect(spy).not.toHaveBeenCalled();
         });
       });

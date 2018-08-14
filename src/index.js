@@ -979,31 +979,7 @@ function flamelink(conf = {}) {
       const { file: filename, sizes: availableFileSizes } = file || {};
       const storageRefArgs = [filename];
 
-      if (typeof size === 'object') {
-        const { width, height, quality } = size;
-
-        if (
-          typeof width !== 'undefined' &&
-          typeof height !== 'undefined' &&
-          typeof quality !== 'undefined'
-        ) {
-          size.path = `${width}_${height}_${Math.round(parseFloat(quality, 10) * 100)}`;
-        }
-
-        if (size.path && availableFileSizes && availableFileSizes.length) {
-          if (availableFileSizes.find(({ path: filePath }) => filePath === size.path)) {
-            storageRefArgs.push({ path: size.path });
-          } else {
-            console.warn(
-              `[FLAMELINK]: The provided path (${size.path}) has been ignored because it did not match any of the given file's available paths.\nAvailable paths: ${availableFileSizes
-                .map(availableSize => availableSize.path)
-                .join(', ')}`
-            );
-          }
-        }
-      } else if (size && availableFileSizes && availableFileSizes.length) {
-        // This part is for the special 'device' use case and for the legacy width setting
-        const minSize = size === 'device' ? getScreenResolution() : size;
+      const getImagePathByClosestSize = minSize => {
         const smartWidth = availableFileSizes
           .map(
             availableSize =>
@@ -1017,8 +993,46 @@ function flamelink(conf = {}) {
 
         if (smartWidth) {
           storageRefArgs.push(smartWidth);
+        } else {
+          console.warn(
+            `[FLAMELINK]: The provided size (${size}) has been ignored because it did not match any of the given file's available sizes.\nAvailable sizes: ${availableFileSizes
+              .map(availableSize => availableSize.width)
+              .join(', ')}`
+          );
         }
+      };
+
+      if (typeof size === 'object') {
+        const { width, height, quality } = size;
+
+        if (
+          typeof width !== 'undefined' &&
+          typeof height !== 'undefined' &&
+          typeof quality !== 'undefined'
+        ) {
+          size.path = `${width}_${height}_${Math.round(parseFloat(quality, 10) * 100)}`;
+        }
+
+        // For images with `path` value
+        if (size.path && availableFileSizes && get(availableFileSizes, '[0].path')) {
+          if (availableFileSizes.find(({ path: filePath }) => filePath === size.path)) {
+            storageRefArgs.push({ path: size.path });
+          } else {
+            console.warn(
+              `[FLAMELINK]: The provided path (${size.path}) has been ignored because it did not match any of the given file's available paths.\nAvailable paths: ${availableFileSizes
+                .map(availableSize => availableSize.path)
+                .join(', ')}`
+            );
+          }
+        } else if (width && availableFileSizes && availableFileSizes.length) {
+          getImagePathByClosestSize(width);
+        }
+      } else if (size && availableFileSizes && availableFileSizes.length) {
+        // This part is for the special 'device' use case and for the legacy width setting
+        const minSize = size === 'device' ? getScreenResolution() : size;
+        getImagePathByClosestSize(minSize);
       }
+
       const fileRef = await storageAPI.ref(...storageRefArgs);
 
       if (isAdminApp_) {
@@ -1126,9 +1140,38 @@ function flamelink(conf = {}) {
      * @param {Object} [options={}]
      * @returns {Object} UploadTask instance, which is similar to a Promise and an Observable
      */
-    async upload(fileData, options = { sizes: [{ width: DEFAULT_REQUIRED_IMAGE_SIZE }] }) {
+    async upload(fileData, options = {}) {
       if (isAdminApp_) {
         throw error('"storage.upload()" is not currently supported for server-side use.');
+      }
+      const { sizes: userSizes, overwriteSizes } = options;
+      const settingsImageSizes = await settingsAPI.getImageSizes();
+
+      if (!userSizes && !overwriteSizes) {
+        set(options, 'sizes', settingsImageSizes || []);
+      } else if (userSizes && userSizes.length && !overwriteSizes) {
+        set(options, 'sizes', [...settingsImageSizes, ...userSizes] || []);
+      }
+
+      // Ensure image size with width DEFAULT_REQUIRED_IMAGE_SIZE exists
+      // Flamelink CMS expects file to reside in `240` folder, so size if only `width: 240` should be passed
+      if (
+        !options.sizes ||
+        ((options.sizes && options.sizes.length === 0) ||
+          (Array.isArray(options.sizes) &&
+            options.sizes.filter(
+              size =>
+                (size.width === DEFAULT_REQUIRED_IMAGE_SIZE ||
+                  size.maxWidth === DEFAULT_REQUIRED_IMAGE_SIZE) &&
+                !size.height &&
+                !size.quality
+            ).length === 0))
+      ) {
+        if (Array.isArray(options.sizes)) {
+          options.sizes.push({ width: DEFAULT_REQUIRED_IMAGE_SIZE });
+        } else {
+          set(options, 'sizes', [{ width: DEFAULT_REQUIRED_IMAGE_SIZE }]);
+        }
       }
 
       const id = Date.now().toString();
@@ -1169,28 +1212,6 @@ function flamelink(conf = {}) {
         type: mediaType,
         contentType: get(snapshot, 'metadata.contentType', '')
       };
-
-      if (!options.sizes) {
-        options.sizes = await settingsAPI.getImageSizes();
-      }
-
-      // Ensure image size with width DEFAULT_REQUIRED_IMAGE_SIZE exists
-      if (
-        !options.sizes ||
-        ((options.sizes && options.sizes.length === 0) ||
-          (Array.isArray(options.sizes) &&
-            options.sizes.filter(
-              size =>
-                size.width === DEFAULT_REQUIRED_IMAGE_SIZE ||
-                size.maxWidth === DEFAULT_REQUIRED_IMAGE_SIZE
-            ).length === 0))
-      ) {
-        if (Array.isArray(options.sizes)) {
-          options.sizes.push({ width: DEFAULT_REQUIRED_IMAGE_SIZE });
-        } else {
-          options.sizes = [{ width: DEFAULT_REQUIRED_IMAGE_SIZE }];
-        }
-      }
 
       // If mediaType === 'images', file is resizeable and sizes/widths are set, resize images here
       if (mediaType === 'images' && updateMethod === 'put' && Array.isArray(options.sizes)) {

@@ -39,8 +39,12 @@ declare namespace flamelink {
     get(schemaKey: string, options?: object): Promise<object | null>;
     getByFieldRaw(schemaKey: string, field: string, value: any, options?: object): Promise<firebase.database.DataSnapshot>;
     getByField(schemaKey: string, field: string, value: any, options?: object): Promise<object | null>;
+    subscribeRaw(schemaKey: string, callbackFn: () => any): Promise<any>;
+    subscribeRaw(schemaKey: string, options: object, callbackFn: () => any): Promise<any>;
     subscribeRaw(schemaKey: string, entryKey: string, callbackFn: () => any): Promise<any>;
     subscribeRaw(schemaKey: string, entryKey: string, options: object, callbackFn: () => any): Promise<any>;
+    subscribe(schemaKey: string, callbackFn: () => any): Promise<any>;
+    subscribe(schemaKey: string, options: object, callbackFn: () => any): Promise<any>;
     subscribe(schemaKey: string, entryKey: string, callbackFn: () => any): Promise<any>;
     subscribe(schemaKey: string, entryKey: string, options: object, callbackFn: () => any): Promise<any>;
     unsubscribe(schemaKey: string, entryKey?: string, event?: string): Promise<any>;

@@ -2,6 +2,7 @@
   "cSpell.words": [
     "firestore",
     "flamelink",
-    "polyfill"
+    "polyfill",
+    "uglifyjs"
   ]
 }

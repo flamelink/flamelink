@@ -14,7 +14,7 @@ declare namespace flamelink {
     env?: string;
     locale?: string;
     isAdmin?: boolean;
-    firebaseApp: firebase.app.App;
+    firebaseApp: any;
   }
 
   interface ConfigOption2 {

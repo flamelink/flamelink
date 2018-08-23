@@ -17,7 +17,8 @@ module.exports = {
     filename: `${LIBRARY_NAME}.js`,
     library: LIBRARY_NAME,
     libraryTarget: 'umd',
-    umdNamedDefine: true
+    umdNamedDefine: true,
+    globalObject: "typeof self !== 'undefined' ? self : this"
   },
 
   mode: process.env.NODE_ENV || 'production',

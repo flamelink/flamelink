@@ -12,11 +12,3 @@ export const ALLOWED_CHILD_EVENTS = [
 ];
 
 export const DEFAULT_REQUIRED_IMAGE_SIZE = 240;
-
-export const AVAILABLE_FILTER_OPTIONS = [
-  'limitToFirst',
-  'limitToLast',
-  'startAt',
-  'endAt',
-  'equalTo'
-];

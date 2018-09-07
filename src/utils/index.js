@@ -7,10 +7,17 @@ import isPlainObject from 'lodash/isPlainObject';
 import pick from 'lodash/fp/pick';
 import compose from 'compose-then';
 import error from './error';
-import { AVAILABLE_FILTER_OPTIONS } from '../constants';
 
 // Create empty memo object to which we can write for memoization
 const memo = {};
+
+export const AVAILABLE_FILTER_OPTIONS = [
+  'limitToFirst',
+  'limitToLast',
+  'startAt',
+  'endAt',
+  'equalTo'
+];
 
 export const applyOrderBy = (ref, opt = {}) => {
   if (opt.orderByChild) {

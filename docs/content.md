@@ -27,7 +27,7 @@ app.content.get('blog-posts', '1502966447501', { fields: [ 'title', 'description
 ### Input parameters
 
 | Type   | Variable         | Required | Description                                     |
-| ------ | ---------------- | -------- | ----------------------------------------------- |
+|--------|------------------|----------|-------------------------------------------------|
 | String | `contentType`    | required | The content type reference you want to retrieve |
 | String | `entryReference` | optional | The entry ID/reference for given content type   |
 | Object | `options`        | optional | Additional options                              |
@@ -50,9 +50,11 @@ app.content.get('blog-posts', { fields: [ 'title', 'description', 'image' ] })
 
 ##### Populate
 
-- `populate` **{Array}** - A list of relational and/or media (images/files) fields to be populated with their content for each entry.
+- `populate` **{Array|Boolean}** - A list of relational and/or media (images/files) fields to be populated with their content for each entry.
 
 ?> **HOT TIP:** When specifying a media field to be populated for you, it will replace the file ID for you with an object containing all the files data including a `url` property which is the URL to your file in the storage bucket.
+
+?> **EXTRA HOT TIP:** If you set `populate: true`, all possible relational, repeater, field group and media fields will automatically be populated for you.
 
 *Example*
 
@@ -60,6 +62,12 @@ To retrieve all of your blog posts and populate the `category` property for each
 
 ```javascript
 app.content.get('blog-posts', { populate: [ 'category' ] });
+```
+
+To retrieve all of your blog posts and populate *everything* for each individual post.
+
+```javascript
+app.content.get('blog-posts', { populate: true });
 ```
 
 There is also an alternative, more flexible option, to pass through an array of objects instead of strings. The important thing is to set the `field` attribute to the name of the field that should be populated.
@@ -136,12 +144,12 @@ app.content.get('blog-posts', { orderByChild: 'slug', equalTo: 'my-famous-blog-p
 
 ### Input parameters
 
-| Type   | Variable         | Required | Description                                      |
-| ------ | ---------------- | -------- | ------------------------------------------------ |
-| String | `contentType`    | required | The content type reference you want to retrieve  |
-| String | `fieldName`      | required | The name of the field to check the value against |
-| String | `fieldValue`     | required | The value of the given field to find             |
-| Object | `options`        | optional | Additional options                               |
+| Type   | Variable      | Required | Description                                      |
+|--------|---------------|----------|--------------------------------------------------|
+| String | `contentType` | required | The content type reference you want to retrieve  |
+| String | `fieldName`   | required | The name of the field to check the value against |
+| String | `fieldValue`  | required | The value of the given field to find             |
+| Object | `options`     | optional | Additional options                               |
 
 #### Available Options
 
@@ -218,7 +226,7 @@ getContentObservable('blog-posts', '1502966447501', { fields: [ 'title', 'descri
 Parameters should be passed in the order of the following table. If an optional parameter, like the `options` are left out, the following parameter just moves in its place.
 
 | Type     | Variable         | Required | Description                                                           |
-| -------- | ---------------- | -------- | --------------------------------------------------------------------- |
+|----------|------------------|----------|-----------------------------------------------------------------------|
 | String   | `contentType`    | required | The content type reference you want to retrieve                       |
 | String   | `entryReference` | optional | The entry ID/reference for given content type                         |
 | Object   | `options`        | optional | Additional options                                                    |
@@ -312,11 +320,11 @@ app.content.unsubscribe('blog-posts', '1502966447501', 'child_moved');
 
 All parameters are optional and calling this method without options will unsubscribe from all callbacks.
 
-| Type     | Variable         | Required | Description                                                    |
-| -------- | ---------------- | -------- | -------------------------------------------------------------- |
-| String   | `contentType`    | optional | The content type reference you want to unsubscribe from        |
-| String   | `entryReference` | optional | The entry ID/reference for given content type                  |
-| String   | `event`          | optional | The child event to unsubscribe from (see allowed child events) |
+| Type   | Variable         | Required | Description                                                    |
+|--------|------------------|----------|----------------------------------------------------------------|
+| String | `contentType`    | optional | The content type reference you want to unsubscribe from        |
+| String | `entryReference` | optional | The entry ID/reference for given content type                  |
+| String | `event`          | optional | The child event to unsubscribe from (see allowed child events) |
 
 ### Return value
 
@@ -341,7 +349,7 @@ app.content.set('blog-posts', '1502966447501', { title: 'new-title' })
 ### Input parameters
 
 | Type   | Variable         | Required | Description                                              |
-| ------ | ---------------- | -------- | -------------------------------------------------------- |
+|--------|------------------|----------|----------------------------------------------------------|
 | String | `contentType`    | required | The content type reference for the entry you want to set |
 | String | `entryReference` | required | The entry ID/reference for given content type to set     |
 | Object | `payload`        | required | Payload object to set at the given entry's reference     |
@@ -369,7 +377,7 @@ app.content.update('blog-posts', '1502966447501', { title: 'new-title' })
 ### Input parameters
 
 | Type   | Variable         | Required | Description                                                 |
-| ------ | ---------------- | -------- | ----------------------------------------------------------- |
+|--------|------------------|----------|-------------------------------------------------------------|
 | String | `contentType`    | required | The content type reference for the entry you want to update |
 | String | `entryReference` | required | The entry ID/reference for given content type to update     |
 | Object | `updates`        | required | Payload object to update at the given entry's reference     |
@@ -395,7 +403,7 @@ app.content.remove('blog-posts', '1502966447501')
 ### Input parameters
 
 | Type   | Variable         | Required | Description                                                 |
-| ------ | ---------------- | -------- | ----------------------------------------------------------- |
+|--------|------------------|----------|-------------------------------------------------------------|
 | String | `contentType`    | required | The content type reference for the entry you want to remove |
 | String | `entryReference` | required | The entry ID/reference for given content type to remove     |
 
@@ -432,7 +440,7 @@ app.content.transaction(
 ### Input parameters
 
 | Type     | Variable         | Required | Description                                                           |
-| -------- | ---------------- | -------- | --------------------------------------------------------------------- |
+|----------|------------------|----------|-----------------------------------------------------------------------|
 | String   | `contentType`    | required | The content type reference for the entry you want to update           |
 | String   | `entryReference` | required | The entry ID/reference for given content type to update               |
 | Function | `updateFn`       | required | The update function that will be called with the existing entry state |
@@ -461,7 +469,7 @@ app.content.ref('your-reference')
 The `.ref()` method takes a single parameter
 
 | Type   | Variable    | Required | Description                         |
-| ------ | ----------- | -------- | ----------------------------------- |
+|--------|-------------|----------|-------------------------------------|
 | String | `reference` | required | The reference you want to retrieve. |
 
 ### Return value

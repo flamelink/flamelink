@@ -7,6 +7,7 @@ import isPlainObject from 'lodash/isPlainObject';
 import pick from 'lodash/fp/pick';
 import compose from 'compose-then';
 import error from './error';
+import { AVAILABLE_FILTER_OPTIONS } from '../constants';
 
 // Create empty memo object to which we can write for memoization
 const memo = {};
@@ -29,14 +30,6 @@ export const applyOrderBy = (ref, opt = {}) => {
 
   return ref;
 };
-
-export const AVAILABLE_FILTER_OPTIONS = [
-  'limitToFirst',
-  'limitToLast',
-  'startAt',
-  'endAt',
-  'equalTo'
-];
 
 export const applyFilters = (ref, opt = {}) => {
   if (!Object.keys(opt).length) {
@@ -174,6 +167,38 @@ export const prepPopulateFields = populate => {
 
   return memo.prepPopulateFields(populate);
 };
+
+const getPopulateFieldsForSchema = async (schemasAPI, schemaFields) =>
+  schemaFields.reduce(async (chain, field) => {
+    switch (field.type) {
+      case 'media':
+        return chain.then(result => result.concat({ field: field.key }));
+
+      case 'select-relational':
+      case 'tree-relational':
+        return chain.then(async result =>
+          result.concat({
+            field: field.key,
+            populate: await getPopulateFieldsForSchema(
+              schemasAPI,
+              await schemasAPI.getFields(field.relation)
+            )
+          })
+        );
+
+      case 'fieldset':
+      case 'repeater':
+        return chain.then(async result =>
+          result.concat({
+            field: field.key,
+            subFields: await getPopulateFieldsForSchema(schemasAPI, field.options)
+          })
+        );
+
+      default:
+        return chain;
+    }
+  }, Promise.resolve([]));
 
 /**
  * Curried helper function that takes in an entry's object and then populates the given
@@ -390,6 +415,10 @@ export const populateEntry = curry(
     });
 
     const schemaFields = await schemasAPI.getFields(contentType);
+
+    if (populate === true) {
+      populate = await getPopulateFieldsForSchema(schemasAPI, schemaFields);
+    }
 
     const preppedPopulateFields = prepPopulateFields(populate);
     const entries = await Promise.all(

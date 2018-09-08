@@ -5,6 +5,7 @@ import compose from 'compose-then';
 import find from 'lodash/find';
 import get from 'lodash/get';
 import set from 'lodash/set';
+import isArray from 'lodash/isArray';
 import pick from 'lodash/fp/pick';
 import resizeImage from 'browser-image-resizer';
 import './polyfills';
@@ -505,7 +506,10 @@ function flamelink(conf = {}) {
         throw error(`No supported environments found.`);
       }
 
-      if (!supportedEnvironments_.includes(env)) {
+      if (
+        (isArray(supportedEnvironments_) && !supportedEnvironments_.includes(env)) ||
+        (!isArray(supportedEnvironments_) && !Object.keys(supportedEnvironments_).includes(env))
+      ) {
         throw error(
           `"${env}" is not a supported environment. Supported Environments: ${supportedEnvironments_.join(
             ', '

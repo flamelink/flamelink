@@ -4,6 +4,7 @@ const pkg = require('../package.json');
 const UglifyJsPlugin = require('uglifyjs-webpack-plugin');
 const CompressionPlugin = require('compression-webpack-plugin');
 const CopyWebpackPlugin = require('copy-webpack-plugin');
+const { BundleAnalyzerPlugin } = require('webpack-bundle-analyzer');
 
 const LIBRARY_NAME = 'flamelink';
 
@@ -100,6 +101,7 @@ module.exports = {
       asset: '[path].gz[query]',
       algorithm: 'gzip',
       test: /\.js$/
-    })
-  ]
+    }),
+    process.env.npm_config_report ? new BundleAnalyzerPlugin() : false
+  ].filter(Boolean)
 };

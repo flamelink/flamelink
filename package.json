@@ -1,6 +1,6 @@
 {
   "name": "flamelink",
-  "version": "0.18.10",
+  "version": "0.19.1",
   "description": "Javascript SDK for integrating with Flamelink CMS",
   "main": "dist/flamelink.js",
   "module": "src/index.js",
@@ -71,6 +71,7 @@
     "rimraf": "^2.6.2",
     "uglifyjs-webpack-plugin": "^1.2.7",
     "webpack": "^4.16.5",
+    "webpack-bundle-analyzer": "^2.13.1",
     "webpack-cli": "^3.1.0"
   },
   "jest": {

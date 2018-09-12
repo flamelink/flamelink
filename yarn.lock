@@ -2628,7 +2628,7 @@ find-up@^3.0.0:
   dependencies:
     locate-path "^3.0.0"
 
-firebase@>=4.12.1:
+firebase@>=5:
   version "5.4.2"
   resolved "https://registry.yarnpkg.com/firebase/-/firebase-5.4.2.tgz#48d6da1be44539efcb2aa4875ef9155dd0700ae4"
   dependencies:

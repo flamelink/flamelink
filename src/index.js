@@ -1,5 +1,4 @@
 import 'regenerator-runtime/runtime';
-import * as firebase from 'firebase';
 import validate from 'validate.js';
 import compose from 'compose-then';
 import find from 'lodash/find';
@@ -8,6 +7,11 @@ import set from 'lodash/set';
 import isArray from 'lodash/isArray';
 import pick from 'lodash/fp/pick';
 import resizeImage from 'browser-image-resizer';
+import * as firebase from 'firebase/app';
+import 'firebase/database';
+import 'firebase/storage';
+import 'firebase/auth';
+import 'firebase/firestore';
 import './polyfills';
 import error from './utils/error';
 import deprecate from './utils/deprecate';

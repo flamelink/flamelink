@@ -44,7 +44,7 @@ export const applyFilters = (ref, opt = {}) => {
   }
 
   return [...AVAILABLE_FILTER_OPTIONS].reduce((newRef, filter) => {
-    if (!opt[filter]) {
+    if (typeof opt[filter] === 'undefined') {
       return newRef;
     }
     return newRef[filter](opt[filter]);
@@ -304,7 +304,10 @@ export const populateEntry = curry(
                       [innerEntryKey]: Object.assign({}, fileObject, { url: fileURL })
                     };
 
-                    const result = await compose(populateFields, pluckFields)(wrapValue);
+                    const result = await compose(
+                      populateFields,
+                      pluckFields
+                    )(wrapValue);
                     return result[innerEntryKey];
                   })
                 );
@@ -339,7 +342,10 @@ export const populateEntry = curry(
                     );
                     const wrapValue = { [innerEntryKey]: snapshot.val() };
 
-                    const result = await compose(populateFields, pluckFields)(wrapValue);
+                    const result = await compose(
+                      populateFields,
+                      pluckFields
+                    )(wrapValue);
                     return result[innerEntryKey];
                   })
                 );

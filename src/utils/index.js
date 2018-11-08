@@ -1,3 +1,4 @@
+import keys from 'lodash/keys';
 import reduce from 'lodash/reduce';
 import curry from 'lodash/curry';
 import cloneDeep from 'lodash/cloneDeep';
@@ -39,7 +40,7 @@ export const applyOrderBy = (ref, opt = {}) => {
 };
 
 export const applyFilters = (ref, opt = {}) => {
-  if (!Object.keys(opt).length) {
+  if (!keys(opt).length) {
     return ref;
   }
 
@@ -224,7 +225,7 @@ export const populateEntry = curry(
       return originalEntry;
     }
 
-    const entryKeys = Object.keys(originalEntry);
+    const entryKeys = keys(originalEntry);
 
     if (entryKeys.length === 0) {
       throw error('"populateEntry" should be called with an object of objects');
@@ -392,7 +393,7 @@ export const populateEntry = curry(
                 const schemaField = schemaFields && schemaFields.find(f => f.key === field);
 
                 const processedFieldsetFields = await Promise.all(
-                  Object.keys(fieldsetFields).map(async (fieldsetKey, fieldsetIndex) => {
+                  keys(fieldsetFields).map(async (fieldsetKey, fieldsetIndex) => {
                     const processedFieldsetField = await processEntry(
                       { [fieldsetIndex]: { [fieldsetKey]: fieldsetFields[fieldsetKey] } }, // entry
                       schemaField.options || [], // schemaFields
@@ -449,7 +450,7 @@ export const populateEntry = curry(
 export const formatStructure = curry((structure, options, items) => {
   const { idProperty = 'id', parentProperty = 'parentId' } = options || {};
 
-  const formattedItems = isArray(items) ? items : Object.keys(items).map(key => items[key]);
+  const formattedItems = isArray(items) ? items : keys(items).map(key => items[key]);
 
   if (!isArray(formattedItems)) {
     throw error('"formatStructure" should be called with an array of items');
@@ -490,8 +491,8 @@ export const getScreenResolution = () => {
 };
 
 export const hasNonCacheableOptions = (options = {}) => {
-  const keys = Object.keys(options);
-  return keys.some(key =>
+  const optionKeys = keys(options);
+  return optionKeys.some(key =>
     ['noCache', 'event', 'orderByValue', 'orderByChild', ...AVAILABLE_FILTER_OPTIONS].includes(key)
   );
 };

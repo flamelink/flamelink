@@ -2,6 +2,8 @@ import 'regenerator-runtime/runtime';
 import * as firebase from 'firebase';
 import validate from 'validate.js';
 import compose from 'compose-then';
+import values from 'lodash/values';
+import keys from 'lodash/keys';
 import find from 'lodash/find';
 import get from 'lodash/get';
 import set from 'lodash/set';
@@ -199,7 +201,7 @@ function flamelink(conf = {}) {
         schemas = snapshot.val();
       }
 
-      return Object.keys(schemas).reduce(
+      return keys(schemas).reduce(
         (result, key) =>
           Object.assign({}, result, {
             [key]: pluckResultFields(opts.fields, schemas[key].fields)
@@ -508,7 +510,7 @@ function flamelink(conf = {}) {
 
       if (
         (isArray(supportedEnvironments_) && !supportedEnvironments_.includes(env)) ||
-        (!isArray(supportedEnvironments_) && !Object.keys(supportedEnvironments_).includes(env))
+        (!isArray(supportedEnvironments_) && !keys(supportedEnvironments_).includes(env))
       ) {
         throw error(
           `"${env}" is not a supported environment. Supported Environments: ${supportedEnvironments_.join(
@@ -889,7 +891,11 @@ function flamelink(conf = {}) {
         parentProperty: 'parentId'
       });
       const snapshot = await storageAPI.getFoldersRaw(options);
-      return compose(pluckFields, structureItems, Object.values)(snapshot.val());
+      return compose(
+        pluckFields,
+        structureItems,
+        values
+      )(snapshot.val());
     },
 
     /**
@@ -961,7 +967,10 @@ function flamelink(conf = {}) {
       const filterFolders = filterByFolderId(folderId);
       const pluckFields = pluckResultFields(opts.fields);
       const snapshot = await storageAPI.getFilesRaw(opts);
-      return compose(pluckFields, filterFolders)(snapshot.val());
+      return compose(
+        pluckFields,
+        filterFolders
+      )(snapshot.val());
     },
 
     /**
@@ -1023,7 +1032,9 @@ function flamelink(conf = {}) {
             storageRefArgs.push({ path: size.path });
           } else {
             console.warn(
-              `[FLAMELINK]: The provided path (${size.path}) has been ignored because it did not match any of the given file's available paths.\nAvailable paths: ${availableFileSizes
+              `[FLAMELINK]: The provided path (${
+                size.path
+              }) has been ignored because it did not match any of the given file's available paths.\nAvailable paths: ${availableFileSizes
                 .map(availableSize => availableSize.path)
                 .join(', ')}`
             );
@@ -1307,7 +1318,10 @@ function flamelink(conf = {}) {
         );
         const snapshot = await contentAPI.getRaw(contentRef, entryRef, options);
         const wrapValue = { [entryRef]: snapshot.val() }; // Wrapping value to create the correct structure for our filtering to work
-        const result = await compose(populateFields, pluckFields)(wrapValue);
+        const result = await compose(
+          populateFields,
+          pluckFields
+        )(wrapValue);
         return result[entryRef];
       }
 
@@ -1330,19 +1344,25 @@ function flamelink(conf = {}) {
       // If content type is a single, we need to wrap the object for filters to work correctly
       if (ref) {
         const value = isSingleType ? { [ref]: snapshot.val() } : snapshot.val();
-        const result = await compose(populateFields, pluckFields)(value);
+        const result = await compose(
+          populateFields,
+          pluckFields
+        )(value);
         return isSingleType ? result[ref] : result;
       }
 
       const withLocales = snapshot.val();
       const currentLocale = locale_; // TODO: Look at getting from API method
 
-      const withoutLocales = Object.keys(withLocales).reduce(
+      const withoutLocales = keys(withLocales).reduce(
         (menus, key) => Object.assign({}, menus, { [key]: withLocales[key][currentLocale] }),
         {}
       );
 
-      const result = await compose(populateFields, pluckFields)(withoutLocales);
+      const result = await compose(
+        populateFields,
+        pluckFields
+      )(withoutLocales);
       return result;
     },
 
@@ -1447,7 +1467,10 @@ function flamelink(conf = {}) {
 
           return contentAPI.subscribeRaw(contentRef, entryRef, options, async snapshot => {
             const wrapValue = { [entryRef]: snapshot.val() }; // Wrapping value to create the correct structure for our filtering to work
-            const result = await compose(populateFields, pluckFields)(wrapValue);
+            const result = await compose(
+              populateFields,
+              pluckFields
+            )(wrapValue);
             cb(null, result[entryRef]); // Error-first callback
           });
         }
@@ -1482,7 +1505,10 @@ function flamelink(conf = {}) {
           // If content type is a single, we need to wrap the object for filters to work correctly
           if (contentRef) {
             const value = isSingleType ? { [contentRef]: snapshot.val() } : snapshot.val();
-            const result = await compose(populateFields, pluckFields)(value);
+            const result = await compose(
+              populateFields,
+              pluckFields
+            )(value);
             cb(null, isSingleType ? result[contentRef] : result); // Error-first callback
             return;
           }
@@ -1490,12 +1516,15 @@ function flamelink(conf = {}) {
           const withLocales = snapshot.val();
           const currentLocale = locale_; // TODO: Look at getting from API method
 
-          const withoutLocales = Object.keys(withLocales).reduce(
+          const withoutLocales = keys(withLocales).reduce(
             (menus, key) => Object.assign({}, menus, { [key]: withLocales[key][currentLocale] }),
             {}
           );
 
-          const result = await compose(populateFields, pluckFields)(withoutLocales);
+          const result = await compose(
+            populateFields,
+            pluckFields
+          )(withoutLocales);
           cb(null, result); // Error-first callback
         });
       } catch (err) {
@@ -1647,7 +1676,7 @@ function flamelink(conf = {}) {
         {}
       );
 
-      const validationErrors = Object.keys(payload_).reduce((errors_, attr) => {
+      const validationErrors = keys(payload_).reduce((errors_, attr) => {
         const error_ = validate.single(payload_[attr], constraints[attr]);
         if (error_) {
           return Object.assign({}, errors_, { [attr]: error_ });
@@ -1659,7 +1688,7 @@ function flamelink(conf = {}) {
       const fieldKeys = fields.map(field => field.key);
       const pickFields = pick(fieldKeys);
 
-      if (Object.keys(validationErrors).length) {
+      if (keys(validationErrors).length) {
         return Promise.reject(validationErrors);
       }
 
@@ -1803,14 +1832,14 @@ function flamelink(conf = {}) {
       const withLocales = snapshot.val();
       const currentLocale = locale_; // TODO: Look at getting from API method
 
-      const withoutLocales = Object.keys(withLocales).reduce(
+      const withoutLocales = keys(withLocales).reduce(
         (menus, key) => Object.assign({}, menus, { [key]: withLocales[key][currentLocale] }),
         {}
       );
 
       const pluckedMenus = await pluckResultFields(opts.fields, withoutLocales);
 
-      return Object.keys(pluckedMenus).reduce((menus, key) => {
+      return keys(pluckedMenus).reduce((menus, key) => {
         const nav = pluckedMenus[key];
 
         // Only try and structure items if items weren't plucked out
@@ -1869,7 +1898,10 @@ function flamelink(conf = {}) {
         parentProperty: 'parentIndex'
       });
       const snapshot = await navigationAPI.getItemsRaw(navRef, options);
-      return compose(pluckFields, structureItems)(snapshot.val());
+      return compose(
+        pluckFields,
+        structureItems
+      )(snapshot.val());
     },
 
     /**
@@ -1961,14 +1993,14 @@ function flamelink(conf = {}) {
           const withLocales = snapshot.val();
           const currentLocale = locale_; // TODO: Look at getting from API method
 
-          const withoutLocales = Object.keys(withLocales).reduce(
+          const withoutLocales = keys(withLocales).reduce(
             (menus, key) => Object.assign({}, menus, { [key]: withLocales[key][currentLocale] }),
             {}
           );
 
           const pluckedMenus = await compose(pluckFields)(withoutLocales);
 
-          const result = Object.keys(pluckedMenus).reduce((menus, key) => {
+          const result = keys(pluckedMenus).reduce((menus, key) => {
             const nav = pluckedMenus[key];
 
             // Only try and structure items if items weren't plucked out

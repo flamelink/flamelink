@@ -10,6 +10,8 @@
 
 To upload files to your Flamelink project and storage bucket.
 
+!> Uploading files server-side (from NodeJS) is currently not supported.
+
 You can upload files in any of the following formats: [File](https://developer.mozilla.org/en-US/docs/Web/API/File), [Blob](https://developer.mozilla.org/en-US/docs/Web/API/Blob), [byte arrays](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Uint8Array) or from a String.
 
 When using a String, you can use one of the following 4 string encoding types: raw string (default), `base64`, `base64url` or `data_url`.

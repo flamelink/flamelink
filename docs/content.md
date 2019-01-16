@@ -26,11 +26,11 @@ app.content.get('blog-posts', '1502966447501', { fields: [ 'title', 'description
 
 ### Input parameters
 
-| Type   | Variable         | Required | Description                                     |
-|--------|------------------|----------|-------------------------------------------------|
-| String | `contentType`    | required | The content type reference you want to retrieve |
-| String | `entryReference` | optional | The entry ID/reference for given content type   |
-| Object | `options`        | optional | Additional options                              |
+| Type   | Variable         | Required | Description                                                  |
+|--------|------------------|----------|--------------------------------------------------------------|
+| String | `contentType`    | required | The content type reference (Schema key) you want to retrieve |
+| String | `entryReference` | optional | The entry ID/reference for given content type                |
+| Object | `options`        | optional | Additional options                                           |
 
 #### Available Options
 
@@ -144,12 +144,12 @@ app.content.get('blog-posts', { orderByChild: 'slug', equalTo: 'my-famous-blog-p
 
 ### Input parameters
 
-| Type   | Variable      | Required | Description                                      |
-|--------|---------------|----------|--------------------------------------------------|
-| String | `contentType` | required | The content type reference you want to retrieve  |
-| String | `fieldName`   | required | The name of the field to check the value against |
-| String | `fieldValue`  | required | The value of the given field to find             |
-| Object | `options`     | optional | Additional options                               |
+| Type   | Variable      | Required | Description                                                  |
+|--------|---------------|----------|--------------------------------------------------------------|
+| String | `contentType` | required | The content type reference (Schema key) you want to retrieve |
+| String | `fieldName`   | required | The name of the field to check the value against             |
+| String | `fieldValue`  | required | The value of the given field to find                         |
+| Object | `options`     | optional | Additional options                                           |
 
 #### Available Options
 
@@ -227,7 +227,7 @@ Parameters should be passed in the order of the following table. If an optional 
 
 | Type     | Variable         | Required | Description                                                           |
 |----------|------------------|----------|-----------------------------------------------------------------------|
-| String   | `contentType`    | required | The content type reference you want to retrieve                       |
+| String   | `contentType`    | required | The content type reference (Schema key) you want to retrieve          |
 | String   | `entryReference` | optional | The entry ID/reference for given content type                         |
 | Object   | `options`        | optional | Additional options                                                    |
 | Function | `callback`       | required | Function called once when subscribed and when subscribed data changes |
@@ -320,11 +320,11 @@ app.content.unsubscribe('blog-posts', '1502966447501', 'child_moved');
 
 All parameters are optional and calling this method without options will unsubscribe from all callbacks.
 
-| Type   | Variable         | Required | Description                                                    |
-|--------|------------------|----------|----------------------------------------------------------------|
-| String | `contentType`    | optional | The content type reference you want to unsubscribe from        |
-| String | `entryReference` | optional | The entry ID/reference for given content type                  |
-| String | `event`          | optional | The child event to unsubscribe from (see allowed child events) |
+| Type   | Variable         | Required | Description                                                          |
+|--------|------------------|----------|----------------------------------------------------------------------|
+| String | `contentType`    | optional | The content type reference (Schema key) you want to unsubscribe from |
+| String | `entryReference` | optional | The entry ID/reference for given content type                        |
+| String | `event`          | optional | The child event to unsubscribe from (see allowed child events)       |
 
 ### Return value
 
@@ -348,11 +348,11 @@ app.content.set('blog-posts', '1502966447501', { title: 'new-title' })
 
 ### Input parameters
 
-| Type   | Variable         | Required | Description                                              |
-|--------|------------------|----------|----------------------------------------------------------|
-| String | `contentType`    | required | The content type reference for the entry you want to set |
-| String | `entryReference` | required | The entry ID/reference for given content type to set     |
-| Object | `payload`        | required | Payload object to set at the given entry's reference     |
+| Type   | Variable         | Required | Description                                                           |
+|--------|------------------|----------|-----------------------------------------------------------------------|
+| String | `contentType`    | required | The content type reference (Schema key) for the entry you want to set |
+| String | `entryReference` | required | The entry ID/reference for given content type to set                  |
+| Object | `payload`        | required | Payload object to set at the given entry's reference                  |
 
 ### Return value
 
@@ -376,11 +376,11 @@ app.content.update('blog-posts', '1502966447501', { title: 'new-title' })
 
 ### Input parameters
 
-| Type   | Variable         | Required | Description                                                 |
-|--------|------------------|----------|-------------------------------------------------------------|
-| String | `contentType`    | required | The content type reference for the entry you want to update |
-| String | `entryReference` | required | The entry ID/reference for given content type to update     |
-| Object | `updates`        | required | Payload object to update at the given entry's reference     |
+| Type   | Variable         | Required | Description                                                              |
+|--------|------------------|----------|--------------------------------------------------------------------------|
+| String | `contentType`    | required | The content type reference (Schema key) for the entry you want to update |
+| String | `entryReference` | required | The entry ID/reference for given content type to update                  |
+| Object | `updates`        | required | Payload object to update at the given entry's reference                  |
 
 ### Return value
 
@@ -402,10 +402,10 @@ app.content.remove('blog-posts', '1502966447501')
 
 ### Input parameters
 
-| Type   | Variable         | Required | Description                                                 |
-|--------|------------------|----------|-------------------------------------------------------------|
-| String | `contentType`    | required | The content type reference for the entry you want to remove |
-| String | `entryReference` | required | The entry ID/reference for given content type to remove     |
+| Type   | Variable         | Required | Description                                                              |
+|--------|------------------|----------|--------------------------------------------------------------------------|
+| String | `contentType`    | required | The content type reference (Schema key) for the entry you want to remove |
+| String | `entryReference` | required | The entry ID/reference for given content type to remove                  |
 
 ### Return value
 
@@ -439,12 +439,12 @@ app.content.transaction(
 
 ### Input parameters
 
-| Type     | Variable         | Required | Description                                                           |
-|----------|------------------|----------|-----------------------------------------------------------------------|
-| String   | `contentType`    | required | The content type reference for the entry you want to update           |
-| String   | `entryReference` | required | The entry ID/reference for given content type to update               |
-| Function | `updateFn`       | required | The update function that will be called with the existing entry state |
-| Function | `callback`       | optional | The callback function that will be called when transaction finishes   |
+| Type     | Variable         | Required | Description                                                              |
+|----------|------------------|----------|--------------------------------------------------------------------------|
+| String   | `contentType`    | required | The content type reference (Schema key) for the entry you want to update |
+| String   | `entryReference` | required | The entry ID/reference for given content type to update                  |
+| Function | `updateFn`       | required | The update function that will be called with the existing entry state    |
+| Function | `callback`       | optional | The callback function that will be called when transaction finishes      |
 
 ### Return value
 

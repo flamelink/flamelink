@@ -13,14 +13,14 @@ declare namespace flamelink {
   interface ConfigOption1 {
     env?: string;
     locale?: string;
-    isAdmin?: boolean;
+    isAdminApp?: boolean;
     firebaseApp: any;
   }
 
   interface ConfigOption2 {
     env?: string;
     locale?: string;
-    isAdmin?: boolean;
+    isAdminApp?: boolean;
     apiKey: string;
     authDomain: string;
     databaseURL: string;

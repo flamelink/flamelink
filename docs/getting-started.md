@@ -76,40 +76,27 @@ import flamelink from 'flamelink';
 
 ### Creating your Flamelink app instance
 
-You can either create your `flamelink` app instance by passing in all the required config options that you would normally use to instantiate a firebase application:
-
-```javascript
-const app = flamelink({
-  apiKey: '<your-api-key>',                     // required
-  authDomain: '<your-auth-domain>',             // required
-  databaseURL: '<your-database-url>',           // required
-  projectId: '<your-project-id>',               // required
-  storageBucket: '<your-storage-bucket-code>',  // required
-  messagingSenderId: '<your-messenger-id>',     // optional
-});
-```
-
-?> **Tip:** Go to your [Firebase console](https://console.firebase.google.com/) to find these config settings.
-
-Or you can pass in an existing `firebaseApp` instance along with all the other `flamelink` config options (if using this option you need to remember to import `firebase` yourself):
+You can create your `flamelink` app instance by passing in an existing `firebaseApp` instance along with all the other `flamelink` config options (you need to remember to import `firebase` of `firebase-admin` yourself):
 
 ```javascript
 import * as firebase from 'firebase';
 import flamelink from 'flamelink';
 
 const firebaseConfig = {
-  apiKey: '<your-api-key>',                     // required
-  authDomain: '<your-auth-domain>',             // required
-  databaseURL: '<your-database-url>',           // required
-  projectId: '<your-project-id>',               // required
-  storageBucket: '<your-storage-bucket-code>',  // required
-  messagingSenderId: '<your-messenger-id>'      // optional
+  apiKey: '<your-api-key>', // required
+  authDomain: '<your-auth-domain>', // required
+  databaseURL: '<your-database-url>', // required
+  projectId: '<your-project-id>', // required
+  storageBucket: '<your-storage-bucket-code>', // required
+  messagingSenderId: '<your-messenger-id>' // optional
 };
 
 const firebaseApp = firebase.initializeApp(firebaseConfig);
 
 const app = flamelink({ firebaseApp });
 ```
+
+?> **Tip:** Go to your [Firebase console](https://console.firebase.google.com/) to find these config settings.
 
 When using the `firebase-admin` SDK on server-side, you need to specify a `isAdminApp` property along with your `firebaseApp` instance, like this:
 
@@ -120,8 +107,8 @@ const serviceAccount = require('path/to/serviceAccountKey.json');
 
 const firebaseConfig = {
   credential: admin.credential.cert(serviceAccount), // required
-  databaseURL: '<your-database-url>',                // required
-  storageBucket: '<your-storage-bucket-code>',       // required if you want to your any Storage functionality
+  databaseURL: '<your-database-url>', // required
+  storageBucket: '<your-storage-bucket-code>' // required if you want to use any Storage functionality
 };
 
 const firebaseApp = admin.initializeApp(config);
@@ -135,7 +122,7 @@ const app = flamelink({ firebaseApp, isAdminApp: true }); // Remember `isAdminAp
 
 Once you have an instance of the [`flamelink` app](https://app.flamelink.io), you can start using it to interact with your data stored in your firebase database. Suppose you want to retrieve all your products created under the "Content" section in `flamelink`.
 
-*Using standard Promises:*
+_Using standard Promises:_
 
 ```javascript
 app.content.get('products')
@@ -143,7 +130,7 @@ app.content.get('products')
   .catch(error => // handle any errors)
 ```
 
-*Using async-await:*
+_Using async-await:_
 
 ```javascript
 const products = await app.content.get('products');

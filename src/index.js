@@ -1273,7 +1273,7 @@ function flamelink(conf = {}) {
     getRaw(contentRef, entryRef, options = {}) {
       // Is single entry query?
       if (['string', 'number'].includes(typeof entryRef)) {
-        const ordered = applyOrderBy(contentAPI.ref([`${contentRef}`, `${entryRef}`]), options);
+        const ordered = applyOrderBy(contentAPI.ref([contentRef, entryRef]), options);
         const filtered = applyFilters(ordered, options);
 
         return filtered.once(options.event || 'value');

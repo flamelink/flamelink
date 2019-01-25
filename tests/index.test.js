@@ -104,7 +104,7 @@ describe('Flamelink SDK', () => {
       expect(flamelink(basicConfig).content.ref).toEqual(expect.any(Function));
     });
 
-    describe('"get" Method', () => {
+    xdescribe('"get" Method', () => {
       describe('for all entries of a given content type', () => {
         test('should be exposed on the "content" object', () => {
           const ref = 'get-ref';

@@ -63,7 +63,7 @@ export const getContentRefPath = (
 ) => {
   if (isArray(ref)) {
     return `/flamelink/environments/${env}/content/${ref[0]
-      ? `${ref[0]}/${locale}${ref[1] ? `/${ref[0]}` : ''}`
+      ? `${ref[0]}/${locale}${ref[1] ? `/${ref[1]}` : ''}`
       : ''}`;
   }
 

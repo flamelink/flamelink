@@ -32,7 +32,7 @@ declare namespace flamelink {
   export type FlamelinkConfig = ConfigOption1 | ConfigOption2;
 
   interface content {
-    ref(ref: string): firebase.database.Reference;
+    ref(ref: string | string[]): firebase.database.Reference;
     getRaw(schemaKey: string, entryKey: string | number, options?: object): Promise<firebase.database.DataSnapshot>;
     getRaw(schemaKey: string, options?: object): Promise<firebase.database.DataSnapshot>;
     get(schemaKey: string, entryKey: string | number, options?: object): Promise<object | null>;

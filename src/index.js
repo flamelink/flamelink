@@ -891,11 +891,7 @@ function flamelink(conf = {}) {
         parentProperty: 'parentId'
       });
       const snapshot = await storageAPI.getFoldersRaw(options);
-      return compose(
-        pluckFields,
-        structureItems,
-        values
-      )(snapshot.val());
+      return compose(pluckFields, structureItems, values)(snapshot.val());
     },
 
     /**
@@ -967,10 +963,7 @@ function flamelink(conf = {}) {
       const filterFolders = filterByFolderId(folderId);
       const pluckFields = pluckResultFields(opts.fields);
       const snapshot = await storageAPI.getFilesRaw(opts);
-      return compose(
-        pluckFields,
-        filterFolders
-      )(snapshot.val());
+      return compose(pluckFields, filterFolders)(snapshot.val());
     },
 
     /**
@@ -1032,9 +1025,7 @@ function flamelink(conf = {}) {
             storageRefArgs.push({ path: size.path });
           } else {
             console.warn(
-              `[FLAMELINK]: The provided path (${
-                size.path
-              }) has been ignored because it did not match any of the given file's available paths.\nAvailable paths: ${availableFileSizes
+              `[FLAMELINK]: The provided path (${size.path}) has been ignored because it did not match any of the given file's available paths.\nAvailable paths: ${availableFileSizes
                 .map(availableSize => availableSize.path)
                 .join(', ')}`
             );
@@ -1259,7 +1250,7 @@ function flamelink(conf = {}) {
   const contentAPI = {
     /**
      * @description Establish and return a reference to section in firebase db
-     * @param {String} ref
+     * @param {String|String[]} ref
      * @returns {Object} Ref object
      */
     ref(ref) {
@@ -1282,10 +1273,7 @@ function flamelink(conf = {}) {
     getRaw(contentRef, entryRef, options = {}) {
       // Is single entry query?
       if (['string', 'number'].includes(typeof entryRef)) {
-        const ordered = applyOrderBy(
-          contentAPI.ref(`${contentRef}/${entryRef}`.replace('//', '/')),
-          options
-        );
+        const ordered = applyOrderBy(contentAPI.ref([`${contentRef}`, `${entryRef}`]), options);
         const filtered = applyFilters(ordered, options);
 
         return filtered.once(options.event || 'value');
@@ -1321,10 +1309,7 @@ function flamelink(conf = {}) {
         );
         const snapshot = await contentAPI.getRaw(contentRef, entryRef, options);
         const wrapValue = { [entryRef]: snapshot.val() }; // Wrapping value to create the correct structure for our filtering to work
-        const result = await compose(
-          populateFields,
-          pluckFields
-        )(wrapValue);
+        const result = await compose(populateFields, pluckFields)(wrapValue);
         return result[entryRef];
       }
 
@@ -1347,10 +1332,7 @@ function flamelink(conf = {}) {
       // If content type is a single, we need to wrap the object for filters to work correctly
       if (ref) {
         const value = isSingleType ? { [ref]: snapshot.val() } : snapshot.val();
-        const result = await compose(
-          populateFields,
-          pluckFields
-        )(value);
+        const result = await compose(populateFields, pluckFields)(value);
         return isSingleType ? result[ref] : result;
       }
 
@@ -1362,10 +1344,7 @@ function flamelink(conf = {}) {
         {}
       );
 
-      const result = await compose(
-        populateFields,
-        pluckFields
-      )(withoutLocales);
+      const result = await compose(populateFields, pluckFields)(withoutLocales);
       return result;
     },
 
@@ -1470,10 +1449,7 @@ function flamelink(conf = {}) {
 
           return contentAPI.subscribeRaw(contentRef, entryRef, options, async snapshot => {
             const wrapValue = { [entryRef]: snapshot.val() }; // Wrapping value to create the correct structure for our filtering to work
-            const result = await compose(
-              populateFields,
-              pluckFields
-            )(wrapValue);
+            const result = await compose(populateFields, pluckFields)(wrapValue);
             cb(null, result[entryRef]); // Error-first callback
           });
         }
@@ -1508,10 +1484,7 @@ function flamelink(conf = {}) {
           // If content type is a single, we need to wrap the object for filters to work correctly
           if (contentRef) {
             const value = isSingleType ? { [contentRef]: snapshot.val() } : snapshot.val();
-            const result = await compose(
-              populateFields,
-              pluckFields
-            )(value);
+            const result = await compose(populateFields, pluckFields)(value);
             cb(null, isSingleType ? result[contentRef] : result); // Error-first callback
             return;
           }
@@ -1524,10 +1497,7 @@ function flamelink(conf = {}) {
             {}
           );
 
-          const result = await compose(
-            populateFields,
-            pluckFields
-          )(withoutLocales);
+          const result = await compose(populateFields, pluckFields)(withoutLocales);
           cb(null, result); // Error-first callback
         });
       } catch (err) {
@@ -1901,10 +1871,7 @@ function flamelink(conf = {}) {
         parentProperty: 'parentIndex'
       });
       const snapshot = await navigationAPI.getItemsRaw(navRef, options);
-      return compose(
-        pluckFields,
-        structureItems
-      )(snapshot.val());
+      return compose(pluckFields, structureItems)(snapshot.val());
     },
 
     /**

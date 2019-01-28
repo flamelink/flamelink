@@ -1393,7 +1393,7 @@ function flamelink(conf = {}) {
           options = {};
         }
 
-        const ordered = applyOrderBy(contentAPI.ref(contentRef).child(entryRef), options);
+        const ordered = applyOrderBy(contentAPI.ref([contentRef, entryRef]), options);
         const filtered = applyFilters(ordered, options);
 
         return filtered.on(options.event || 'value', cb);
@@ -1518,10 +1518,7 @@ function flamelink(conf = {}) {
         // args[0] = contentRef
         // args[1] = entryRef
         // args[2] = event
-        return contentAPI
-          .ref(args[0])
-          .child(args[1])
-          .off(args[2]);
+        return contentAPI.ref([args[0], args[1]]).off(args[2]);
       }
 
       if (args.length === 2) {
@@ -1534,10 +1531,7 @@ function flamelink(conf = {}) {
 
         // args[0] = contentRef
         // args[1] = entryRef
-        return contentAPI
-          .ref(args[0])
-          .child(args[1])
-          .off();
+        return contentAPI.ref([args[0], args[1]]).off();
       }
 
       if (args.length === 1) {
@@ -1605,10 +1599,7 @@ function flamelink(conf = {}) {
         return contentAPI.ref(contentRef).set(payload_);
       }
 
-      return contentAPI
-        .ref(contentRef)
-        .child(entryRef)
-        .set(payload_);
+      return contentAPI.ref([contentRef, entryRef]).set(payload_);
     },
 
     /**
@@ -1677,10 +1668,7 @@ function flamelink(conf = {}) {
         return contentAPI.ref(contentRef).update(payload_);
       }
 
-      return contentAPI
-        .ref(contentRef)
-        .child(entryRef)
-        .update(payload_);
+      return contentAPI.ref([contentRef, entryRef]).update(payload_);
     },
 
     /**
@@ -1698,10 +1686,7 @@ function flamelink(conf = {}) {
       if (typeof contentRef !== 'string' || typeof entryRef !== 'string') {
         throw error('"remove" called with the incorrect arguments. Check the docs for details.');
       }
-      return contentAPI
-        .ref(contentRef)
-        .child(entryRef)
-        .remove();
+      return contentAPI.ref([contentRef, entryRef]).remove();
     },
 
     /**
@@ -1729,10 +1714,7 @@ function flamelink(conf = {}) {
         );
       }
 
-      return contentAPI
-        .ref(contentRef)
-        .child(entryRef)
-        .transaction(updateFn, cb);
+      return contentAPI.ref([contentRef, entryRef]).transaction(updateFn, cb);
     }
   };
 

@@ -104,7 +104,7 @@ describe('Flamelink SDK', () => {
       expect(flamelink(basicConfig).content.ref).toEqual(expect.any(Function));
     });
 
-    xdescribe('"get" Method', () => {
+    describe('"get" Method', () => {
       describe('for all entries of a given content type', () => {
         test('should be exposed on the "content" object', () => {
           const ref = 'get-ref';
@@ -175,7 +175,7 @@ describe('Flamelink SDK', () => {
           const entryRef = 'random-non-existing-ref';
           return expect(
             flamelink(basicConfig).content.get(contentRef, entryRef, { event: 'child_added' })
-          ).resolves.toEqual('"once" called with event: "child_added"');
+          ).resolves.toEqual({ test: '"once" called with event: "child_added"' });
         });
 
         test('should respect the "fields" option', () => {
@@ -529,7 +529,7 @@ describe('Flamelink SDK', () => {
       const ref = 'choccie';
       const entryRef = 'choccie';
       return expect(flamelink(basicConfig).content.remove(ref, entryRef)).resolves.toEqual(
-        `"remove" called for "/flamelink/environments/production/content/${ref}/en-US"`
+        `"remove" called for "/flamelink/environments/production/content/${ref}/en-US/choccie"`
       );
     });
 

@@ -60,7 +60,15 @@ export const getContentRefPath = (
   ref = missingRefParam(),
   env = missingRefParam(),
   locale = missingRefParam()
-) => `/flamelink/environments/${env}/content/${ref ? `${ref}/${locale}` : ''}`;
+) => {
+  if (isArray(ref)) {
+    return `/flamelink/environments/${env}/content/${ref[0]
+      ? `${ref[0]}/${locale}${ref[1] ? `/${ref[1]}` : ''}`
+      : ''}`;
+  }
+
+  return `/flamelink/environments/${env}/content/${ref ? `${ref}/${locale}` : ''}`;
+};
 
 export const getNavigationRefPath = (
   ref = missingRefParam(),
@@ -305,10 +313,7 @@ export const populateEntry = curry(
                       [innerEntryKey]: Object.assign({}, fileObject, { url: fileURL })
                     };
 
-                    const result = await compose(
-                      populateFields,
-                      pluckFields
-                    )(wrapValue);
+                    const result = await compose(populateFields, pluckFields)(wrapValue);
                     return result[innerEntryKey];
                   })
                 );
@@ -343,10 +348,7 @@ export const populateEntry = curry(
                     );
                     const wrapValue = { [innerEntryKey]: snapshot.val() };
 
-                    const result = await compose(
-                      populateFields,
-                      pluckFields
-                    )(wrapValue);
+                    const result = await compose(populateFields, pluckFields)(wrapValue);
                     return result[innerEntryKey];
                   })
                 );

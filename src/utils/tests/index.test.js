@@ -22,6 +22,10 @@ describe('Flamelink SDK > Utils', () => {
           `/flamelink/environments/${env}/content/${ref}/${locale}`
         );
 
+        expect(utils.getContentRefPath([ref, 'end'], env, locale)).toBe(
+          `/flamelink/environments/${env}/content/${ref}/${locale}/end`
+        );
+
         try {
           utils.getContentRefPath(ref, env);
         } catch (error) {

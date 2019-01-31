@@ -1,5 +1,8 @@
 # Flamelink JavaScript SDK
 
+![NPM Version](https://img.shields.io/npm/v/flamelink/latest.svg?colorB=purple&logo=npm&style=flat-square)
+[![](https://data.jsdelivr.com/v1/package/npm/flamelink/badge)](https://www.jsdelivr.com/package/npm/flamelink)
+
 ![logo](https://raw.githubusercontent.com/flamelink/flamelink/master/docs/_assets/icon.svg?sanitize=true)
 
 > Easily integrate with your Flamelink CMS.
@@ -35,8 +38,6 @@ yarn add flamelink
 or with a `<script>` tag hosted from any of these CDN's
 
 ### jsDelivr
-
-[![](https://data.jsdelivr.com/v1/package/npm/flamelink/badge)](https://www.jsdelivr.com/package/npm/flamelink)
 
 Add the following script tag to the `<body>` of your index.html file:
 

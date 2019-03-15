@@ -161,10 +161,6 @@ declare namespace flamelink {
     storageService: firebase.storage.Storage;
     authService: firebase.auth.Auth;
     firestoreService: firebase.firestore.Firestore;
-    // setLocale(locale?: string): Promise<string>;
-    // setEnv(env?: string): Promise<string>;
-    // getLocale(): Promise<string>;
-    // getEnv(): Promise<string>;
     content: content;
     nav: nav;
     schemas: schemas;

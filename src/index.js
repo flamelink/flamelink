@@ -472,7 +472,10 @@ function flamelink(conf = {}) {
         throw error('No supported locales found.');
       }
 
-      if (!supportedLocales_.includes(locale)) {
+      if (
+        (isArray(supportedLocales_) && !supportedLocales_.includes(locale)) ||
+        (!isArray(supportedLocales_) && !keys(supportedLocales_).includes(locale))
+      ) {
         throw error(
           `"${locale}" is not a supported locale. Supported Locales: ${supportedLocales_.join(
             ', '
@@ -982,7 +985,7 @@ function flamelink(conf = {}) {
       if (!file) {
         return file;
       }
-      const { file: filename, sizes: availableFileSizes } = file || {};
+      const { file: filename, sizes: availableFileSizes } = file;
       const storageRefArgs = [filename];
 
       const getImagePathByClosestSize = minSize => {

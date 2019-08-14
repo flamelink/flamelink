@@ -44,11 +44,12 @@ export const applyFilters = (ref, opt = {}) => {
     return ref;
   }
 
-  return [...AVAILABLE_FILTER_OPTIONS].reduce((newRef, filter) => {
+  return AVAILABLE_FILTER_OPTIONS.reduce((newRef, filter) => {
     if (typeof opt[filter] === 'undefined') {
       return newRef;
     }
-    return newRef[filter](opt[filter]);
+    const args = isArray(opt[filter]) ? opt[filter] : [opt[filter]];
+    return newRef[filter](...args);
   }, ref);
 };
 

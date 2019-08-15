@@ -8,11 +8,11 @@
 
 > Easily integrate with your Flamelink CMS.
 
-_THIS PACKAGE IS IN BETA - Please report any issues!_
-
 This SDK is intended to be used in a browser or on a NodeJS server environment.
 
 If you are unfamiliar with Flamelink, please visit our [flamelink.io](https://www.flamelink.io/) website for more info on features, pricing and more.
+
+> **NOTE:** This SDK is for the Firebase Realtime Database only. If you are looking for Cloud Firestore support, please use our [new SDK](https://flamelink.github.io/flamelink-js-sdk) that supports both.
 
 ## Prerequisites
 

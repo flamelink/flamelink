@@ -1,9 +1,24 @@
 # Flamelink JavaScript SDK
 
 ![NPM Version](https://img.shields.io/npm/v/flamelink/latest.svg?colorB=purple&logo=npm&style=flat-square)
+![NPM Version](https://img.shields.io/npm/v/flamelink/next.svg?colorB=red&logo=npm&style=flat-square)
 ![NPM Downloads](https://img.shields.io/npm/dt/flamelink.svg?logo=npm&style=flat-square)
 [![](https://data.jsdelivr.com/v1/package/npm/flamelink/badge)](https://www.jsdelivr.com/package/npm/flamelink)
 
+> ## **:warning: NOTE :warning:**
+> 
+> Version 0.x.x (flamelink@latest) of the SDK </ins>only supports the Firebase Realtime Database</ins>, and is being deprecated. 
+> 
+> Please consider upgrading to the "@next" version of the SDK (flamelink@next) which supports both Cloud Firestore and the Realtime Database
+> 
+> - [Installation](https://flamelink.github.io/flamelink-js-sdk/#/getting-started)
+> - [Migration Guide](https://flamelink.github.io/flamelink-js-sdk/#/migration-guide)
+> - [Repository](https://github.com/flamelink/flamelink-js-sdk)
+> 
+> Alternatively please ensure you have specified a fixed version in your package manager file ("flamelink": "0.19.14") to avoid updating to the latest version of Flamelink on your next installation
+
+ 
+  
 ![logo](https://raw.githubusercontent.com/flamelink/flamelink/master/docs/_assets/icon.svg?sanitize=true)
 
 > Easily integrate with your Flamelink CMS.
@@ -12,7 +27,7 @@ This SDK is intended to be used in a browser or on a NodeJS server environment.
 
 If you are unfamiliar with Flamelink, please visit our [flamelink.io](https://www.flamelink.io/) website for more info on features, pricing and more.
 
-**NOTE: THIS SDK SUPPORTS THE </ins>FIREBASE REALTIME DATABASE ONTLY</ins>.**
+**NOTE: THIS SDK SUPPORTS THE </ins>FIREBASE REALTIME DATABASE ONLY</ins>.**
 
 **If you are looking for Cloud Firestore support, please use our [new SDK](https://flamelink.github.io/flamelink-js-sdk) that supports both.**
 
